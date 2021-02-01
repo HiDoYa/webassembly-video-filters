@@ -2,7 +2,6 @@ let instance;
 async function loadWasm() {
 	let wasm = await WebAssembly.instantiateStreaming(fetch("./add.wasm", { cache: 'no-cache' }));
 	instance = wasm.instance;
-	console.log(instance.exports);
 }
 
 let processor = {
@@ -42,20 +41,22 @@ let processor = {
 
 		// Modify frame
 		let frame = this.ctx1.getImageData(0, 0, this.width, this.height);
-		// 4 for color channels (RGBA)
-		let l = frame.data.length / 4;
+		let data = Array.prototype.slice.call(frame.data);
 
-		for (let i = 0; i < l; i++) {
-			frame.data[i * 4 + 0] = instance.exports.add(frame.data[i * 4 + 0], 1.5);
-			frame.data[i * 4 + 1] = instance.exports.add(frame.data[i * 4 + 1], 1.5);
-			frame.data[i * 4 + 2] = instance.exports.add(frame.data[i * 4 + 2], 1.5);
-		}
+		const cArrayPointer = instance.exports.malloc(data.length * 4);
+		const cArray = new Uint8Array(
+			instance.exports.memory.buffer,
+			cArrayPointer,
+			data.length
+		    );
+		cArray.set(data);
 
-		// TODO: How to pass array into wasm? Can Wasm and js share memory?
-		// console.log(instance.exports.bulkAdd(frame.data, 5, l));
+		instance.exports.bulkAdd(cArrayPointer, 90, cArray.length);
 
 		// Draw modified frame in context 2
+		frame.data = Object.assign(frame.data, new Uint8ClampedArray(cArray));
 		this.ctx2.putImageData(frame, 0, 0);
+		instance.exports.free(cArrayPointer, data.length * 4);
 		return;
 	}
 };
