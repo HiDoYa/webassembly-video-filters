@@ -1,6 +1,6 @@
 let instance;
 async function loadWasm() {
-	let wasm = await WebAssembly.instantiateStreaming(fetch("./add.wasm", { cache: 'no-cache' }));
+	let wasm = await WebAssembly.instantiateStreaming(fetch("./test.wasm", { cache: 'no-cache' }));
 	instance = wasm.instance;
 }
 
@@ -43,7 +43,7 @@ let processor = {
 		let frame = this.ctx1.getImageData(0, 0, this.width, this.height);
 		let data = Array.prototype.slice.call(frame.data);
 
-		const cArrayPointer = instance.exports.malloc(data.length * 4);
+		const cArrayPointer = instance.exports.custom_malloc(data.length * 4);
 		const cArray = new Uint8Array(
 			instance.exports.memory.buffer,
 			cArrayPointer,
@@ -56,7 +56,7 @@ let processor = {
 		// Draw modified frame in context 2
 		frame.data = Object.assign(frame.data, new Uint8ClampedArray(cArray));
 		this.ctx2.putImageData(frame, 0, 0);
-		instance.exports.free(cArrayPointer, data.length * 4);
+		instance.exports.custom_free(cArrayPointer, data.length * 4);
 		return;
 	}
 };

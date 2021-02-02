@@ -1,6 +1,6 @@
 // EXPORTED FNS
 int add(int a, int b) {
-	return a * a + b;
+	return a * a + b > 255 ? 255 : a * a + b;
 }
 
 void bulkAdd(char data[], int b, int length) {
@@ -15,12 +15,12 @@ void bulkAdd(char data[], int b, int length) {
 // FUNCTIONS TO COMMUNICATE B/W WASM AND JS
 extern unsigned char __heap_base;
 unsigned int bump_pointer = &__heap_base;
-void* malloc(int n) {
+void* custom_malloc(int n) {
 	unsigned int r = bump_pointer;
 	bump_pointer += n;
 	return (void *)r;
 }
-void free(void* p, int n) {
+void custom_free(void* p, int n) {
 	bump_pointer -= n;
 }
 
