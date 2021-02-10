@@ -1,6 +1,6 @@
 let instance;
 async function loadWasm() {
-	let wasm = await WebAssembly.instantiateStreaming(fetch("./test.wasm", { cache: 'no-cache' }));
+	let wasm = await WebAssembly.instantiateStreaming(fetch("./add.wasm", { cache: 'no-cache' }));
 	instance = wasm.instance;
 }
 
@@ -51,7 +51,7 @@ let processor = {
 		    );
 		cArray.set(data);
 
-		instance.exports.bulkAdd(cArrayPointer, 90, cArray.length);
+		instance.exports.get_luminance(cArrayPointer, this.width, this.height);
 
 		// Draw modified frame in context 2
 		frame.data = Object.assign(frame.data, new Uint8ClampedArray(cArray));
