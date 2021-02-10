@@ -58,5 +58,3 @@ void get_luminance(char data[], int width, int height) {
 	}
 }
 
-
-
