@@ -15,14 +15,11 @@ async function loadWasm() {
 			__table_base: 0,
 			__indirect_function_table: new WebAssembly.Table({ initial: 0, element: 'anyfunc' }),
 			__stack_pointer: new WebAssembly.Global({value:'i32', mutable:true}, 0),
-			memory: new WebAssembly.Memory({initial: 65536}),
+			memory: new WebAssembly.Memory({initial: 1}),
 			STACKTOP: 0,
 		}
 	};
-
 	gModule = await WebAssembly.instantiateStreaming(fetch('./add.wasm'), imports);
-
-	gModule.instance.exports.memory.grow(2);
 };
   
 
@@ -65,8 +62,7 @@ let processor = {
 		let frame = this.ctx1.getImageData(0, 0, this.width, this.height);
 		let data = Array.prototype.slice.call(frame.data);
 
-		const cArrayPointer = gModule.instance.exports.custom_malloc(data.length);
-	
+		const cArrayPointer = gModule.instance.exports.custom_malloc(data.length * 4);
 		const cArray = new Uint8Array(
 			gModule.instance.exports.memory.buffer,
 			cArrayPointer,
@@ -74,26 +70,14 @@ let processor = {
 		    );
 		cArray.set(data);
 
-		const cArrayPointer2 = gModule.instance.exports.custom_malloc(data.length);
-		const cArray2 = new Uint8Array(
-			gModule.instance.exports.memory.buffer,
-			cArrayPointer2,
-			data.length
-			);
-			
-		gModule.instance.exports.get_luminance(cArrayPointer, cArrayPointer2, this.width, this.height);
+		alert(gModule.instance.exports.test());
 
-		
-		//var newFrame = this.ctx2.createImageData(this.width, this.height);
+		gModule.instance.exports.get_luminance(cArrayPointer, this.width, this.height);
 
-		//newFrame.data = Object.assign(newFrame.data, new Uint8ClampedArray(cArray2));
-
-		this.ctx2.putImageData(new ImageData(new Uint8ClampedArray(cArray2), this.width, this.height), 0, 0);
-
-		gModule.instance.exports.custom_free(cArrayPointer, data.length);
-
-		gModule.instance.exports.custom_free(cArrayPointer2, data.length);
-
+		// Draw modified frame in context 2
+		frame.data = Object.assign(frame.data, new Uint8ClampedArray(cArray));
+		this.ctx2.putImageData(frame, 0, 0);
+		gModule.instance.exports.custom_free(cArrayPointer, data.length * 4);
 		return;
 	}
 };
