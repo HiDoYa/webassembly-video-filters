@@ -1,0 +1,9 @@
+Thumbs.db
+.DS_Store
+
+/out
+/test/output.*
+
+/tpp.code-workspace
+/.vscode
+/.idea
