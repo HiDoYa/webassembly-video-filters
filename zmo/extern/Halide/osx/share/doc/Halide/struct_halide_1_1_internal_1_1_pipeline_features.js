@@ -1,0 +1,57 @@
+var struct_halide_1_1_internal_1_1_pipeline_features =
+[
+    [ "OpType", "struct_halide_1_1_internal_1_1_pipeline_features.html#a24dd570f5cbc57c750aca4c0d82f418d", [
+      [ "Const", "struct_halide_1_1_internal_1_1_pipeline_features.html#a24dd570f5cbc57c750aca4c0d82f418da79ceee9f8e3c1f0cc74223e05d2448bf", null ],
+      [ "Cast", "struct_halide_1_1_internal_1_1_pipeline_features.html#a24dd570f5cbc57c750aca4c0d82f418da4cd9f3996d60790cd11c04f842ebc43c", null ],
+      [ "Variable", "struct_halide_1_1_internal_1_1_pipeline_features.html#a24dd570f5cbc57c750aca4c0d82f418da47c14840d8e15331fa420b9b2f757cd9", null ],
+      [ "Param", "struct_halide_1_1_internal_1_1_pipeline_features.html#a24dd570f5cbc57c750aca4c0d82f418dab7dccc7d9373cd4717256318909fcebe", null ],
+      [ "Add", "struct_halide_1_1_internal_1_1_pipeline_features.html#a24dd570f5cbc57c750aca4c0d82f418daec211f7c20af43e742bf2570c3cb84f9", null ],
+      [ "Sub", "struct_halide_1_1_internal_1_1_pipeline_features.html#a24dd570f5cbc57c750aca4c0d82f418dae80155eceb940c89e2de63ad05868db2", null ],
+      [ "Mod", "struct_halide_1_1_internal_1_1_pipeline_features.html#a24dd570f5cbc57c750aca4c0d82f418da7aeb0277500c86e4aa6bd23f9a737942", null ],
+      [ "Mul", "struct_halide_1_1_internal_1_1_pipeline_features.html#a24dd570f5cbc57c750aca4c0d82f418da62b6d55816cf737bfc6f42e60df1a3f2", null ],
+      [ "Div", "struct_halide_1_1_internal_1_1_pipeline_features.html#a24dd570f5cbc57c750aca4c0d82f418da43d11850893d2fe84a1e618121c1cc0a", null ],
+      [ "Min", "struct_halide_1_1_internal_1_1_pipeline_features.html#a24dd570f5cbc57c750aca4c0d82f418da78d811e98514cd165dda532286610fd2", null ],
+      [ "Max", "struct_halide_1_1_internal_1_1_pipeline_features.html#a24dd570f5cbc57c750aca4c0d82f418da6a061313d22e51e0f25b7cd4dc065233", null ],
+      [ "EQ", "struct_halide_1_1_internal_1_1_pipeline_features.html#a24dd570f5cbc57c750aca4c0d82f418da2dcbad7477fd40561e8b8198f173bd47", null ],
+      [ "NE", "struct_halide_1_1_internal_1_1_pipeline_features.html#a24dd570f5cbc57c750aca4c0d82f418dadc33066c3993e0d50896e533fd692ce0", null ],
+      [ "LT", "struct_halide_1_1_internal_1_1_pipeline_features.html#a24dd570f5cbc57c750aca4c0d82f418dac562607189d77eb9dfb707464c1e7b0b", null ],
+      [ "LE", "struct_halide_1_1_internal_1_1_pipeline_features.html#a24dd570f5cbc57c750aca4c0d82f418dacfe6055d2e0503be378bb63449ec7ba6", null ],
+      [ "And", "struct_halide_1_1_internal_1_1_pipeline_features.html#a24dd570f5cbc57c750aca4c0d82f418dac33315685a0cba3ce53be378b3c7874b", null ],
+      [ "Or", "struct_halide_1_1_internal_1_1_pipeline_features.html#a24dd570f5cbc57c750aca4c0d82f418da3a2d5fe857d8f9541136a124c2edec6c", null ],
+      [ "Not", "struct_halide_1_1_internal_1_1_pipeline_features.html#a24dd570f5cbc57c750aca4c0d82f418daa74c05d080620f087c4e523977230666", null ],
+      [ "Select", "struct_halide_1_1_internal_1_1_pipeline_features.html#a24dd570f5cbc57c750aca4c0d82f418dae0626222614bdee31951d84c64e5e9ff", null ],
+      [ "ImageCall", "struct_halide_1_1_internal_1_1_pipeline_features.html#a24dd570f5cbc57c750aca4c0d82f418da2edd9f3384aafda53489c77c8f145707", null ],
+      [ "FuncCall", "struct_halide_1_1_internal_1_1_pipeline_features.html#a24dd570f5cbc57c750aca4c0d82f418dad6a38b57a0036d6aee4d17caae7dab6d", null ],
+      [ "SelfCall", "struct_halide_1_1_internal_1_1_pipeline_features.html#a24dd570f5cbc57c750aca4c0d82f418da83f17712876c36b06a5aafec2661b2e5", null ],
+      [ "ExternCall", "struct_halide_1_1_internal_1_1_pipeline_features.html#a24dd570f5cbc57c750aca4c0d82f418da150fa4550044e5a39cda4d0524d866c3", null ],
+      [ "Let", "struct_halide_1_1_internal_1_1_pipeline_features.html#a24dd570f5cbc57c750aca4c0d82f418dacae6404c4aecf46684930fe2a86676a6", null ],
+      [ "NumOpTypes", "struct_halide_1_1_internal_1_1_pipeline_features.html#a24dd570f5cbc57c750aca4c0d82f418da139afe5ea0809a05b424163e0354a164", null ]
+    ] ],
+    [ "ScalarType", "struct_halide_1_1_internal_1_1_pipeline_features.html#afcad8a71f7f7b804670b8edca7d8ae50", [
+      [ "Bool", "struct_halide_1_1_internal_1_1_pipeline_features.html#afcad8a71f7f7b804670b8edca7d8ae50ac26f15e86e3de4c398a8273272aba034", null ],
+      [ "UInt8", "struct_halide_1_1_internal_1_1_pipeline_features.html#afcad8a71f7f7b804670b8edca7d8ae50ab31df9c476d20e85ff898121efe11b5a", null ],
+      [ "UInt16", "struct_halide_1_1_internal_1_1_pipeline_features.html#afcad8a71f7f7b804670b8edca7d8ae50a8bd950a9d7779b83f5c30046c9aaf1cf", null ],
+      [ "UInt32", "struct_halide_1_1_internal_1_1_pipeline_features.html#afcad8a71f7f7b804670b8edca7d8ae50ae7956ed7be1c5025a27ed3cb42a396bd", null ],
+      [ "UInt64", "struct_halide_1_1_internal_1_1_pipeline_features.html#afcad8a71f7f7b804670b8edca7d8ae50aaf71234725f0470ccf993e263a8b820a", null ],
+      [ "Float", "struct_halide_1_1_internal_1_1_pipeline_features.html#afcad8a71f7f7b804670b8edca7d8ae50a22ae0e2b89e5e3d477f988cc36d3272b", null ],
+      [ "Double", "struct_halide_1_1_internal_1_1_pipeline_features.html#afcad8a71f7f7b804670b8edca7d8ae50ad909d38d705ce75386dd86e611a82f5b", null ],
+      [ "NumScalarTypes", "struct_halide_1_1_internal_1_1_pipeline_features.html#afcad8a71f7f7b804670b8edca7d8ae50a9f584a1ed59ef2ae1da57ed3eb6c2ec1", null ]
+    ] ],
+    [ "AccessType", "struct_halide_1_1_internal_1_1_pipeline_features.html#adaa87ad3f6bc6304773b00e5b5be438c", [
+      [ "LoadFunc", "struct_halide_1_1_internal_1_1_pipeline_features.html#adaa87ad3f6bc6304773b00e5b5be438cac28eb804c1bb6de33ee8510cd5a5452f", null ],
+      [ "LoadSelf", "struct_halide_1_1_internal_1_1_pipeline_features.html#adaa87ad3f6bc6304773b00e5b5be438ca9d797166a1996fc6429bda99420eb1cf", null ],
+      [ "LoadImage", "struct_halide_1_1_internal_1_1_pipeline_features.html#adaa87ad3f6bc6304773b00e5b5be438ca269278f4403891cc893bf77acb12759b", null ],
+      [ "Store", "struct_halide_1_1_internal_1_1_pipeline_features.html#adaa87ad3f6bc6304773b00e5b5be438cafdb0c388de01d545017cdf9ccf00eb72", null ],
+      [ "NumAccessTypes", "struct_halide_1_1_internal_1_1_pipeline_features.html#adaa87ad3f6bc6304773b00e5b5be438caf48bc18cc087ea1ceeab29e93ede07af", null ]
+    ] ],
+    [ "operator[]", "struct_halide_1_1_internal_1_1_pipeline_features.html#aee04ec2606950da3034119bb072b4fae", null ],
+    [ "operator[]", "struct_halide_1_1_internal_1_1_pipeline_features.html#abf233ef07a1da0aef0fa58094a9f6fc3", null ],
+    [ "dump", "struct_halide_1_1_internal_1_1_pipeline_features.html#abb7c3c20e2a2966cdc2192c67c1ed2d5", null ],
+    [ "dump", "struct_halide_1_1_internal_1_1_pipeline_features.html#ac42340c1b998eed641c4785cab5e48a8", null ],
+    [ "types_in_use", "struct_halide_1_1_internal_1_1_pipeline_features.html#a9ed0d48264f07cc7a5091d4b44307fed", null ],
+    [ "op_histogram", "struct_halide_1_1_internal_1_1_pipeline_features.html#a1a8260e5e7bf147b65a7270f00522ab3", null ],
+    [ "pointwise_accesses", "struct_halide_1_1_internal_1_1_pipeline_features.html#a457fde80f37801d6a8c2bb1e8ed4374f", null ],
+    [ "transpose_accesses", "struct_halide_1_1_internal_1_1_pipeline_features.html#ad092fef20838bda62249ffad25e07d95", null ],
+    [ "broadcast_accesses", "struct_halide_1_1_internal_1_1_pipeline_features.html#a19db1bb22a687587a7f9bcc76530cd3a", null ],
+    [ "slice_accesses", "struct_halide_1_1_internal_1_1_pipeline_features.html#ad7e517fb1d5fe72fcd81aefbca787ae8", null ]
+];
