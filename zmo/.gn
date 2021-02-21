@@ -1,0 +1,7 @@
+
+default_args =
+{
+    is_debug = true
+}
+
+buildconfig = "//build/BUILDCONFIG.gn"

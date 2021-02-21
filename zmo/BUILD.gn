@@ -1,0 +1,476 @@
+
+declare_args()
+{
+    video_data_types = [ "uint8", "uint16", "float32" ]
+
+    video_integer_data_types = [ "uint8", "uint16" ]
+
+    audio_data_types = [ "int16", "int32", "float32" ]
+}
+
+#
+#   Place all generator source files here.
+#   All generators are compiled into a single exe
+#   The exe then generates the hundreds of object files.
+#
+
+generator_sources =
+[
+    "//src/generator/scope.cpp",
+]
+
+#
+#   Place all library source files here.
+#
+
+library_sources =
+[
+    "//src/types.cpp",
+
+    "//src/scope.cpp",
+]
+
+#
+#   Library header files.
+#   These get copied to $root_out_dir/distrib/include
+#
+
+header_files =
+[
+    "//src/types.h",
+
+    "//src/scope.h",
+]
+
+#
+#   Initialize os target and features
+#
+
+if (is_windows)
+{
+    halide_distrib = "//extern/Halide/windows/x64"
+}
+
+if (is_mac)
+{
+    halide_distrib = "//extern/Halide/osx"
+}
+
+if (is_linux)
+{
+    halide_distrib = "//extern/Halide/linux"
+}
+
+target = "wasm-32-wasmrt"
+
+cpu_features = [  ]
+
+
+features = [ "cpu"]
+
+#
+#   Generator
+#
+
+generator_deps = []
+
+if (is_windows)
+{
+    generator_deps += [ "$halide_distrib/bin/Release/Halide.dll" ]
+}
+
+if (is_mac)
+{
+    generator_deps += 
+    [ 
+        "$halide_distrib/lib/libHalide.12.0.0.dylib",
+        "$halide_distrib/lib/libHalide.12.dylib",
+        "$halide_distrib/lib/libHalide.dylib" 
+    ]
+}
+
+generator = "$root_gen_dir/bin/generator"
+
+executable ("generator")
+{
+    output_name = "generator"
+    output_dir = get_path_info (generator, "dir")
+
+    include_dirs = [ "$halide_distrib/include" ]
+
+    sources = [ "$halide_distrib/share/Halide/tools/GenGen.cpp" ]
+
+    sources += generator_sources
+
+    if (is_windows)
+    {
+        lib_dirs = [ "$halide_distrib/lib/Release" ]
+
+        libs = [ "Halide.lib" ]
+
+        deps = [ ":copy_generator_deps" ]
+    }
+
+    if (is_mac)
+    {
+        lib_dirs = [ "$halide_distrib/lib" ]
+
+        libs =
+        [
+            "$halide_distrib/lib/libHalide.dylib",
+            "pthread",
+            "dl",
+            "z",
+            "curses"
+        ]
+
+        ldflags = [ "-Wl,-rpath,@executable_path/."]
+
+        deps = [ ":copy_generator_deps" ]
+    }
+
+    if (is_linux)
+    {
+        lib_dirs = [ "$halide_distrib/lib" ]
+
+        libs =
+        [
+            "$halide_distrib/lib/libHalide.a",
+            "pthread",
+            "dl",
+            "z",
+        ]
+    }
+}
+
+#
+#   Creates the output directory for the generated objects and headers.
+#
+
+action ("make_gen_dirs")
+{
+    script = "//build/scripts/makedirs.py"
+
+    args = [ rebase_path ("$root_gen_dir/obj/$target") ]
+
+    outputs = [ "$root_gen_dir/obj/$target" ]
+}
+
+#
+#   Template for compiling all generator module variations
+#
+
+template ("generator_module")
+{
+    #   forward all variants from the invoker's scope
+
+    forward_variables_from (invoker, "*")
+
+    #   Ensure output_pattern has been defined
+
+    assert (defined (output_pattern), "Need output_pattern in $target_name to uniquely identify generated outputs.")
+
+    #   Ensure data_types has been defined
+
+    assert (defined (data_types), "Need data_types array in $target_name listing the types to generate.")
+
+    #   Ensure features has been defined
+
+    assert (defined (features), "Need features array in $target_name listing the features to generate.")
+
+    #   initialize variants if not defined
+
+    if (defined (variants) == false)
+    {
+        variants = []
+    }
+
+    action (target_name)
+    {
+        inputs = [ "//build/scripts/permute.py"]
+
+        script = "//build/scripts/run.py"
+
+        deps = [ ":generator", ":make_gen_dirs" ]
+
+        output_args = variants
+
+        output_args +=
+        [
+            "feature=$features",
+            "data_type=$data_types",
+            "$root_gen_dir/obj/$target/$output_pattern"
+        ]
+
+        output_files = exec_script ("//build/scripts/permute.py", output_args, "list lines")
+
+        #   update header files
+
+        outputs = []
+
+        foreach (file, output_files)
+        {
+            outputs += [ file + ".h" ]
+        }
+
+        gen_obj = rebase_path ("$root_gen_dir/obj")
+
+        if (defined (generator_name) == false)
+        {
+            generator_name = target_name
+        }
+
+        if (defined (emit_args) == false)
+        {
+            emit_args = "c_header,object"
+        }
+
+        pattern_string = ""
+
+        if (defined (generator_params) == true)
+        {
+            foreach (pattern, generator_params)
+            {
+                pattern_string += pattern + " "
+            }
+        }
+
+        output_files = []
+
+        args = []
+
+        foreach (feature, features)
+        {
+            op = output_pattern
+
+            target_string = "$target-$feature-no_runtime-user_context-no_asserts-no_bounds_query"
+
+            if (feature == "cpu")
+            {
+                #   get the number of cpu features
+
+                feature_count = 0
+
+                if (defined (cpu_features))
+                {
+                    foreach (cpu_feature, cpu_features)
+                    {
+                        feature_count += 1
+                    }
+                }
+
+                #   if the list is empty or undefined, then don't add any feature to the target_string
+
+                if (feature_count == 0)
+                {
+                    target_string = "$target-no_runtime-user_context-no_asserts-no_bounds_query"
+                }
+                else
+                {
+                    #   build target_string: combine multiple targets into a comma separated string
+
+                    targets = []
+
+                    foreach (cpu_feature, cpu_features)
+                    {
+                        targets += [ "$target-$cpu_feature-no_runtime-user_context-no_asserts-no_bounds_query" ]
+                    }
+
+                    target_string = string_join (",", targets)
+
+                    #   when there is more than 1 target, halide makes an object file for each plus a wrapper
+                    #   these files have to be added to the output_files list
+
+                    if (feature_count > 1)
+                    {
+                        #   add the feature object files to the output_files list
+
+                        cpu_feature_args = []
+
+                        cpu_feature_args = variants
+
+                        cpu_feature_args +=
+                        [
+                            "feature=[\"$feature\"]",
+                            "cpu_feature=$cpu_features",
+                            "data_type=$data_types",
+                            "$root_gen_dir/obj/$target/$output_pattern-$target-{cpu_feature}-no_runtime-user_context-no_asserts-no_bounds_query"
+                        ]
+
+                        output_files += exec_script ("//build/scripts/permute.py", cpu_feature_args, "list lines")
+
+                        #   add the wrapper object file to the output_files list
+                        #   we actually add it below, but update the output pattern
+                        #   with the "_wrapper" suffix
+
+                        op += "_wrapper"
+                    }
+                }
+            }
+
+            #   add module object file
+
+            output_args = []
+
+            output_args = variants
+
+            output_args +=
+            [
+                "feature=[\"$feature\"]",
+                "data_type=$data_types",
+                "$root_gen_dir/obj/$target/$op"
+            ]
+
+            output_files += exec_script ("//build/scripts/permute.py", output_args, "list lines")
+
+            #   build generator commands
+
+            command_args = []
+
+            command_args = variants
+
+            command_args +=
+            [
+                "feature=[\"$feature\"]",
+                "data_type=$data_types",
+                rebase_path (generator) + " -g $generator_name -e $emit_args -o $gen_obj/$target target=$target_string $pattern_string -f $output_pattern"
+            ]
+
+            args += exec_script ("//build/scripts/permute.py", command_args, "list lines")
+        }
+
+        foreach (file, output_files)
+        {
+            outputs += [ file + ".o" ]
+        }
+    }
+}
+
+#
+#   Generates runtime only object and header files.
+#
+
+action ("runtime")
+{
+    inputs = [ "//build/scripts/permute.py"]
+
+    script = "//build/scripts/run.py"
+
+    deps = [ ":generator", ":make_gen_dirs" ]
+
+    outputs = [ "$root_gen_dir/obj/$target/runtime.o" ]
+
+    gen_obj = rebase_path ("$root_gen_dir/obj")
+
+    args = [ rebase_path (generator) + " -r runtime -e c_header,object -o $gen_obj/$target target=$target-avx" ]
+}
+
+#
+#   Scope module.
+#
+
+generator_module ("scope")
+{
+    data_types = video_data_types
+
+    generator_params =
+    [
+        "input.type={data_type}"
+    ]
+
+    output_pattern = "scope_{data_type}_{feature}"
+}
+
+#
+#   ZMO library.
+#
+
+library_type = "static_library"
+
+target (library_type, "zmo")
+{
+    output_name = "zmo"
+
+    output_dir = "$root_out_dir/lib"
+
+    defines = [ "ZMO_EXPORT" ]
+
+    deps =
+    [
+        "//:runtime",
+
+        ":scope"
+    ]
+
+    cflags =
+    [
+      "--target=wasm32-unknown-unknown",
+      "-m32",
+      "--sysroot=../../extern/wasi-sysroot"
+    ]
+
+    sources = library_sources
+
+    foreach (dep, deps)
+    {
+        sources += get_target_outputs (dep)
+    }
+
+    include_dirs = [ "//$halide_distrib/include", "$root_gen_dir/obj/$target" ]
+}
+
+#
+#   Copy generator deps.
+#
+
+copy ("copy_generator_deps")
+{
+    sources = generator_deps
+
+    generator_dir = get_path_info (generator, "dir")
+
+    outputs = [ "$generator_dir/{{source_file_part}}" ]
+}
+
+#
+#   Copy headers.
+#
+
+copy ("copy_headers")
+{
+    sources = header_files
+
+    outputs = [ "$root_out_dir/distrib/include/{{source_file_part}}" ]
+}
+
+#
+#   Copy library.
+#
+
+copy ("copy_library")
+{
+    deps = [ "//:zmo" ]
+
+    sources = [ "$root_out_dir/lib/libzmo.a" ]
+
+    outputs = [ "$root_out_dir/distrib/lib/{{source_file_part}}" ]
+}
+
+group ("distrib")
+{
+    deps =
+    [
+      "//:copy_library",
+      "//:copy_headers",
+    ]
+}
+
+group ("default")
+{
+    deps = [ "//:zmo" ]
+}
+
+group ("test")
+{
+    deps = [ "//test:all" ]
+}

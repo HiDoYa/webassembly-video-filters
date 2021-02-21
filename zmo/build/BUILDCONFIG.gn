@@ -1,0 +1,130 @@
+
+
+#
+# Global Build Arguments
+#
+
+declare_args()
+{
+  # enables the address sanitizer
+  check_asan = false
+
+  # imbeds code coverage instructions
+  gen_code_coverage = false
+
+  # turns off/on optimizations
+  is_debug = true
+}
+
+#
+# Initialize Default Flags
+#
+
+if (target_os == "")
+{
+  target_os = host_os
+}
+
+if (target_cpu == "")
+{
+  target_cpu = host_cpu
+}
+
+if (current_os == "")
+{
+  current_os = target_os
+}
+
+if (current_cpu == "")
+{
+  current_cpu = target_cpu
+}
+
+#
+# Initialize Default CPU Switches
+#
+
+is_x86 = (target_cpu == "x86")
+
+is_x64 = (target_cpu == "x64")
+
+is_arm = (target_cpu == "arm64")
+
+is_wasm = (target_cpu == "wasm")
+
+if (is_wasm)
+{
+  target_os = ""
+
+  current_os = ""
+}
+
+#
+# Initialize Default OS Switches
+#
+
+is_windows = (target_os == "win")
+
+is_mac = (target_os == "mac")
+
+is_linux = (target_os == "linux")
+
+is_x86 = (target_cpu == "x86")
+
+is_x64 = (target_cpu == "x64")
+
+is_arm = (target_cpu == "arm64")
+
+if (gen_code_coverage)
+{
+  if (!is_debug)
+  {
+    print ("Warning: Code coverage is enabled, setting debug mode")
+
+    is_debug = true
+  }
+}
+
+#
+# Apply Default Configurations
+#
+
+set_defaults("executable")
+{
+  configs =
+  [
+    "//build:default_libs",
+    "//build:compiler_defaults",
+    "//build:linker_defaults",
+  ]
+}
+
+set_defaults("shared_library")
+{
+  configs =
+  [
+    "//build:default_libs",
+    "//build:compiler_defaults",
+    "//build:linker_defaults",
+    "//build:library_defaults",
+  ]
+}
+
+set_defaults("static_library")
+{
+  configs =
+  [
+    "//build:compiler_defaults",
+    "//build:library_defaults",
+  ]
+}
+
+set_defaults("source_set")
+{
+  configs =
+  [
+    "//build:compiler_defaults"
+  ]
+}
+
+set_default_toolchain("//build/toolchain:clang")
