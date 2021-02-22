@@ -28,6 +28,8 @@ library_sources =
     "//src/types.cpp",
 
     "//src/scope.cpp",
+
+    "//src/zmo.cpp",
 ]
 
 #
@@ -385,11 +387,11 @@ generator_module ("scope")
 #   ZMO library.
 #
 
-library_type = "static_library"
+library_type = "executable"
 
 target (library_type, "zmo")
 {
-    output_name = "zmo"
+    output_name = "zmo.wasm"
 
     output_dir = "$root_out_dir/lib"
 
@@ -404,9 +406,18 @@ target (library_type, "zmo")
 
     cflags =
     [
-      "--target=wasm32-unknown-unknown",
+      "--target=wasm32-unknown-wasi",
       "-m32",
       "--sysroot=../../extern/wasi-sysroot"
+    ]
+
+    ldflags =
+    [
+        "--target=wasm32-unknown-wasi",
+        "-m32",
+        "--sysroot=../../extern/wasi-sysroot",
+        "-Wl,--no-entry",
+        "-Wl,--export-all"
     ]
 
     sources = library_sources
@@ -451,9 +462,30 @@ copy ("copy_library")
 {
     deps = [ "//:zmo" ]
 
-    sources = [ "$root_out_dir/lib/libzmo.a" ]
+    sources = 
+    [ 
+        "$root_out_dir/lib/zmo.wasm",
+        "//webapp/host.py"
+    ]
 
     outputs = [ "$root_out_dir/distrib/lib/{{source_file_part}}" ]
+}
+
+#
+#   Copy webapp.
+#
+
+copy ("copy_webapp")
+{
+    sources = 
+    [ 
+        "//webapp/host.py",
+        "//webapp/index.html",
+        "//webapp/processor.js",
+        "//webapp/video.mp4",
+    ]
+
+    outputs = [ "$root_out_dir/lib/{{source_file_part}}" ]
 }
 
 group ("distrib")
@@ -467,7 +499,11 @@ group ("distrib")
 
 group ("default")
 {
-    deps = [ "//:zmo" ]
+    deps = 
+    [ 
+        "//:zmo",
+        "//:copy_webapp",
+    ]
 }
 
 group ("test")
