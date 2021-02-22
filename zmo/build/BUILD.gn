@@ -214,21 +214,6 @@ config("linker_defaults")
     ]
   }
 
-  if (is_arm)
-  {
-    ldflags += [ "-m64" ]
-  }
-
-  if (is_x64)
-  {
-    ldflags += [ "-m64" ]
-  }
-
-  if (is_x86)
-  {
-    ldflags += [ "-m32" ]
-  }
-
   if (check_asan)
   {
     ldflags += [ "-fsanitize=address" ]
