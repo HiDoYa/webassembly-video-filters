@@ -1,0 +1,11 @@
+{
+  "main": "../bundles/videogular-ngx-videogular-modulo.umd.js",
+  "module": "../fesm2015/videogular-ngx-videogular-modulo.js",
+  "es2015": "../fesm2015/videogular-ngx-videogular-modulo.js",
+  "esm2015": "../esm2015/modulo/videogular-ngx-videogular-modulo.js",
+  "fesm2015": "../fesm2015/videogular-ngx-videogular-modulo.js",
+  "typings": "videogular-ngx-videogular-modulo.d.ts",
+  "metadata": "videogular-ngx-videogular-modulo.metadata.json",
+  "sideEffects": false,
+  "name": "@videogular/ngx-videogular/modulo"
+}
