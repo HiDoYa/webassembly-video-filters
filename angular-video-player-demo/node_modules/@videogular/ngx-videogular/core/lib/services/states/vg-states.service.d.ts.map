@@ -1,0 +1,1 @@
+{"version":3,"file":"vg-states.service.d.ts","sources":["vg-states.service.d.ts"],"names":[],"mappings":";AAAA;AACA;AACA;AACA;AACA;;AACA","sourcesContent":["export declare class VgStates {\n    static VG_ENDED: string;\n    static VG_PAUSED: string;\n    static VG_PLAYING: string;\n    static VG_LOADING: string;\n}\n"]}
