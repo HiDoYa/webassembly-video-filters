@@ -1,12 +1,7 @@
 #include "types.h"
 #include "scope.h"
 
-#include "scope0_float32_cpu.h"
-#include "scope0_uint16_cpu.h"
 #include "scope0_uint8_cpu.h"
-
-#include "scope1_float32_cpu.h"
-#include "scope1_uint16_cpu.h"
 #include "scope1_uint8_cpu.h"
 
 #include "HalideRuntime.h"
@@ -86,8 +81,8 @@ template<int components, typename T> static error_t scope (const int selector, c
 		if constexpr (std::is_same_v<T, uint8_t> == true) return select_scope(selector)(nullptr, &src_buffer, &dst_buffer), Success;
 
 		// These aren't necessary for our use case
-		if constexpr (std::is_same_v<T, uint16_t> == true) return scope1_uint16_cpu (nullptr, &src_buffer, &dst_buffer), Success;
-		if constexpr (std::is_same_v<T, float> == true) return scope1_float32_cpu (nullptr, &src_buffer, &dst_buffer), Success;
+		// if constexpr (std::is_same_v<T, uint16_t> == true) return scope1_uint16_cpu (nullptr, &src_buffer, &dst_buffer), Success;
+		// if constexpr (std::is_same_v<T, float> == true) return scope1_float32_cpu (nullptr, &src_buffer, &dst_buffer), Success;
 
 		default:
 
