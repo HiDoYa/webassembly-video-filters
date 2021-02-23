@@ -172,11 +172,6 @@ toolchain("clang")
 
     outputs = [ outfile ]
 
-    if (is_windows)
-    {
-      default_output_extension = ".exe"
-    }
-
     if (is_mac)
     {
       lib_switch = "-l"
