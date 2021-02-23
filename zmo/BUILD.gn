@@ -495,13 +495,10 @@ copy ("copy_webapp")
 {
     sources = 
     [ 
-        "//webapp/host.py",
-        "//webapp/index.html",
-        "//webapp/processor.js",
-        "//webapp/video.mp4",
+        "//webapp",
     ]
 
-    outputs = [ "$root_out_dir/lib/{{source_file_part}}" ]
+    outputs = [ "$root_out_dir/lib" ]
 }
 
 group ("distrib")
