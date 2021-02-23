@@ -5,7 +5,7 @@ using namespace Halide;
 //
 //	Scope generator
 //
-class Scope : public Halide::Generator<Scope>
+class Scope0 : public Halide::Generator<Scope0>
 {
 public:
 
@@ -310,5 +310,5 @@ public:
 	}
 };
 
-HALIDE_REGISTER_GENERATOR (Scope, scope);
+HALIDE_REGISTER_GENERATOR (Scope0, scope0);
 HALIDE_REGISTER_GENERATOR (Scope1, scope1);
