@@ -21,6 +21,6 @@ extern "C" EMSCRIPTEN_KEEPALIVE void* custom_malloc(int n) {
 	bump_pointer += n;
 	return (void *)r;
 }
-extern "C"  EMSCRIPTEN_KEEPALIVE void custom_free(void* p, int n) {
+extern "C" EMSCRIPTEN_KEEPALIVE void custom_free(void* p, int n) {
 	bump_pointer -= n;
 }
