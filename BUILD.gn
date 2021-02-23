@@ -25,7 +25,7 @@ generator_sources =
 #
 
 scopes = [ 
-    "scope",
+    "scope0",
     "scope1"
 ]
 
