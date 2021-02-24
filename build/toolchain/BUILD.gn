@@ -172,11 +172,6 @@ toolchain("clang")
 
     outputs = [ outfile ]
 
-    if (is_mac)
-    {
-      lib_switch = "-l"
-    }
-
     if (is_linux)
     {
       lib_switch = "-l"
