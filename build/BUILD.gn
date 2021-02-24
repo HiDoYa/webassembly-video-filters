@@ -188,7 +188,6 @@ config("linker_defaults")
       [
       ]
     }
-
   }
 
   if (is_mac)

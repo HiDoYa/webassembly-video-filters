@@ -9,8 +9,10 @@ int main() {
 
 // get array of average luminance of each column
 extern "C" EMSCRIPTEN_KEEPALIVE void get_luminance(unsigned char data[], unsigned char data2[],int width, int height) {
+	const int selector = Telestream::ZMO::LUMASCOPE;
+
 	Telestream::ZMO::Region<int32_t> r(width,height);
-	Telestream::ZMO::Scope_u8_C4(data, width * 4, data2, width * 4, r);
+	Telestream::ZMO::Scope_u8_C4(selector, data, width * 4, data2, width * 4, r);
 }
 
 // FUNCTIONS TO COMMUNICATE B/W WASM AND JS
@@ -21,6 +23,6 @@ extern "C" EMSCRIPTEN_KEEPALIVE void* custom_malloc(int n) {
 	bump_pointer += n;
 	return (void *)r;
 }
-extern "C"  EMSCRIPTEN_KEEPALIVE void custom_free(void* p, int n) {
+extern "C" EMSCRIPTEN_KEEPALIVE void custom_free(void* p, int n) {
 	bump_pointer -= n;
 }
