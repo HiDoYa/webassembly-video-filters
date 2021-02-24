@@ -20,34 +20,20 @@ clang --target=wasm32 --no-standard-libraries -Wl,--export-all -Wl,--no-entry -o
 ```
 
 ## Compilation Process for Halide to Webassembly
-Compilation from Halide code to Webassembly requires a 2 step complation process (AOT compilation).
+Compilation from Halide code to Webassembly requires a 2 step complation process (AOT compilation) which is handled by the gn build.
 
-First, the zmo library must be compiled into a static library. Enter the zmo directory and generate build files with
+Enter the project directory and generate build files with
 ```
 gn gen out/mac
 gn gen out/win
 ```
 
-Next, run the build files usnig
+Next, run the build files using
 ```
 ninja -C out/mac
 ninja -C out/win
 ```
 
-Copy the libzmo.a static library that was created in out/{OS}/lib into the web-app directory.
-
-Then, the libzmo.a and the calling C file must be compiled into webassembly using the following command. The scope.h and types.h header files are required from the zmo library.
+The webapp and webassembly will be generated in out/{OS}/lib.
 
 If there is an error about a missing libclang\_rt.builtins-wasm32.a, the file should be copied over from zmo/extern into the correct directory.
-
-```
-clang++ --target=wasm32-unknown-wasi \
---sysroot /path/to/wasi-sysroot \
-add.cpp \
--L/path/to/header_files -lzmo \
--Wl,--no-entry -Wl,--export=custom_malloc \
--Wl,--export=test -Wl,--export=get_luminance \
--Wl,--export=custom_free \
--o add.wasm
-```
-
