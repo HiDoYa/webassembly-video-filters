@@ -30,14 +30,13 @@ public:
 		r = RDom (0, input.dim (0).extent(), 0, input.dim(1).extent());
 
 		//Value computed in RGB format, assuming R:c==0, G:c==1, B:c==2
-		Expr value = input.dim(1).extent() / 256.0f * (0.2126f*input(r.x, r.y, 0)/*R*/ + 0.7152f*input(r.x, r.y, 1)/*G*/ + 0.0722f*input(r.x, r.y, 2))/*B*/;
+		Expr value =  (0.2126f*input(r.x, r.y, 0) + 0.7152f*input(r.x, r.y, 1) + 0.0722f*input(r.x, r.y, 2));
+		Expr bucket = clamp(cast<uint8_t>(value), 0, 255);
 
-		Expr bucket = clamp(cast<uint8_t>(value), 0, 95);
-
-		output(r.x, 95-bucket, 1) += cast<uint8_t>(10);
+		output(r.x, 255-bucket, 1) += cast<uint8_t>(255/10);
 
 		output.dim(0).set_extent (input.dim(0).extent());
-		output.dim(1).set_extent (input.dim(1).extent());
+		output.dim(1).set_extent (255);
 		output.dim(2).set_extent (input.dim(2).extent());
 	}
 
