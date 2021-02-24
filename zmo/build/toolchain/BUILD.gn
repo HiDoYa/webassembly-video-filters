@@ -1,0 +1,203 @@
+
+toolchain("clang")
+{
+  tool("cc")
+  {
+    precompiled_header_type = "gcc"
+    depfile = "{{output}}.d"
+    command = "clang -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} -c {{source}} -o {{output}}"
+    depsformat = "gcc"
+    description = "CC {{output}}"
+    outputs = [ "{{source_out_dir}}/{{source_name_part}}.o" ]
+  }
+
+  tool("cxx")
+  {
+    precompiled_header_type = "gcc"
+    depfile = "{{output}}.d"
+    command = "clang++ -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} -c {{source}} -o {{output}}"
+    depsformat = "gcc"
+    description = "CXX {{output}}"
+    outputs = [ "{{source_out_dir}}/{{source_name_part}}.o" ]
+  }
+
+  if (is_mac)
+  {
+    tool("objc")
+    {
+      depfile = "{{output}}.d"
+      command = "clang -ObjC -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_objc}} -c {{source}} -o {{output}}"
+      depsformat = "gcc"
+      description = "OBJC {{output}}"
+      outputs = [ "{{source_out_dir}}/{{source_name_part}}.o" ]
+    }
+
+    tool("objcxx")
+    {
+      depfile = "{{output}}.d"
+      command = "clang++ -ObjC++ -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_objcc}} -c {{source}} -o {{output}}"
+      depsformat = "gcc"
+      description = "OBJCXX {{output}}"
+      outputs = [ "{{source_out_dir}}/{{source_name_part}}.o" ]
+    }
+  }
+
+  tool("alink")
+  {
+    outname = "{{target_output_name}}{{output_extension}}"
+
+    outfile = outname
+
+    if ("{{output_dir}}" != "")
+    {
+      outfile = "{{output_dir}}/$outfile"
+    }
+
+    description = "AR {{output}}"
+    outputs = [ outfile ]
+    output_prefix = "lib"
+
+    # Use this for {{output_dir}} expansions unless a target manually overrides
+    # it (in which case {{output_dir}} will be what the target specifies).
+
+    default_output_dir = "{{root_out_dir}}"
+
+ 
+    rspfile = "$outname.rsp"
+    rspfile_content = "{{inputs}}"
+    #command = "lld-link /lib /out:{{output}} @$rspfile"
+    command = "llvm-ar {{arflags}} {{output}} @$rspfile"
+    #command = "lib {{arflags}} /out:{{output}} @$rspfile"
+    default_output_extension = ".a"
+
+  }
+
+  tool("solink")
+  {
+    outname = "{{target_output_name}}{{output_extension}}"
+
+    outfile = outname
+
+    if ("{{output_dir}}" != "")
+    {
+      outfile = "{{output_dir}}/$outfile"
+    }
+
+    lib_switch = "-l"
+    lib_dir_switch = "-L"
+
+    description = "SOLINK $outfile"
+
+    # Use this for {{output_dir}} expansions unless a target manually overrides
+    # it (in which case {{output_dir}} will be what the target specifies).
+
+    default_output_dir = "{{root_out_dir}}"
+
+    if (is_windows)
+    {
+      rspfile = "$outname.rsp"
+
+      rspfile_content = "{{inputs}} {{solibs}} {{libs}}"
+
+      command = "clang++ -shared {{ldflags}} -o $outfile @$rspfile"
+
+      link_output = "{{target_output_name}}.lib"
+
+      if ("{{output_dir}}" != "")
+      {
+        link_output = "{{output_dir}}/$link_output"
+      }
+
+      depend_output = outfile
+      output_prefix = ""
+      default_output_extension = ".dll"
+      outputs = [ depend_output, link_output  ]
+    }
+    else
+    {
+      if (is_mac)
+      {
+        lib_switch = "-weak-l"
+
+        default_output_extension = ".dylib"
+
+        command = "clang++ -shared {{ldflags}} -o $outfile -Wl,-install_name,@rpath/$outname {{inputs}} {{solibs}} {{libs}}"
+      }
+
+      if (is_linux)
+      {
+        lib_switch = "-l"
+
+        default_output_extension = ".so"
+
+        rspfile = "$outname.rsp"
+
+        rspfile_content = "-Wl,--whole-archive {{inputs}} {{solibs}} -Wl,--no-whole-archive {{libs}}"
+
+        command = "clang++ -shared {{ldflags}} -o $outfile -Wl,-soname=$outname @$rspfile"
+      }
+
+      link_output = outfile
+      depend_output = outfile
+      output_prefix = "lib"
+      outputs = [ outfile ]
+    }
+  }
+
+  tool("link")
+  {
+    outname = "{{target_output_name}}{{output_extension}}"
+
+    outfile = outname
+
+    if ("{{output_dir}}" != "")
+    {
+      outfile = "{{output_dir}}/$outfile"
+    }
+
+    rspfile = "$outname.rsp"
+    rspfile_content = "{{inputs}}"
+
+    command = "clang++ {{ldflags}} -o $outfile @$rspfile {{solibs}} {{libs}}"
+
+    lib_switch = "-l"
+    lib_dir_switch = "-L"
+
+    description = "LINK $outfile"
+
+    # Use this for {{output_dir}} expansions unless a target manually overrides
+    # it (in which case {{output_dir}} will be what the target specifies).
+
+    default_output_dir = "{{root_out_dir}}"
+
+    outputs = [ outfile ]
+
+    if (is_linux)
+    {
+      lib_switch = "-l"
+    }
+  }
+
+  tool("stamp")
+  {
+    description = "STAMP {{output}}"
+
+    if (host_os == "win")
+    {
+      command = "cmd /C \"type nul > {{output}}\""
+    }
+    else
+    {
+      command = "touch {{output}}"
+    }
+  }
+
+  tool ("copy")
+  {
+    description = "COPY {{source}} {{output}}"
+
+    script = rebase_path ("//build/scripts/copy-file.py", root_out_dir)
+
+    command = "python $script {{source}} {{output}}"
+  }
+}

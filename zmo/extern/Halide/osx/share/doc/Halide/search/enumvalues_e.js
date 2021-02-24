@@ -1,0 +1,24 @@
+var searchData=
+[
+  ['parallel_12704',['Parallel',['../namespace_halide_1_1_internal.html#a6a8761f129e6554b9ea03de31bf066f1a98402eecfbcefc336954458a01752131',1,'Halide::Internal']]],
+  ['param_12705',['Param',['../struct_halide_1_1_internal_1_1_pipeline_features.html#a24dd570f5cbc57c750aca4c0d82f418dab7dccc7d9373cd4717256318909fcebe',1,'Halide::Internal::PipelineFeatures']]],
+  ['plainc_12706',['PlainC',['../class_halide_1_1_internal_1_1_code_gen___c.html#a2d46584095101ab992e5b49202127d4aaa6f40f146404429d53678c73d558a9ac',1,'Halide::Internal::CodeGen_C']]],
+  ['pointer_12707',['Pointer',['../structhalide__handle__cplusplus__type.html#ad45abe716942dafc7466e96337d04935ad348493086ffaf1a8a489b3cddf99805',1,'halide_handle_cplusplus_type']]],
+  ['popcount_12708',['popcount',['../struct_halide_1_1_internal_1_1_call.html#a3643a3e5cf73435e07215fca17949974a86b86a8824be3db34f70c4c2c48279d5',1,'Halide::Internal::Call']]],
+  ['power_5farch_5f2_5f07_12709',['POWER_ARCH_2_07',['../struct_halide_1_1_target.html#a9398276edd5784185e1a08f8a4dfc43faf77d9e657019773706af29b2389b75b7',1,'Halide::Target']]],
+  ['powerpc_12710',['POWERPC',['../struct_halide_1_1_target.html#af17585cfd5ec92952fd361117d89d4b1a1112c6ec7ad8f531deec9461de99f1d2',1,'Halide::Target']]],
+  ['predicate_12711',['Predicate',['../struct_halide_1_1_internal_1_1_apply_split_result.html#a1cedbee50207991145ebb44db8953acea7cf2eaabb01a4b8eb080b7fe0149e3ab',1,'Halide::Internal::ApplySplitResult']]],
+  ['prefetch_12712',['prefetch',['../struct_halide_1_1_internal_1_1_call.html#a3643a3e5cf73435e07215fca17949974a43c5568e92e2b22bde64d2a0c2d9869a',1,'Halide::Internal::Call']]],
+  ['prefetch_12713',['Prefetch',['../namespace_halide_1_1_internal.html#aee9e0b8e5376e2294d74ded8e7de9ef2a18540d940813866480eaca8d3f32d18e',1,'Halide::Internal']]],
+  ['producerconsumer_12714',['ProducerConsumer',['../namespace_halide_1_1_internal.html#aee9e0b8e5376e2294d74ded8e7de9ef2a2c20d259c8ce0541078629d15be803a0',1,'Halide::Internal']]],
+  ['profile_12715',['Profile',['../struct_halide_1_1_target.html#a9398276edd5784185e1a08f8a4dfc43faec9457be1a9efa835825706a62551cd7',1,'Halide::Target']]],
+  ['promise_5fclamped_12716',['promise_clamped',['../struct_halide_1_1_internal_1_1_call.html#a3643a3e5cf73435e07215fca17949974a5b52a3994be50c32c7036d4702ccf40c',1,'Halide::Internal::Call']]],
+  ['provide_12717',['Provide',['../namespace_halide_1_1_internal.html#aee9e0b8e5376e2294d74ded8e7de9ef2a2e5af173c7126a0e6f6bc996222386c7',1,'Halide::Internal']]],
+  ['pureextern_12718',['PureExtern',['../struct_halide_1_1_internal_1_1_call.html#a45d847325694df85e74150f770c1e393aef525060f66db455a336a8bd284a4a31',1,'Halide::Internal::Call']]],
+  ['pureintrinsic_12719',['PureIntrinsic',['../struct_halide_1_1_internal_1_1_call.html#a45d847325694df85e74150f770c1e393af5ac0d2d7b4563871f1f01446658df82',1,'Halide::Internal::Call']]],
+  ['purervar_12720',['PureRVar',['../namespace_halide_1_1_internal.html#a5b8c72fcb8800b47e313c62f5416a4fead117eadbd7c1c4d821b3a598d54d03f2',1,'Halide::Internal']]],
+  ['purevar_12721',['PureVar',['../namespace_halide_1_1_internal.html#a5b8c72fcb8800b47e313c62f5416a4feafbbbe5ac592bfdafcfa397cd609d8117',1,'Halide::Internal']]],
+  ['purifyrvar_12722',['PurifyRVar',['../struct_halide_1_1_internal_1_1_split.html#a068a93a3cd662ac53acdfa1dab4f20faa829c0d1c2640386cc24994f103f7bbce',1,'Halide::Internal::Split']]],
+  ['python_5fextension_12723',['python_extension',['../namespace_halide.html#afdb8b92dac95804211c0a875302da5f4ab0c78a2d6b974f99eb59ff3194523260',1,'Halide']]],
+  ['pytorch_5fwrapper_12724',['pytorch_wrapper',['../namespace_halide.html#afdb8b92dac95804211c0a875302da5f4ae511a3b21360f6b2149b9464c7536a75',1,'Halide']]]
+];
