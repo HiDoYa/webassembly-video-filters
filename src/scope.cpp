@@ -1,7 +1,7 @@
 #include "types.h"
 #include "scope.h"
 
-#include "scope0_uint8_cpu.h"
+#include "lumascope_uint8_cpu.h"
 #include "scope1_uint8_cpu.h"
 
 #include "HalideRuntime.h"
@@ -18,14 +18,12 @@ typedef int (*scope_func)(void const *__user_context, struct halide_buffer_t *_i
 scope_func select_scope(const int selector)
 {
 	switch (selector) {
-		case SCOPE_0:
-			return scope0_uint8_cpu;
+		case LUMASCOPE:
+			return lumascope_uint8_cpu;
 		case SCOPE_1:
 			return scope1_uint8_cpu;
-		case SCOPE_2:
-			return scope1_uint8_cpu;
 		default:
-			return scope0_uint8_cpu;
+			return lumascope_uint8_cpu;
 	}
 }
 ///

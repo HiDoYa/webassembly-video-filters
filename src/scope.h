@@ -6,7 +6,7 @@ namespace Telestream
 {
 namespace ZMO
 {
-enum SCOPES { SCOPE_0, SCOPE_1, SCOPE_2 };
+enum SCOPES { LUMASCOPE, SCOPE_1 };
 ///
 ///	@name Scope
 ///
