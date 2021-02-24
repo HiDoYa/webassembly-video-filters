@@ -1,0 +1,212 @@
+
+config("compiler_defaults")
+{
+  cflags_cc = [ "-std=c++17" ]
+
+  cflags_objcc = [ "-std=c++17" ]
+
+  cflags =
+  [
+    "-Wno-c++11-narrowing",
+    "-Werror",
+    "-Wall",
+  ]
+
+  if (is_windows)
+  {
+    cflags +=
+    [
+    ]
+
+    defines =
+    [
+    ]
+  }
+
+  if (is_mac)
+  {
+    cflags +=
+    [
+      "-fPIC",
+      "-fno-rtti",
+    ]
+
+    defines =
+    [
+    ]
+  }
+
+  if (is_linux)
+  {
+    cflags +=
+    [
+      "-fPIC",
+      "-fno-rtti",
+    ]
+
+    defines =
+    [
+    ]
+  }
+
+  # if (is_arm)
+  # {
+  #   cflags += [ "-m64" ]
+  # }
+
+  # if (is_x64)
+  # {
+  #   cflags += [ "-m64" ]
+  # }
+
+  # if (is_x86)
+  # {
+  #   cflags += [ "-m32" ]
+  # }
+
+  # debug/optimization flags
+
+  if (is_windows)
+  {
+    cflags += [ "-gcodeview" ]
+  }
+
+  if (is_debug)
+  {
+    cflags +=
+    [
+      "-g",
+      "-O0",
+    ]
+  }
+  else
+  {
+    cflags +=
+    [
+      "-O3",
+    ]
+
+    defines +=
+    [
+      "NDEBUG",
+    ]
+  }
+
+  if (check_asan)
+  {
+      cflags +=
+      [
+        "-fsanitize=address",
+      ]
+  }
+}
+
+config("default_libs")
+{
+  if (is_windows)
+  {
+    libs =
+    [
+    ]
+  }
+
+  if (is_mac)
+  {
+    libs =
+    [
+    ]
+  }
+
+  if (is_linux)
+  {
+    libs =
+    [
+    ]
+  }
+}
+
+config("library_defaults")
+{
+  if (is_windows)
+  {
+    ldflags = [ "-Wl,/dll" ]
+
+    # if (is_x64)
+    # {
+    #   arflags = [ "/machine:x64" ]
+    # }
+    # else
+    # {
+    #   arflags = [ "/machine:x86" ]
+    # }
+
+    arflags = [ "rcs" ]
+  }
+
+  if (is_mac)
+  {
+    ldflags =
+    [
+      "-dynamiclib",
+      "-Wl,-rpath,@loader_path/.",
+    ]
+
+    arflags = [ "rcs" ]
+  }
+
+  if (is_linux)
+  {
+    ldflags =
+    [
+      "-shared",
+      "-Wl,-rpath=\$ORIGIN/.",
+      "-Wl,-Bsymbolic",
+    ]
+
+    arflags = [ "rcs" ]
+  }
+
+}
+
+config("linker_defaults")
+{
+  if (is_windows)
+  {
+    ldflags =
+    [
+    ]
+
+    if (is_debug)
+    {
+      ldflags +=
+      [
+      ]
+    }
+    else
+    {
+      ldflags +=
+      [
+      ]
+    }
+
+  }
+
+  if (is_mac)
+  {
+    ldflags =
+    [
+    ]
+  }
+
+  if (is_linux)
+  {
+    ldflags =
+    [
+    ]
+  }
+
+  if (check_asan)
+  {
+    ldflags += [ "-fsanitize=address" ]
+  }
+}
