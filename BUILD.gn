@@ -20,6 +20,16 @@ generator_sources =
 ]
 
 #
+#   Place all scope names here.
+#   All scopes are defined in src/generator/scope.cpp
+#
+
+scopes = [ 
+    "lumascope",
+    "scope1"
+]
+
+#
 #   Place all library source files here.
 #
 
@@ -371,16 +381,19 @@ action ("runtime")
 #   Scope module.
 #
 
-generator_module ("scope")
+foreach (scope, scopes)
 {
-    data_types = video_data_types
+        generator_module (scope)
+        {
+            data_types = video_data_types
 
-    generator_params =
-    [
-        "input.type={data_type}"
-    ]
+            generator_params =
+            [
+                "input.type={data_type}"
+            ]
 
-    output_pattern = "scope_{data_type}_{feature}"
+            output_pattern = scope + "_{data_type}_{feature}"
+        }
 }
 
 #
@@ -401,8 +414,11 @@ target (library_type, "zmo")
     [
         "//:runtime",
 
-        ":scope"
     ]
+    foreach (scope, scopes)
+    {
+        deps += [ ":" + scope ]
+    }
 
     cflags =
     [
@@ -479,13 +495,10 @@ copy ("copy_webapp")
 {
     sources = 
     [ 
-        "//webapp/host.py",
-        "//webapp/index.html",
-        "//webapp/processor.js",
-        "//webapp/video.mp4",
+        "//webapp",
     ]
 
-    outputs = [ "$root_out_dir/lib/{{source_file_part}}" ]
+    outputs = [ "$root_out_dir/lib" ]
 }
 
 group ("distrib")

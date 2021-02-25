@@ -188,16 +188,6 @@ config("linker_defaults")
       [
       ]
     }
-
-    if (is_x64)
-    {
-      ldflags += [ "-Wl,/machine:x64" ]
-    }
-
-    if (is_x86)
-    {
-      ldflags += [ "-Wl,/machine:x86" ]
-    }
   }
 
   if (is_mac)
