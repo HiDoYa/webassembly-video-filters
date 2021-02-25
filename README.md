@@ -37,3 +37,11 @@ ninja -C out/win
 The webapp and webassembly will be generated in out/{OS}/lib.
 
 If there is an error about a missing libclang\_rt.builtins-wasm32.a, the file should be copied over from zmo/extern into the correct directory.
+
+## Adding a New Generator
+Adding a new generator is required to create a new Halide pipeline for a scope.
+* Add a new class in src/generator/scope.cpp and register the class name with HALIDE\_REGISTER\_GENERATOR at the bottom of the file. You must also specify the generator name here.
+* Edit BUILD.gn andd add the generator name of the scope in the "scopes" list.
+* Edit src/scope.h and add a new constant to the enum at the top of the header file.
+* Edit src/scope.cpp and add a new header for the generator using the generator name. Then, add the new constant in the select\_scope using the enum constant.
+* Edit src/zmo.cpp and use the enums from scope.h to select which generator you want to use.
