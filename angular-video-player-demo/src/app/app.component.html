@@ -76,16 +76,16 @@
              
             </vg-controls>
           
-            <video  #media [vgMedia]="$any(media)" [src]="this.CurrentVidSrc" preload="auto" crossorigin>
+            <video #video #media [vgMedia]="$any(media)" [src]="this.CurrentVidSrc" preload="auto" crossorigin>
             </video>
           </vg-player>
           
           </div>
           
           <div id="overlay">
-            
-            <canvas></canvas>
+            <canvas #c1 id="c1"></canvas>
           </div>
+          <canvas #c2 id="c2" ></canvas>
          <!-- <ul class="video-list">
             <li *ngFor="let video of videoIPlaylist; let i = index" (click)="startPlayer(video, i)"
               [class.selected]="video === currentVid">

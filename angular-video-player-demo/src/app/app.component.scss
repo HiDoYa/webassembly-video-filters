@@ -33,7 +33,7 @@
     transparent 3rem);//linear-gradient(to right,rgb(238, 22, 22), transparent 1rem );
    // background-position: 0 2rem;
   
-    background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+    background-color: rgba(0,0,0,0.8); /* Black background with opacity */
     position: relative;
     cursor: pointer; /* Add a pointer on hover */
   }
@@ -134,4 +134,12 @@ button{
 }
 .file-input {
   display: none;
+}
+#c2 {
+  display:none
+}
+#c1 {
+ 
+    opacity:0.5;
+
 }
