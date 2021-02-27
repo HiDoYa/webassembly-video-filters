@@ -1,6 +1,7 @@
 const { FILE } = require('dns');
 const express = require('express');
 const fileUpload = require('express-fileupload');
+
 const fs = require('fs');
 const app = express();
 
@@ -83,7 +84,9 @@ app.get('/playFile', function(req, res){
     
   
   })
-
+  app.get('/zmo.wasm', (req, res) => {
+    res.download("./zmo.wasm");
+  })
 
 app.listen(4201, function() {
   console.log("Server now listening on 4201")});
