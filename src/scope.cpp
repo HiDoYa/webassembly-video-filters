@@ -2,6 +2,7 @@
 #include "scope.h"
 
 #include "lumascope_uint8_cpu.h"
+#include "rgbparade_uint8_cpu.h"
 #include "scope1_uint8_cpu.h"
 
 #include "HalideRuntime.h"
@@ -20,8 +21,8 @@ scope_func select_scope(const int selector)
 	switch (selector) {
 		case LUMASCOPE:
 			return lumascope_uint8_cpu;
-		case SCOPE_1:
-			return scope1_uint8_cpu;
+		case RGBPARADE:
+			return rgbparade_uint8_cpu;
 		default:
 			return lumascope_uint8_cpu;
 	}
