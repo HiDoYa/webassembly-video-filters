@@ -95,11 +95,11 @@ let processor = {
 		    );
 		cArray.set(data);
 
-		const cArrayPointer2 = gModule.instance.exports.custom_malloc(this.width * 256 * 4);
+		const cArrayPointer2 = gModule.instance.exports.custom_malloc(this.width * 3 * 256 * 4);
 		const cArray2 = new Uint8Array(
 			gModule.instance.exports.memory.buffer,
 			cArrayPointer2,
-			this.width * 256 * 4
+			this.width * 3 * 256 * 4
 			);
 			
 		gModule.instance.exports.get_luminance(cArrayPointer, cArrayPointer2, this.width, this.height);
@@ -109,11 +109,11 @@ let processor = {
 
 		//newFrame.data = Object.assign(newFrame.data, new Uint8ClampedArray(cArray2));
 
-		this.ctx2.putImageData(new ImageData(new Uint8ClampedArray(cArray2), this.width, 256), 0, 0);
+		this.ctx2.putImageData(new ImageData(new Uint8ClampedArray(cArray2), this.width * 3, 256), 0, 0);
 
 		gModule.instance.exports.custom_free(cArrayPointer, data.length);
 
-		gModule.instance.exports.custom_free(cArrayPointer2, this.width * 256 * 4);
+		gModule.instance.exports.custom_free(cArrayPointer2, this.width * 3 * 256 * 4);
 
 		return;
 	}
@@ -123,4 +123,3 @@ document.addEventListener("DOMContentLoaded", () => {
 	loadWasm();
 	processor.doLoad();
 });
-
