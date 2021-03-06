@@ -1,7 +1,5 @@
 #include "types.h"
 
-namespace Telestream
-{
 namespace ZMO
 {
 
@@ -39,6 +37,5 @@ const char *GetErrorMessage (error_t err)
 
 		return "unrecognized error";
 	}
-}
 }
 }

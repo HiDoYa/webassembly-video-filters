@@ -3,15 +3,12 @@
 
 #include "lumascope_uint8_cpu.h"
 #include "rgbparade_uint8_cpu.h"
-#include "scope1_uint8_cpu.h"
 
 #include "HalideRuntime.h"
 
 #include <assert.h>
 #include <type_traits>
 
-namespace Telestream
-{
 namespace ZMO
 {
 
@@ -96,5 +93,4 @@ ZMO_EXTERNAL error_t Scope_u8_C4 (const int selector, const uint8_t *src, int32_
 	return scope<4> (selector, src, src_stride, dst, dst_stride, roi, compute, context);
 }
 
-}
 }
