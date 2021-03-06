@@ -8,8 +8,6 @@
  #define ZMO_EXTERNAL
 #endif
 
-namespace Telestream
-{
 namespace ZMO
 {
 ///
@@ -74,5 +72,4 @@ enum error_t
 ///	@return		const char*
 ///
 const char *GetErrorMessage (error_t err);
-}
 }
