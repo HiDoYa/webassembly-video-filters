@@ -87,12 +87,11 @@ let processor = {
 		let data = Array.prototype.slice.call(frame.data);
 
 		const cArrayPointer = gModule.instance.exports.custom_malloc(data.length);
-	
 		const cArray = new Uint8Array(
 			gModule.instance.exports.memory.buffer,
 			cArrayPointer,
 			data.length
-		    );
+			);
 		cArray.set(data);
 
 		const cArrayPointer2 = gModule.instance.exports.custom_malloc(this.width * 3 * 256 * 4);
@@ -102,17 +101,11 @@ let processor = {
 			this.width * 3 * 256 * 4
 			);
 			
-		gModule.instance.exports.get_luminance(cArrayPointer, cArrayPointer2, this.width, this.height);
-
-		
-		//var newFrame = this.ctx2.createImageData(this.width, this.height);
-
-		//newFrame.data = Object.assign(newFrame.data, new Uint8ClampedArray(cArray2));
+		gModule.instance.exports.rgbparade(cArrayPointer, cArrayPointer2, this.width, this.height);
 
 		this.ctx2.putImageData(new ImageData(new Uint8ClampedArray(cArray2), this.width * 3, 256), 0, 0);
 
 		gModule.instance.exports.custom_free(cArrayPointer, data.length);
-
 		gModule.instance.exports.custom_free(cArrayPointer2, this.width * 3 * 256 * 4);
 
 		return;
