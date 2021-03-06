@@ -85,8 +85,9 @@ let processor = {
 		// Modify frame
 		let frame = this.ctx1.getImageData(0, 0, this.width, this.height);
 		let data = Array.prototype.slice.call(frame.data);
+		let outputWidth = this.width * 3;
 
-		const cArrayPointer = gModule.instance.exports.custom_malloc(data.length);
+		const cArrayPointer = gModule.instance.exports.malloc(data.length);
 		const cArray = new Uint8Array(
 			gModule.instance.exports.memory.buffer,
 			cArrayPointer,
@@ -94,7 +95,7 @@ let processor = {
 			);
 		cArray.set(data);
 
-		const cArrayPointer2 = gModule.instance.exports.custom_malloc(this.width * 3 * 256 * 4);
+		const cArrayPointer2 = gModule.instance.exports.malloc(outputWidth * 256 * 4);
 		const cArray2 = new Uint8Array(
 			gModule.instance.exports.memory.buffer,
 			cArrayPointer2,
@@ -103,10 +104,10 @@ let processor = {
 			
 		gModule.instance.exports.rgbparade(cArrayPointer, cArrayPointer2, this.width, this.height);
 
-		this.ctx2.putImageData(new ImageData(new Uint8ClampedArray(cArray2), this.width * 3, 256), 0, 0);
+		this.ctx2.putImageData(new ImageData(new Uint8ClampedArray(cArray2), outputWidth, 256), 0, 0);
 
-		gModule.instance.exports.custom_free(cArrayPointer, data.length);
-		gModule.instance.exports.custom_free(cArrayPointer2, this.width * 3 * 256 * 4);
+		gModule.instance.exports.free(cArrayPointer, data.length);
+		gModule.instance.exports.free(cArrayPointer2, outputWidth * 256 * 4);
 
 		return;
 	}
