@@ -16,8 +16,11 @@ export class AppComponent {
   @ViewChild('vidcanvas') vidcanvas: ElementRef | undefined;
   @ViewChild('video') video: ElementRef | undefined;
 
-  scopes = ["Lumascope", "RGB Parade"];
-  currentScope = this.scopes[0];
+  scopes = {
+    LUMASCOPE: "Lumascope", 
+    RGBPARADE:"RGB Parade"
+  };
+  currentScope = this.scopes.LUMASCOPE;
 
   scopecanvasCtx: CanvasRenderingContext2D | undefined;
   vidcanvasCtx: CanvasRenderingContext2D | undefined;
@@ -54,6 +57,7 @@ export class AppComponent {
 
   getFileToPlay(element: any) {
     this.http.get(this.backendUrl + 'playFile?name=' + element.target.textContent, {responseType:'blob'}).subscribe(response => {
+      this.fileName = element.target.textContent;
       let videoSrc = window.URL.createObjectURL(response);
       this.currentVidSrc =  this.sanitizer.bypassSecurityTrustResourceUrl(videoSrc);
 
@@ -67,10 +71,10 @@ export class AppComponent {
     let outputWidth = width;
     let outputHeight = height;
     switch(this.currentScope) {
-      case "Lumascope":
+      case this.scopes.LUMASCOPE: 
         outputWidth = width;
         break;
-      case "RGB Parade":
+      case this.scopes.RGBPARADE: 
         outputWidth = width * 3;
         break;
       default:
@@ -240,11 +244,11 @@ export class AppComponent {
     this.allocateMemory();
 
     switch(this.currentScope) {
-      case "Lumascope":
+      case this.scopes.LUMASCOPE: 
         this.scopecanvasCtx!.canvas.width = 128;
         this.scopecanvasCtx!.canvas.height = 256;
         break;
-      case "RGB Parade":
+      case this.scopes.RGBPARADE: 
         this.scopecanvasCtx!.canvas.width = 128 * 3;
         this.scopecanvasCtx!.canvas.height = 256;
         break;
@@ -278,10 +282,10 @@ export class AppComponent {
 		this.inputArray.set(data);
       
     switch (this.currentScope) {
-      case "Lumascope": 
+      case this.scopes.LUMASCOPE: 
         this.gModule.instance.exports.lumascope(this.inputPointer, this.outputPointer, width, height);
         break;
-      case "RGB Parade": 
+      case this.scopes.RGBPARADE: 
         this.gModule.instance.exports.rgbparade(this.inputPointer, this.outputPointer, width, height);
         break;
     }

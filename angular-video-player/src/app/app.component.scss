@@ -1,8 +1,5 @@
-// NAVBAR
-.mat-sidenav {
-    position: fixed;
-}
 
+// NAVBAR
 .navbarName{
     font-size: 150%;
 }
@@ -63,8 +60,8 @@
 .title {
     text-align: center;
     margin: 1.3em;
-    font-family: Roboto, "Helvetica Neue", sans-serif;
     color: white;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
 .row-container{
@@ -110,4 +107,12 @@ canvas {
 
 #vidcanvas {
     display: none;
+}
+
+.video-label {
+    color: white;
+    text-align: center;
+    margin: 2em;
+    font-size: 1em;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
 }
