@@ -78,13 +78,15 @@
         </div>
       </div>
 
+      <div class="video-label">{{ fileName }}</div>
+
       <!-- SCOPE SELECTOR -->
       <div class="scope-selector-row">
         <mat-form-field appearance="fill">
           <mat-label class="scopeSelector">{{ currentScope }}</mat-label>
           <mat-select panelClass="scopePanels">
-            <mat-option *ngFor="let scope of scopes" (click)="changeScope(scope)">
-              {{ scope }}
+            <mat-option *ngFor="let scope of scopes | keyvalue" (click)="changeScope(scope.value)">
+              {{ scope.value }}
             </mat-option>
           </mat-select>
         </mat-form-field>
