@@ -2,11 +2,9 @@
 
 #include "types.h"
 
-namespace Telestream
-{
 namespace ZMO
 {
-enum SCOPES { LUMASCOPE, SCOPE_1 };
+enum SCOPES { LUMASCOPE, RGBPARADE };
 ///
 ///	@name Scope
 ///
@@ -37,5 +35,4 @@ ZMO_EXTERNAL error_t Scope_u8_C4 (const int selector, const uint8_t *src, int32_
 ///
 ///	@}
 ///
-}
 }
