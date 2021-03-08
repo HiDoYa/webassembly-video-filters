@@ -39,6 +39,9 @@ export class AppComponent {
   outputArray: any;
   outputPointer: any;
 
+  // Time for each computeFrame in ms
+  computeTimes: Array<number> = [];
+
   constructor(private http: HttpClient, public sanitizer: DomSanitizer, private renderer: Renderer2) {
     this.uploadSub = new Subscription;
     this.uploadProgress = 0;
@@ -56,6 +59,7 @@ export class AppComponent {
   }
 
   getFileToPlay(element: any) {
+    this.computeTimes = [];
     this.http.get(this.backendUrl + 'playFile?name=' + element.target.textContent, {responseType:'blob'}).subscribe(response => {
       this.fileName = element.target.textContent;
       let videoSrc = window.URL.createObjectURL(response);
@@ -63,6 +67,10 @@ export class AppComponent {
 
       this.allocateMemory();
     });
+  }
+
+  getAvg(array: any) {
+    return array.reduce((a: any, b: any) => a + b) / array.length;
   }
 
   getDimensions() {
@@ -233,13 +241,17 @@ export class AppComponent {
     }
 
     // Process frame
+    let t0 = performance.now()
     this.computeFrame();
+    let t1 = performance.now()
+    this.computeTimes.push(t1 - t0);
 
     // Run function again immediately
     setTimeout(() => this.timerCallback(), 0);
   }
 
   changeScope(scope: string) {
+    this.computeTimes = [];
     this.currentScope = scope;
     this.allocateMemory();
 
