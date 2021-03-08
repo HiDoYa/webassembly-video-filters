@@ -69,8 +69,12 @@ export class AppComponent {
     });
   }
 
-  getAvg(array: any) {
+  getAvg(array: Array<number>) {
     return array.reduce((a: any, b: any) => a + b) / array.length;
+  }
+
+  msToFps(num: number, precision = 5) {
+    return (1 / (num / 1000)).toPrecision(precision);
   }
 
   getDimensions() {
