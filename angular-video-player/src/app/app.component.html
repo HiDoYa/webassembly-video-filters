@@ -78,18 +78,24 @@
         </div>
       </div>
 
-      <div class="video-label">{{ fileName }}</div>
+      <div class="footer-container">
+        <div class="metadata-container">
+          <div class="metadata-title" *ngIf="fileName.length > 0">{{ fileName }}</div>
+          <div class="metadata-text" *ngIf="computeTimes.length > 0">Instantaneous: {{ (1 / (computeTimes[computeTimes.length - 1] / 1000)).toPrecision(5) }} fps</div>
+          <div class="metadata-text" *ngIf="computeTimes.length > 0">Average: {{ (1 / (getAvg(computeTimes) / 1000)).toPrecision(5) }} fps</div>
+        </div>
 
-      <!-- SCOPE SELECTOR -->
-      <div class="scope-selector-row">
-        <mat-form-field appearance="fill">
-          <mat-label class="scopeSelector">{{ currentScope }}</mat-label>
-          <mat-select panelClass="scopePanels">
-            <mat-option *ngFor="let scope of scopes | keyvalue" (click)="changeScope(scope.value)">
-              {{ scope.value }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
+        <!-- SCOPE SELECTOR -->
+        <div class="scope-selector-row">
+          <mat-form-field appearance="fill">
+            <mat-label class="scopeSelector">{{ currentScope }}</mat-label>
+            <mat-select panelClass="scopePanels">
+              <mat-option *ngFor="let scope of scopes | keyvalue" (click)="changeScope(scope.value)">
+                {{ scope.value }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
       </div>
 
     </mat-sidenav-content>

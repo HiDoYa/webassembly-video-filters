@@ -15,7 +15,7 @@
 }
 
 .mat-toolbar{
-    height: 7vh;
+    // height: 7vh;
     background-color: #5d5d5d;
 }
 
@@ -30,7 +30,6 @@
 .main {
     width: 100%;
     height: 100%;  
-    overflow: hidden;
 }
 
 .videogular-container {
@@ -109,10 +108,26 @@ canvas {
     display: none;
 }
 
-.video-label {
+.metadata-container {
+    background-color: rgb(95, 95, 95);
+    margin: 1em;
+}
+
+.metadata-title {
     color: white;
-    text-align: center;
-    margin: 2em;
+    margin: 1em;
     font-size: 1em;
     font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.metadata-text {
+    color: white;
+    margin: 1em;
+    font-size: 0.7em;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.footer-container {
+    display: flex;
+    justify-content: space-between;
 }
