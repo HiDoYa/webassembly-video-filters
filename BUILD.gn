@@ -478,10 +478,6 @@ copy ("copy_generator_deps")
 }
 
 #
-#   Copy headers.
-#
-
-#
 #   Copy webapp.
 #
 
