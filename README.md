@@ -45,3 +45,10 @@ Adding a new generator is required to create a new Halide pipeline for a scope.
 * Edit src/scope.h and add a new constant to the enum at the top of the header file.
 * Edit src/scope.cpp and add a new header for the generator using the generator name. Then, add the new constant in the select\_scope using the enum constant.
 * Edit src/zmo.cpp and use the enums from scope.h to select which generator you want to use.
+
+## Building Angular Video Player
+Navigate to the angular video player base directory and run the following:
+```
+ng build --prod
+```
+The new files can then be served from a webserver (note that zmo.wasm must be located in the assets/ directory of the output).
