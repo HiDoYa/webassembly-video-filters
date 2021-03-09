@@ -1,0 +1,97 @@
+<div class="main">
+  <!-- TOOLBAR -->
+  <mat-toolbar color="primary">
+    <div fxShow="true" >
+      <button mat-icon-button (click)="sidenav.toggle()" (click)="uploadVideos(sidenav)">
+        <mat-icon>menu</mat-icon>
+      </button>
+    </div>
+
+    <a mat-button class="navbarTitle" routerLink="/">
+      <span>Videos</span>
+    </a>
+
+    <span class="spacer"></span>
+  </mat-toolbar>
+
+  <mat-sidenav-container fxFlexFill>
+    <!-- SIDE NAV -->
+    <mat-sidenav color="primary" #sidenav fxLayout="column" mode="over" opened="false">
+      <section class = "tp-section" fxLayoutAlign="end start">
+        <input type="file" class="file-input" (change)="onFileSelected($event)" #fileUpload>
+        <button mat-icon-button (click)="fileUpload.click()">
+          <!--{{fileName || "No file uploaded yet."}}-->
+          <mat-icon>upload_file</mat-icon>
+        </button>
+        <button mat-icon-button>
+          <mat-icon>drive_folder_upload</mat-icon>
+        </button>
+      </section>
+
+      <!-- PROGRESS BAR -->
+      <div class="progress">
+        <mat-progress-bar class="progress-bar" mode="determinate" [value]="uploadProgress" *ngIf="uploadProgress"></mat-progress-bar>
+      </div>
+
+      <div #files fxLayout="column" >
+      </div>
+    </mat-sidenav>
+
+    <!-- MAIN PAGE -->
+    <mat-sidenav-content fxFlexFill>
+      <h1 class="title">Webassembly Video Scope</h1>
+
+      <!-- VIDEO PLAYER -->
+      <div class="row-container">
+        <div class="videogular-container">
+          <vg-player (onPlayerReady)="invokePlay($event)" (change)="invokePlay($event)">
+            <vg-overlay-play></vg-overlay-play>
+            <vg-buffering></vg-buffering>
+
+            <vg-scrub-bar>
+              <vg-scrub-bar-current-time></vg-scrub-bar-current-time>
+              <vg-scrub-bar-buffering-time></vg-scrub-bar-buffering-time>
+            </vg-scrub-bar>
+
+            <vg-controls>
+              <vg-play-pause></vg-play-pause>
+              <vg-playback-button></vg-playback-button>
+              <vg-time-display vgProperty="current" vgFormat="mm:ss"></vg-time-display>
+              <vg-scrub-bar style="pointer-events: none;"></vg-scrub-bar>
+              <vg-time-display vgProperty="total" vgFormat="mm:ss"></vg-time-display>
+              <vg-mute vgProperty="right" ></vg-mute>
+              <vg-volume vgProperty="right" ></vg-volume>
+              <vg-fullscreen vgProperty="right"></vg-fullscreen>
+            </vg-controls>
+
+            <video #video #media [vgMedia]="$any(media)" [src]="this.currentVidSrc" preload="auto" crossorigin></video>
+          </vg-player>
+        </div>
+
+        <!-- VIDEO SCOPE -->
+        <div class="scope-container">
+          <div id="overlay">
+            <canvas #scopecanvas id="scopecanvas" width="128" height="256"></canvas>
+          </div>
+  
+          <canvas #vidcanvas id="vidcanvas" width="128" height="256"></canvas>
+        </div>
+      </div>
+
+      <div class="video-label">{{ fileName }}</div>
+
+      <!-- SCOPE SELECTOR -->
+      <div class="scope-selector-row">
+        <mat-form-field appearance="fill">
+          <mat-label class="scopeSelector">{{ currentScope }}</mat-label>
+          <mat-select panelClass="scopePanels">
+            <mat-option *ngFor="let scope of scopes | keyvalue" (click)="changeScope(scope.value)">
+              {{ scope.value }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>

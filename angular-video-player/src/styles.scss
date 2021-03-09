@@ -1,0 +1,29 @@
+/* You can add global styles to this file, and also import other style files */
+@import "~@angular/material/prebuilt-themes/indigo-pink.css";
+html, body{
+    height: 100%;
+    width: 100%;
+    margin: 0;
+}
+
+// OVERRIDING MATERIALS THEME
+.mat-sidenav {
+    position: fixed;
+    min-width: 15em;
+}
+
+.scopeSelector {
+    color: white;
+}
+
+.mat-form-field-flex {
+    background-color: gray !important;
+}
+
+.scopePanels {
+    background: rgba(0, 0, 25, 0.8) !important;
+}
+
+.mat-option-text {
+    color: white;
+}
