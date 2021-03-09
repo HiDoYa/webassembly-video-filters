@@ -88,11 +88,13 @@
         <!-- SCOPE SELECTOR -->
         <div class="scope-selector-row">
           <mat-form-field appearance="fill">
-            <mat-label class="scopeSelector">{{ currentScope }}</mat-label>
+            <mat-label class="scopeSelector">{{ currentScope.name }}</mat-label>
             <mat-select panelClass="scopePanels">
-              <mat-option *ngFor="let scope of scopes | keyvalue" (click)="changeScope(scope.value)">
-                {{ scope.value }}
-              </mat-option>
+              <div *ngIf="scopes">
+                <mat-option  *ngFor="let scope of scopes | keyvalue" (click)="changeScope(scope.value)">
+                  {{ getName(scope.value) }}
+                </mat-option>
+              </div>
             </mat-select>
           </mat-form-field>
         </div>

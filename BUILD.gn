@@ -39,7 +39,9 @@ library_sources =
 
     "//src/scope.cpp",
 
-    "//src/zmo.cpp",
+    "//src/halide_zmo.cpp",
+
+    "//src/cpp_zmo.cpp",
 ]
 
 #
