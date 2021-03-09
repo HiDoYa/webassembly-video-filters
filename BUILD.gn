@@ -170,6 +170,23 @@ action ("make_gen_dirs")
     outputs = [ "$root_gen_dir/obj/$target" ]
 }
 
+action ("ng_build")
+{
+    script = "//build/scripts/run.py"
+
+    angular_path = "//angular-video-player"
+
+    args =
+    [ 
+        "npm run build --prod --prefix " + 
+        rebase_path("$angular_path") + 
+        " -- --output-path=" + 
+        rebase_path("$root_out_dir/webapp")
+    ]
+
+    outputs = [ "$root_out_dir/webapp" ]
+}
+
 #
 #   Template for compiling all generator module variations
 #
@@ -408,14 +425,13 @@ target (library_type, "zmo")
 {
     output_name = "zmo.wasm"
 
-    output_dir = "$root_out_dir/lib"
+    output_dir = "$root_out_dir/lib/assets"
 
     defines = [ "ZMO_EXPORT" ]
 
     deps =
     [
         "//:runtime",
-
     ]
     foreach (scope, scopes)
     {
@@ -465,51 +481,33 @@ copy ("copy_generator_deps")
 #   Copy headers.
 #
 
-copy ("copy_headers")
-{
-    sources = header_files
-
-    outputs = [ "$root_out_dir/distrib/include/{{source_file_part}}" ]
-}
-
-#
-#   Copy library.
-#
-
-copy ("copy_library")
-{
-    deps = [ "//:zmo" ]
-
-    sources = 
-    [ 
-        "$root_out_dir/lib/zmo.wasm",
-        "//webapp/host.py"
-    ]
-
-    outputs = [ "$root_out_dir/distrib/lib/{{source_file_part}}" ]
-}
-
 #
 #   Copy webapp.
 #
 
 copy ("copy_webapp")
 {
+    deps = [ ":ng_build" ]
+
     sources = 
     [ 
-        "//webapp",
+        "$root_out_dir/webapp",
     ]
 
     outputs = [ "$root_out_dir/lib" ]
 }
 
-group ("distrib")
+
+copy ("copy_host")
 {
-    deps =
-    [
-      "//:copy_library",
-      "//:copy_headers",
+    deps = [ ":copy_webapp" ]
+
+    sources = 
+    [ 
+        "//src/host.py"
     ]
+
+    outputs = [ "$root_out_dir/lib/host.py" ]
 }
 
 group ("default")
@@ -517,11 +515,7 @@ group ("default")
     deps = 
     [ 
         "//:zmo",
-        "//:copy_webapp",
+        "//:copy_host",
     ]
 }
 
-group ("test")
-{
-    deps = [ "//test:all" ]
-}
