@@ -26,7 +26,8 @@ generator_sources =
 
 scopes = [ 
     "lumascope",
-    "rgbparade"
+    "rgbparade",
+    "vectorscope"
 ]
 
 #

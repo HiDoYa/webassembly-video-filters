@@ -85,7 +85,7 @@ let processor = {
 		// Modify frame
 		let frame = this.ctx1.getImageData(0, 0, this.width, this.height);
 		let data = Array.prototype.slice.call(frame.data);
-		let outputWidth = this.width * 3;
+		let outputWidth = 256;
 
 		const cArrayPointer = gModule.instance.exports.malloc(data.length);
 		const cArray = new Uint8Array(
@@ -99,7 +99,7 @@ let processor = {
 		const cArray2 = new Uint8Array(
 			gModule.instance.exports.memory.buffer,
 			cArrayPointer2,
-			this.width * 3 * 256 * 4
+			256 * 256 * 4
 			);
 			
 		gModule.instance.exports.rgbparade(cArrayPointer, cArrayPointer2, this.width, this.height);
