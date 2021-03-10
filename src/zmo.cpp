@@ -16,3 +16,9 @@ extern "C" KEEPALIVE void rgbparade(unsigned char data[], unsigned char data2[],
 	ZMO::Scope_u8_C4(selector, data, width * 4, data2, width * 4 * 3, r);
 }
 
+extern "C" KEEPALIVE void vectorscope(unsigned char data[], unsigned char data2[], int width, int height) {
+	const int selector = ZMO::RGBPARADE;
+	ZMO::Region<int32_t> r(width,height);
+	ZMO::Scope_u8_C4(selector, data, width * 4, data2, 256 * 3, r);
+}
+
