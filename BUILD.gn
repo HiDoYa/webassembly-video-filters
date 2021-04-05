@@ -506,12 +506,26 @@ copy ("copy_host")
     outputs = [ "$root_out_dir/lib/host.py" ]
 }
 
+action ("clean_webapp")
+{
+    deps = [ ":copy_host" ]
+
+    script = "//build/scripts/run.py"
+
+    args =
+    [ 
+        "rm " + rebase_path("$root_out_dir/lib/assets/zmo.wasm")
+    ]
+
+    outputs = [ "$root_out_dir/lib/assets" ]
+}
+
 group ("default")
 {
     deps = 
     [ 
+        "//:clean_webapp",
         "//:zmo",
-        "//:copy_host",
     ]
 }
 
