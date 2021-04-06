@@ -7,12 +7,10 @@ import { Observable, Subscription } from 'rxjs';
 class ScopeDescriptor {
   name: string = '';
   func: any;
-  isC: boolean = false;
 
-  constructor(name: string, func: any, isC: boolean = false) {
+  constructor(name: string, func: any) {
     this.name = name;
     this.func= func;
-    this.isC = isC;
   }
 }
 
@@ -191,6 +189,7 @@ export class AppComponent {
     };
 
     await WebAssembly.instantiateStreaming(fetch('assets/zmo.wasm'), imports).then((obj: any) => {
+      console.log(obj);
       this.gModule = obj;
       this.gModule.instance.exports.memory.grow(15);
 
@@ -199,9 +198,9 @@ export class AppComponent {
         LUMASCOPE: new ScopeDescriptor("Lumascope", this.gModule.instance.exports.lumascope),
         RGB_PARADE: new ScopeDescriptor("RGB Parade", this.gModule.instance.exports.rgbparade),
         // TODO: Causes mem access err
-        CPP_LUMASCOPE: new ScopeDescriptor("C++ Lumascope", this.gModule.instance.exports.cpp_lumascope, true),
-        CPP_COLOR_LUMASCOPE: new ScopeDescriptor("C++ Color Lumascope", this.gModule.instance.exports.cpp_color_lumascope, true),
-        CPP_RGB_PARADE: new ScopeDescriptor("C++ RGB Parade", this.gModule.instance.exports.cpp_rgb_parade, true),
+        CPP_LUMASCOPE: new ScopeDescriptor("C++ Lumascope", this.gModule.instance.exports.cpp_lumascope),
+        CPP_COLOR_LUMASCOPE: new ScopeDescriptor("C++ Color Lumascope", this.gModule.instance.exports.cpp_color_lumascope),
+        CPP_RGB_PARADE: new ScopeDescriptor("C++ RGB Parade", this.gModule.instance.exports.cpp_rgb_parade),
       };
       this.currentScope = this.scopes.LUMASCOPE!;
     });
@@ -242,17 +241,12 @@ export class AppComponent {
       width * height * 4
     );
 
-    if (!this.currentScope.isC) {
-      this.outputPointer = this.gModule.instance.exports.malloc(outputWidth * outputHeight * 4);
-      this.outputArray = new Uint8Array(
-        this.gModule.instance.exports.memory.buffer,
-        this.outputPointer,
-        outputWidth * outputHeight * 4
-      );
-    } else {
-      this.outputPointer = null;
-      this.outputArray = null;
-    }
+    this.outputPointer = this.gModule.instance.exports.malloc(outputWidth * outputHeight * 4);
+    this.outputArray = new Uint8Array(
+      this.gModule.instance.exports.memory.buffer,
+      this.outputPointer,
+      outputWidth * outputHeight * 4
+    );
   }
 
   getDimensions() {
@@ -309,13 +303,8 @@ export class AppComponent {
 		let data = Array.prototype.slice.call(frame?.data);
 		this.inputArray.set(data);
       
-    if (this.currentScope.isC) {
-      this.currentScope.func(this.inputPointer, width, height);
-      this.scopecanvasCtx?.putImageData(new ImageData(new Uint8ClampedArray(this.inputArray), width, height), 0, 0);
-    } else {
-      this.currentScope.func(this.inputPointer, this.outputPointer, width, height);
-      this.scopecanvasCtx?.putImageData(new ImageData(new Uint8ClampedArray(this.outputArray), outputWidth, outputHeight), 0, 0);
-    }
+    this.currentScope.func(this.inputPointer, this.outputPointer, width, height);
+    this.scopecanvasCtx?.putImageData(new ImageData(new Uint8ClampedArray(this.outputArray), outputWidth, outputHeight), 0, 0);
 		return;
 	}
 }
