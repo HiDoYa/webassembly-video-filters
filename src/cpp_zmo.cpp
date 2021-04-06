@@ -9,6 +9,12 @@ double convert_itu_bt709(unsigned char r, unsigned char g, unsigned char b) {
 	return luminance;
 }
 
+// convert to luminance scale 0-1 (regardless of R,G,B)
+double convert_simple(unsigned char pixel) {
+	double luminance = pixel / 255.0;
+	return luminance;
+}
+
 // source: https://softpixel.com/~cwright/programming/colorspace/yuv/
 void RGBtoY(unsigned char R, unsigned char G, unsigned char B, double* Y) {
 	*Y = (R *  .299000) + (G *  .587000) + (B *  .114000); 	  	// 0 - 255
@@ -150,33 +156,60 @@ KEEPALIVE void cpp_color_lumascope(char data_in[], char data_out[], int width, i
 
 // get seperate RGB luminance (waveform)
 KEEPALIVE void cpp_rgb_parade(char data_in[], char data_out[], int width, int height) {
-	int index;				
-	int Y;					
-	
-	float histogram[1024];
+		int index;					// pixel's index
+	int indexR, indexG, indexB;	// pixel's index
+	int Yr, Yg, Yb;				// pixel's luminance
 
-	for (int w = 0; w < width; w++) {
-		for (int i=0; i < height; i++) histogram[i] = 0;
+	int channel_width = width / 3;
+	int w_r, w_g, w_b;
 
-		for (int h = 0; h < height; h++) {
-			index = ((h * width) + w) * 4;
-			
-			Y = (int) (height * convert_itu_bt709(data_in[index], 
-												data_in[index+1], 
-												data_in[index+2]));
+	// unsigned char histogram[1024][3];
+	float histogram[1024][3];
 
-			//increment histogram bucket for the luminance we found
-			histogram[height-(Y+1)]+=4.0*256/height; // (Y, U, V)
+	for (int w = 0; w <= channel_width; w++) {
+		if (w * 3 >= width) {
+				break;
 		}
 
+		//initialize histogram elements to zero
+		for (int i=0; i < height; i++) {
+			histogram[i][0] = 0;
+			histogram[i][1] = 0;
+			histogram[i][2] = 0;
+		}
+		//find luminance, increment histogram bucket
 		for (int h = 0; h < height; h++) {
-			index = ((h * width) + w) * 4;
+			index = ((h * width) + (w * 3)) * 4;
+			Yr = (int) (convert_simple(data_in[index]) * height);
+			Yg = (int) (convert_simple(data_in[index+1]) * height);
+			Yb = (int) (convert_simple(data_in[index+2]) * height);
 
-			//  display histogram using green pixels (i.e. set r and b to 0)
-			data_out[index] = histogram[h];
-			data_out[index+1] = histogram[h];
-			data_out[index+2] = histogram[h];
-			data_out[index+3] = (char)255;
+			histogram[height - (Yr+1)][0] += 4.0*256/height;
+			histogram[height - (Yg+1)][1] += 4.0*256/height;
+			histogram[height - (Yb+1)][2] += 4.0*256/height;
+		}
+
+		w_r = w;
+		w_g = w + channel_width;
+		w_b = w + (2 * channel_width);
+
+		//display histogram
+		for (int h = 0; h < height; h++) {
+			indexR = ((h * width) + w_r) * 4;
+			indexG = ((h * width) + w_g) * 4;
+			indexB = ((h * width) + w_b) * 4;
+
+			
+			data_out[indexR+1] = 0; //R
+			data_out[indexR+2] = 0;
+			data_out[indexG]   = 0; //G
+			data_out[indexG+2] = 0;
+			data_out[indexB]   = 0; //B
+			data_out[indexB+1] = 0;
+
+			data_out[indexR]   = histogram[h][0];
+			data_out[indexG+1] = histogram[h][1];
+			data_out[indexB+2] = histogram[h][2];
 		}
 	}
 }
