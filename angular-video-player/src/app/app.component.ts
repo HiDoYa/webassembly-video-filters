@@ -76,10 +76,6 @@ export class AppComponent {
     });
   }
 
-  getAvg = (array: Array<number>) => array.reduce((a: any, b: any) => a + b) / array.length;
-  msToFps = (num: number, precision = 5) => (1 / (num / 1000)).toPrecision(precision);
-  getName = (obj: any) => obj.name;
-
   invokePlay(data: any) {
     this.data = data;
     this.data.getDefaultMedia().subscriptions.loadedMetadata.subscribe(this.evokeVideo.bind(this));
@@ -87,12 +83,6 @@ export class AppComponent {
 
   evokeVideo() {
     this.data.play();
-  }
-
-  uploadVideos(btn: any){
-    if(btn.opened){
-      // console.log(btn.opened);
-    }
   }
 
   reset() {
@@ -276,8 +266,8 @@ export class AppComponent {
       case this.scopes.CPP_VECTORSCOPE: 
         this.vidcanvasCtx!.canvas.width = 128;
         this.vidcanvasCtx!.canvas.height = 128;
-        this.scopecanvasCtx!.canvas.width = 128;
-        this.scopecanvasCtx!.canvas.height = 128;
+        this.scopecanvasCtx!.canvas.width = 256;
+        this.scopecanvasCtx!.canvas.height = 256;
         break;
       case this.scopes.RGB_PARADE: 
         this.vidcanvasCtx!.canvas.width = 128;

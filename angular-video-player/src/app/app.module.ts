@@ -10,8 +10,8 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatSelectModule } from '@angular/material/select';
 
-
 import { AppComponent } from './app.component';
+import { MsToFps, GetAvg, GetName, LastElement } from './pipes';
 
 import { VgBufferingModule } from '@videogular/ngx-videogular/buffering';
 import { VgOverlayPlayModule } from '@videogular/ngx-videogular/overlay-play';
@@ -22,6 +22,10 @@ import { HttpClientModule } from '@angular/common/http';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 @NgModule({
   declarations: [
+    MsToFps,
+    GetAvg,
+    GetName,
+    LastElement,
     AppComponent
   ],
   imports: [
