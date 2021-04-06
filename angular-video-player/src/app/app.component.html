@@ -2,7 +2,7 @@
   <!-- TOOLBAR -->
   <mat-toolbar color="primary">
     <div fxShow="true" >
-      <button mat-icon-button (click)="sidenav.toggle()" (click)="uploadVideos(sidenav)">
+      <button mat-icon-button (click)="sidenav.toggle()">
         <mat-icon>menu</mat-icon>
       </button>
     </div>
@@ -81,18 +81,18 @@
       <div class="footer-container">
         <div class="metadata-container">
           <div class="metadata-title" *ngIf="fileName.length > 0">{{ fileName }}</div>
-          <div class="metadata-text" *ngIf="computeTimes.length > 0">Instant: {{ msToFps(computeTimes[computeTimes.length - 1]) }} fps</div>
-          <div class="metadata-text" *ngIf="computeTimes.length > 0">Average: {{ msToFps(getAvg(computeTimes)) }} fps</div>
+          <div class="metadata-text" *ngIf="computeTimes.length > 0">Instant: {{ computeTimes | last | msToFps }} fps</div>
+          <div class="metadata-text" *ngIf="computeTimes.length > 0">Average: {{ computeTimes | getAvg | msToFps }} fps</div>
         </div>
 
         <!-- SCOPE SELECTOR -->
         <div class="scope-selector-row">
           <mat-form-field appearance="fill">
-            <mat-label class="scopeSelector">{{ currentScope.name }}</mat-label>
+            <mat-label class="scopeSelector">{{ currentScope | getName }}</mat-label>
             <mat-select panelClass="scopePanels">
               <div *ngIf="scopes">
                 <mat-option  *ngFor="let scope of scopes | keyvalue" (click)="changeScope(scope.value)">
-                  {{ getName(scope.value) }}
+                  {{ scope.value | getName }}
                 </mat-option>
               </div>
             </mat-select>
