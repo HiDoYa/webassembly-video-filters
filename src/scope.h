@@ -4,7 +4,7 @@
 
 namespace ZMO
 {
-enum SCOPES { LUMASCOPE, RGBPARADE };
+enum SCOPES { LUMASCOPE, RGBPARADE, VECTORSCOPE };
 ///
 ///	@name Scope
 ///

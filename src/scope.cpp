@@ -20,6 +20,8 @@ scope_func select_scope(const int selector)
 			return lumascope_uint8_cpu;
 		case RGBPARADE:
 			return rgbparade_uint8_cpu;
+		case VECTORSCOPE:
+			return vectorscope_uint8_cpu;
 		default:
 			return lumascope_uint8_cpu;
 	}
