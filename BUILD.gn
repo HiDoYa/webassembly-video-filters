@@ -178,10 +178,8 @@ action ("ng_build")
 
     args =
     [ 
-        "npm run build --prod --prefix " + 
-        rebase_path("$angular_path") + 
-        " -- --output-path=" + 
-        rebase_path("$root_out_dir/webapp")
+        "npm run build --prod --prefix " + rebase_path("$angular_path") + " -- --progress=false --output-path=" + rebase_path("$root_out_dir/webapp"),
+        "rm -rf " + rebase_path("$root_out_dir/webapp/assets")
     ]
 
     outputs = [ "$root_out_dir/webapp" ]
@@ -416,55 +414,6 @@ foreach (scope, scopes)
 }
 
 #
-#   ZMO library.
-#
-
-library_type = "executable"
-
-target (library_type, "zmo")
-{
-    output_name = "zmo.wasm"
-
-    output_dir = "$root_out_dir/lib/assets"
-
-    defines = [ "ZMO_EXPORT" ]
-
-    deps =
-    [
-        "//:runtime",
-    ]
-    foreach (scope, scopes)
-    {
-        deps += [ ":" + scope ]
-    }
-
-    cflags =
-    [
-      "--target=wasm32-unknown-wasi",
-      "-m32",
-      "--sysroot=../../extern/wasi-sysroot"
-    ]
-
-    ldflags =
-    [
-        "--target=wasm32-unknown-wasi",
-        "-m32",
-        "--sysroot=../../extern/wasi-sysroot",
-        "-Wl,--no-entry",
-        "-Wl,--export-all"
-    ]
-
-    sources = library_sources
-
-    foreach (dep, deps)
-    {
-        sources += get_target_outputs (dep)
-    }
-
-    include_dirs = [ "//$halide_distrib/include", "$root_gen_dir/obj/$target" ]
-}
-
-#
 #   Copy generator deps.
 #
 
@@ -506,25 +455,61 @@ copy ("copy_host")
     outputs = [ "$root_out_dir/lib/host.py" ]
 }
 
-action ("clean_webapp")
+#
+#   ZMO library.
+#
+
+library_type = "executable"
+
+target (library_type, "zmo")
 {
-    deps = [ ":copy_host" ]
+    output_name = "zmo.wasm"
 
-    script = "//build/scripts/run.py"
+    output_dir = "$root_out_dir/lib/assets"
 
-    args =
-    [ 
-        "rm " + rebase_path("$root_out_dir/lib/assets/zmo.wasm")
+    defines = [ "ZMO_EXPORT" ]
+
+    public_deps = [":copy_host"]
+
+    deps =
+    [
+        "//:runtime",
+    ]
+    foreach (scope, scopes)
+    {
+        deps += [ ":" + scope ]
+    }
+
+    cflags =
+    [
+      "--target=wasm32-unknown-wasi",
+      "-m32",
+      "--sysroot=../../extern/wasi-sysroot"
     ]
 
-    outputs = [ "$root_out_dir/lib/assets" ]
+    ldflags =
+    [
+        "--target=wasm32-unknown-wasi",
+        "-m32",
+        "--sysroot=../../extern/wasi-sysroot",
+        "-Wl,--no-entry",
+        "-Wl,--export-all"
+    ]
+
+    sources = library_sources
+
+    foreach (dep, deps)
+    {
+        sources += get_target_outputs (dep)
+    }
+
+    include_dirs = [ "//$halide_distrib/include", "$root_gen_dir/obj/$target" ]
 }
 
 group ("default")
 {
     deps = 
     [ 
-        "//:clean_webapp",
         "//:zmo",
     ]
 }
