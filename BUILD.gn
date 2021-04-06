@@ -26,7 +26,8 @@ generator_sources =
 
 scopes = [ 
     "lumascope",
-    "rgbparade"
+    "rgbparade",
+    "vectorscope"
 ]
 
 #
@@ -39,7 +40,9 @@ library_sources =
 
     "//src/scope.cpp",
 
-    "//src/zmo.cpp",
+    "//src/halide_zmo.cpp",
+
+    "//src/cpp_zmo.cpp",
 ]
 
 #
@@ -166,6 +169,21 @@ action ("make_gen_dirs")
     args = [ rebase_path ("$root_gen_dir/obj/$target") ]
 
     outputs = [ "$root_gen_dir/obj/$target" ]
+}
+
+action ("ng_build")
+{
+    script = "//build/scripts/run.py"
+
+    angular_path = "//angular-video-player"
+
+    args =
+    [ 
+        "npm run build --prod --prefix " + rebase_path("$angular_path") + " -- --progress=false --output-path=" + rebase_path("$root_out_dir/webapp"),
+        "rm -rf " + rebase_path("$root_out_dir/webapp/assets")
+    ]
+
+    outputs = [ "$root_out_dir/webapp" ]
 }
 
 #
@@ -397,6 +415,48 @@ foreach (scope, scopes)
 }
 
 #
+#   Copy generator deps.
+#
+
+copy ("copy_generator_deps")
+{
+    sources = generator_deps
+
+    generator_dir = get_path_info (generator, "dir")
+
+    outputs = [ "$generator_dir/{{source_file_part}}" ]
+}
+
+#
+#   Copy webapp.
+#
+
+copy ("copy_webapp")
+{
+    deps = [ ":ng_build" ]
+
+    sources = 
+    [ 
+        "$root_out_dir/webapp",
+    ]
+
+    outputs = [ "$root_out_dir/lib" ]
+}
+
+
+copy ("copy_host")
+{
+    deps = [ ":copy_webapp" ]
+
+    sources = 
+    [ 
+        "//src/host.py"
+    ]
+
+    outputs = [ "$root_out_dir/lib/host.py" ]
+}
+
+#
 #   ZMO library.
 #
 
@@ -406,14 +466,15 @@ target (library_type, "zmo")
 {
     output_name = "zmo.wasm"
 
-    output_dir = "$root_out_dir/lib"
+    output_dir = "$root_out_dir/lib/assets"
 
     defines = [ "ZMO_EXPORT" ]
+
+    public_deps = [":copy_host"]
 
     deps =
     [
         "//:runtime",
-
     ]
     foreach (scope, scopes)
     {
@@ -446,80 +507,11 @@ target (library_type, "zmo")
     include_dirs = [ "//$halide_distrib/include", "$root_gen_dir/obj/$target" ]
 }
 
-#
-#   Copy generator deps.
-#
-
-copy ("copy_generator_deps")
-{
-    sources = generator_deps
-
-    generator_dir = get_path_info (generator, "dir")
-
-    outputs = [ "$generator_dir/{{source_file_part}}" ]
-}
-
-#
-#   Copy headers.
-#
-
-copy ("copy_headers")
-{
-    sources = header_files
-
-    outputs = [ "$root_out_dir/distrib/include/{{source_file_part}}" ]
-}
-
-#
-#   Copy library.
-#
-
-copy ("copy_library")
-{
-    deps = [ "//:zmo" ]
-
-    sources = 
-    [ 
-        "$root_out_dir/lib/zmo.wasm",
-        "//webapp/host.py"
-    ]
-
-    outputs = [ "$root_out_dir/distrib/lib/{{source_file_part}}" ]
-}
-
-#
-#   Copy webapp.
-#
-
-copy ("copy_webapp")
-{
-    sources = 
-    [ 
-        "//webapp",
-    ]
-
-    outputs = [ "$root_out_dir/lib" ]
-}
-
-group ("distrib")
-{
-    deps =
-    [
-      "//:copy_library",
-      "//:copy_headers",
-    ]
-}
-
 group ("default")
 {
     deps = 
     [ 
         "//:zmo",
-        "//:copy_webapp",
     ]
 }
 
-group ("test")
-{
-    deps = [ "//test:all" ]
-}
