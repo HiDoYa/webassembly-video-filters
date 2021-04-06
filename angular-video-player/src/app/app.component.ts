@@ -4,6 +4,16 @@ import { DomSanitizer, SafeResourceUrl, SafeUrl } from '@angular/platform-browse
 import { finalize } from 'rxjs/operators';
 import { Observable, Subscription } from 'rxjs';
 
+class ScopeDescriptor {
+  name: string = '';
+  func: any;
+
+  constructor(name: string, func: any) {
+    this.name = name;
+    this.func= func;
+  }
+}
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -11,16 +21,13 @@ import { Observable, Subscription } from 'rxjs';
 })
 
 export class AppComponent {
-  @ViewChild('files') files: { nativeElement: { value: any; querySelector: (arg0: string) => any; }; } | undefined;
+  @ViewChild('files') files: any | undefined;
   @ViewChild('scopecanvas') scopecanvas: ElementRef | undefined;
   @ViewChild('vidcanvas') vidcanvas: ElementRef | undefined;
   @ViewChild('video') video: ElementRef | undefined;
 
-  scopes = {
-    LUMASCOPE: "Lumascope", 
-    RGBPARADE:"RGB Parade"
-  };
-  currentScope = this.scopes.LUMASCOPE;
+  scopes: any = null;
+  currentScope: ScopeDescriptor = new ScopeDescriptor('', null);
 
   scopecanvasCtx: CanvasRenderingContext2D | undefined;
   vidcanvasCtx: CanvasRenderingContext2D | undefined;
@@ -39,6 +46,9 @@ export class AppComponent {
   outputArray: any;
   outputPointer: any;
 
+  // Time for each computeFrame in ms
+  computeTimes: Array<number> = [];
+
   constructor(private http: HttpClient, public sanitizer: DomSanitizer, private renderer: Renderer2) {
     this.uploadSub = new Subscription;
     this.uploadProgress = 0;
@@ -56,6 +66,7 @@ export class AppComponent {
   }
 
   getFileToPlay(element: any) {
+    this.computeTimes = [];
     this.http.get(this.backendUrl + 'playFile?name=' + element.target.textContent, {responseType:'blob'}).subscribe(response => {
       this.fileName = element.target.textContent;
       let videoSrc = window.URL.createObjectURL(response);
@@ -65,53 +76,9 @@ export class AppComponent {
     });
   }
 
-  getDimensions() {
-    let width = this.vidcanvas?.nativeElement.width;
-    let height = this.vidcanvas?.nativeElement.height;
-    let outputWidth = width;
-    let outputHeight = height;
-    switch(this.currentScope) {
-      case this.scopes.LUMASCOPE: 
-        outputWidth = width;
-        break;
-      case this.scopes.RGBPARADE: 
-        outputWidth = width * 3;
-        break;
-      default:
-    }
-
-    return [width, height, outputWidth, outputHeight];
-  }
-
-  allocateMemory() {
-    let dim = this.getDimensions();
-    let width = dim[0];
-    let height = dim[1];
-    let outputWidth = dim[2];
-    let outputHeight = dim[3];
-
-    let data = Array.prototype.slice.call(this.vidcanvasCtx?.getImageData(0, 0, width, height)?.data);
-
-    // FREE POINTERS
-    if (this.inputPointer != null) {
-      this.gModule.instance.exports.free(this.inputPointer);
-      this.gModule.instance.exports.free(this.outputPointer);
-    }
-
-    // ALLOCATE POINTERS (based on current scope)
-    this.inputPointer = this.gModule.instance.exports.malloc(data.length);
-    this.inputArray = new Uint8Array(
-      this.gModule.instance.exports.memory.buffer,
-      this.inputPointer,
-      data.length
-    );
-    this.outputPointer = this.gModule.instance.exports.malloc(outputWidth * 256 * 4);
-    this.outputArray = new Uint8Array(
-      this.gModule.instance.exports.memory.buffer,
-      this.outputPointer,
-      outputWidth * 256 * 4
-    );
-  }
+  getAvg = (array: Array<number>) => array.reduce((a: any, b: any) => a + b) / array.length;
+  msToFps = (num: number, precision = 5) => (1 / (num / 1000)).toPrecision(precision);
+  getName = (obj: any) => obj.name;
 
   invokePlay(data: any) {
     this.data = data;
@@ -223,7 +190,20 @@ export class AppComponent {
 
     await WebAssembly.instantiateStreaming(fetch('assets/zmo.wasm'), imports).then((obj: any) => {
       this.gModule = obj;
-      this.gModule.instance.exports.memory.grow(10);
+      this.gModule.instance.exports.memory.grow(15);
+
+      // Get scopes
+      this.scopes = {
+        LUMASCOPE: new ScopeDescriptor("Lumascope", this.gModule.instance.exports.lumascope),
+        RGB_PARADE: new ScopeDescriptor("RGB Parade", this.gModule.instance.exports.rgbparade),
+        VECTORSCOPE: new ScopeDescriptor("Vector Scope", this.gModule.instance.exports.vectorscope),
+        // TODO: Causes mem access err
+        CPP_LUMASCOPE: new ScopeDescriptor("C++ Lumascope", this.gModule.instance.exports.cpp_lumascope),
+        CPP_COLOR_LUMASCOPE: new ScopeDescriptor("C++ Color Lumascope", this.gModule.instance.exports.cpp_color_lumascope),
+        CPP_RGB_PARADE: new ScopeDescriptor("C++ RGB Parade", this.gModule.instance.exports.cpp_rgb_parade),
+        CPP_VECTORSCOPE: new ScopeDescriptor("C++ Vector Scope", this.gModule.instance.exports.cpp_vectorscope),
+      };
+      this.currentScope = this.scopes.LUMASCOPE!;
     });
   };
 
@@ -233,26 +213,81 @@ export class AppComponent {
     }
 
     // Process frame
+    let t0 = performance.now()
     this.computeFrame();
+    let t1 = performance.now()
+    this.computeTimes.push(t1 - t0);
 
     // Run function again immediately
     setTimeout(() => this.timerCallback(), 0);
   }
 
-  changeScope(scope: string) {
-    this.currentScope = scope;
-    this.allocateMemory();
+  allocateMemory() {
+    let dim = this.getDimensions();
+    let width = dim[0], height = dim[1], outputWidth = dim[2], outputHeight = dim[3];
 
+    // FREE POINTERS
+    if (this.inputPointer != null) {
+      this.gModule.instance.exports.free(this.inputPointer);
+    }
+    if (this.outputPointer != null) {
+      this.gModule.instance.exports.free(this.outputPointer);
+    }
+
+    // ALLOCATE POINTERS (based on current scope)
+    this.inputPointer = this.gModule.instance.exports.malloc(width * height * 4);
+    this.inputArray = new Uint8Array(
+      this.gModule.instance.exports.memory.buffer,
+      this.inputPointer,
+      width * height * 4
+    );
+
+    this.outputPointer = this.gModule.instance.exports.malloc(outputWidth * outputHeight * 4);
+    this.outputArray = new Uint8Array(
+      this.gModule.instance.exports.memory.buffer,
+      this.outputPointer,
+      outputWidth * outputHeight * 4
+    );
+  }
+
+  getDimensions() {
+    let width = this.vidcanvas?.nativeElement.width;
+    let height = this.vidcanvas?.nativeElement.height;
+    let outputWidth = this.scopecanvas?.nativeElement.width;
+    let outputHeight = this.scopecanvas?.nativeElement.height;
+    return [width, height, outputWidth, outputHeight];
+  }
+
+  changeScope(scope: any) {
+    this.computeTimes = [];
+    this.currentScope = scope;
     switch(this.currentScope) {
+      case this.scopes.CPP_LUMASCOPE: 
+      case this.scopes.CPP_COLOR_LUMASCOPE: 
+      case this.scopes.CPP_RGB_PARADE: 
+      case this.scopes.VECTORSCOPE: 
       case this.scopes.LUMASCOPE: 
+        this.vidcanvasCtx!.canvas.width = 128;
+        this.vidcanvasCtx!.canvas.height = 256;
         this.scopecanvasCtx!.canvas.width = 128;
         this.scopecanvasCtx!.canvas.height = 256;
         break;
-      case this.scopes.RGBPARADE: 
+      case this.scopes.VECTORSCOPE: 
+      case this.scopes.CPP_VECTORSCOPE: 
+        this.vidcanvasCtx!.canvas.width = 128;
+        this.vidcanvasCtx!.canvas.height = 128;
+        this.scopecanvasCtx!.canvas.width = 128;
+        this.scopecanvasCtx!.canvas.height = 128;
+        break;
+      case this.scopes.RGB_PARADE: 
+        this.vidcanvasCtx!.canvas.width = 128;
+        this.vidcanvasCtx!.canvas.height = 256;
         this.scopecanvasCtx!.canvas.width = 128 * 3;
         this.scopecanvasCtx!.canvas.height = 256;
         break;
     }
+
+    this.allocateMemory();
   }
 
   doLoad() {
@@ -269,28 +304,20 @@ export class AppComponent {
   computeFrame() {
 		// Draw original frame
     let dim = this.getDimensions();
-    let width = dim[0];
-    let height = dim[1];
-    let outputWidth = dim[2];
-    let outputHeight = dim[3];
+    let width = dim[0], height = dim[1], outputWidth = dim[2], outputHeight = dim[3];
 
 		this.vidcanvasCtx?.drawImage(this.video?.nativeElement, 0, 0, width, height);
 
-		// Modify frame
 		let frame = this.vidcanvasCtx?.getImageData(0, 0, width, height);
 		let data = Array.prototype.slice.call(frame?.data);
 		this.inputArray.set(data);
       
-    switch (this.currentScope) {
-      case this.scopes.LUMASCOPE: 
-        this.gModule.instance.exports.lumascope(this.inputPointer, this.outputPointer, width, height);
-        break;
-      case this.scopes.RGBPARADE: 
-        this.gModule.instance.exports.rgbparade(this.inputPointer, this.outputPointer, width, height);
-        break;
+    if (this.currentScope.name == "C++ Vector Scope") {
+      this.currentScope.func(this.inputPointer, this.outputPointer, width, height, height);
+    } else {
+      this.currentScope.func(this.inputPointer, this.outputPointer, width, height);
     }
-
-		this.scopecanvasCtx?.putImageData(new ImageData(new Uint8ClampedArray(this.outputArray), outputWidth, outputHeight), 0, 0);
+    this.scopecanvasCtx?.putImageData(new ImageData(new Uint8ClampedArray(this.outputArray), outputWidth, outputHeight), 0, 0);
 		return;
 	}
 }

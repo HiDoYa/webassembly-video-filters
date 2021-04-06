@@ -7,6 +7,10 @@ html, body{
 }
 
 // OVERRIDING MATERIALS THEME
+.mat-toolbar {
+    position: sticky;
+}
+
 .mat-sidenav {
     position: fixed;
     min-width: 15em;
