@@ -3,6 +3,7 @@
 
 #include "lumascope_uint8_cpu.h"
 #include "rgbparade_uint8_cpu.h"
+#include "vectorscope_uint8_cpu.h"
 
 #include "HalideRuntime.h"
 

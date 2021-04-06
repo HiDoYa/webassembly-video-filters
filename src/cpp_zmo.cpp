@@ -213,3 +213,45 @@ KEEPALIVE void cpp_rgb_parade(char data_in[], char data_out[], int width, int he
 		}
 	}
 }
+
+KEEPALIVE void cpp_vectorscope(char data_in[], char data_out[], int width, int height, int scope_height) {
+	int index;
+	int x, y;
+	unsigned char R, G, B;
+	double U, V;
+
+	for (int w = 0; w < width; w++) {
+		for (int h = 0; h < scope_height; h++) {
+				index = getIndex(w, h, width);
+				data_out[index] = 0;
+				data_out[index+1] = 0;
+				data_out[index+2] = 0;
+				data_out[index+3] = (char)255;
+		}
+	}
+
+	for (int w = 0; w < width; w++) {
+		for (int h = 0; h < height; h++) {
+			index = getIndex(w, h, width);
+
+			R = data_in[index];
+			G = data_in[index+1];
+			B = data_in[index+2];
+
+			// get UV
+			RGBtoUV(R, G, B, &U, &V);
+
+			// convert UV to XY
+			x = normalize(U) * scope_height + 0.5;				// 0 to scope's height
+			y = (height-1) - normalize(V) * scope_height + 0.5; // 0 to scope's height
+
+			// calculate resulting pixel brightness
+			index = getIndex(x, y, scope_height);
+
+			// insert result
+			data_out[index] = getUpdatedColor(data_out[index], R, height, 4);
+			data_out[index+1] = getUpdatedColor(data_out[index+1], G, height, 4);
+			data_out[index+2] = getUpdatedColor(data_out[index+2], B, height, 4);
+		}
+	}
+}
