@@ -171,21 +171,6 @@ action ("make_gen_dirs")
     outputs = [ "$root_gen_dir/obj/$target" ]
 }
 
-action ("ng_build")
-{
-    script = "//build/scripts/run.py"
-
-    angular_path = "//angular-video-player"
-
-    args =
-    [ 
-        "npm run build --prod --prefix " + rebase_path("$angular_path") + " -- --progress=false --output-path=" + rebase_path("$root_out_dir/webapp"),
-        "rm -rf " + rebase_path("$root_out_dir/webapp/assets")
-    ]
-
-    outputs = [ "$root_out_dir/webapp" ]
-}
-
 #
 #   Template for compiling all generator module variations
 #
@@ -428,35 +413,6 @@ copy ("copy_generator_deps")
 }
 
 #
-#   Copy webapp.
-#
-
-copy ("copy_webapp")
-{
-    deps = [ ":ng_build" ]
-
-    sources = 
-    [ 
-        "$root_out_dir/webapp",
-    ]
-
-    outputs = [ "$root_out_dir/lib" ]
-}
-
-
-copy ("copy_host")
-{
-    deps = [ ":copy_webapp" ]
-
-    sources = 
-    [ 
-        "//src/host.py"
-    ]
-
-    outputs = [ "$root_out_dir/lib/host.py" ]
-}
-
-#
 #   ZMO library.
 #
 
@@ -466,11 +422,9 @@ target (library_type, "zmo")
 {
     output_name = "zmo.wasm"
 
-    output_dir = "$root_out_dir/lib/assets"
+    output_dir = "$root_out_dir/lib"
 
     defines = [ "ZMO_EXPORT" ]
-
-    public_deps = [":copy_host"]
 
     deps =
     [
