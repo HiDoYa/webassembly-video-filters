@@ -261,7 +261,6 @@ export class AppComponent {
       case this.scopes.CPP_LUMASCOPE: 
       case this.scopes.CPP_COLOR_LUMASCOPE: 
       case this.scopes.CPP_RGB_PARADE: 
-      case this.scopes.VECTORSCOPE: 
       case this.scopes.LUMASCOPE: 
         this.vidcanvasCtx!.canvas.width = 256;
         this.vidcanvasCtx!.canvas.height = 256;
@@ -306,18 +305,14 @@ export class AppComponent {
 
 		let frame = this.vidcanvasCtx?.getImageData(0, 0, width, height);
 		let data = Array.prototype.slice.call(frame?.data);
-		this.inputArray.set(data);
       
     if (this.currentScope.name.includes("JS")) {
       let data_out = data;
       this.currentScope.func(data, data_out, width, height, height);
       this.scopecanvasCtx?.putImageData(new ImageData(new Uint8ClampedArray(data_out), outputWidth, outputHeight), 0, 0);
     } else {
-      if (this.currentScope.name == "C++ Vector Scope") {
-        this.currentScope.func(this.inputPointer, this.outputPointer, width, height, height);
-      } else {
-        this.currentScope.func(this.inputPointer, this.outputPointer, width, height);
-      }
+      this.inputArray.set(data);
+      this.currentScope.func(this.inputPointer, this.outputPointer, width, height);
       this.scopecanvasCtx?.putImageData(new ImageData(new Uint8ClampedArray(this.outputArray), outputWidth, outputHeight), 0, 0);
     }
 
