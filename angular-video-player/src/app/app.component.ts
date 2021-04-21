@@ -187,6 +187,8 @@ export class AppComponent {
         LUMASCOPE: new ScopeDescriptor("Lumascope", this.gModule.instance.exports.lumascope),
         RGB_PARADE: new ScopeDescriptor("RGB Parade", this.gModule.instance.exports.rgbparade),
         VECTORSCOPE: new ScopeDescriptor("Vector Scope", this.gModule.instance.exports.vectorscope),
+        CVECTORSCOPE: new ScopeDescriptor("Color Vector Scope", this.gModule.instance.exports.cvectorscope),
+        CLUMASCOPE: new ScopeDescriptor("Color Lumascope", this.gModule.instance.exports.clumascope),
         // TODO: Causes mem access err
         CPP_LUMASCOPE: new ScopeDescriptor("C++ Lumascope", this.gModule.instance.exports.cpp_lumascope),
         CPP_COLOR_LUMASCOPE: new ScopeDescriptor("C++ Color Lumascope", this.gModule.instance.exports.cpp_color_lumascope),
@@ -255,7 +257,7 @@ export class AppComponent {
       case this.scopes.CPP_LUMASCOPE: 
       case this.scopes.CPP_COLOR_LUMASCOPE: 
       case this.scopes.CPP_RGB_PARADE: 
-      case this.scopes.VECTORSCOPE: 
+      case this.scopes.CLUMASCOPE: 
       case this.scopes.LUMASCOPE: 
         this.vidcanvasCtx!.canvas.width = 128;
         this.vidcanvasCtx!.canvas.height = 256;
@@ -263,6 +265,7 @@ export class AppComponent {
         this.scopecanvasCtx!.canvas.height = 256;
         break;
       case this.scopes.VECTORSCOPE: 
+      case this.scopes.CVECTORSCOPE: 
       case this.scopes.CPP_VECTORSCOPE: 
         this.vidcanvasCtx!.canvas.width = 128;
         this.vidcanvasCtx!.canvas.height = 128;
