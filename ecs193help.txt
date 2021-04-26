@@ -1,0 +1,16 @@
+
+
+~~~~~~~~~Compiling
+cd /Users/sethdamany/Documents/Github/webassembly-video-filters
+bash 
+./gn clean out/mac
+rm -rf out/mac 
+./gn gen out/mac 
+ninja -C out/mac
+ 
+~~~~~Running Server
+cd /Users/sethdamany/Documents/Github/webassembly-video-filters/angular-video-player
+ng serve
+node server/server.js
+
+

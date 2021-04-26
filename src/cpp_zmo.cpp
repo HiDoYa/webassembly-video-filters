@@ -75,9 +75,14 @@ KEEPALIVE void cpp_lumascope(char data_in[], char data_out[], int width, int hei
 			index = ((h * width) + w) * 4;
 
 			//  display histogram using green pixels (i.e. set r and b to 0)
-			data_out[index] = histogram[h];
+			// data_out[index] = histogram[h];
+			// data_out[index+1] = histogram[h];
+			// data_out[index+2] = histogram[h];
+
+			data_out[index] = 0;
 			data_out[index+1] = histogram[h];
-			data_out[index+2] = histogram[h];
+			data_out[index+2] = 0;
+
 			data_out[index+3] = (char)255;
 		}
 	}
