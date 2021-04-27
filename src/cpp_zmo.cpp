@@ -263,9 +263,9 @@ KEEPALIVE void cpp_vectorscope(char data_in[], char data_out[], int width, int h
 			index = get_index(x, y, scope_height);
 
 			// insert result
-			data_out[index] = get_updated_color(data_out[index], R, height, 4);
-			data_out[index+1] = get_updated_color(data_out[index+1], G, height, 4);
-			data_out[index+2] = get_updated_color(data_out[index+2], B, height, 4);
+			data_out[index] = get_updated_color(data_out[index], R, height, 16);
+			data_out[index+1] = get_updated_color(data_out[index+1], G, height, 16);
+			data_out[index+2] = get_updated_color(data_out[index+2], B, height, 16);
 		}
 	}
 }

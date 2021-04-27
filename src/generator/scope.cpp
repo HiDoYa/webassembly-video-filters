@@ -1,4 +1,5 @@
 #include "Halide.h"
+// #include "clock.h" // for benchmarks
 
 using namespace Halide;
 
@@ -25,7 +26,7 @@ public:
 		Expr value = (0.2126f * input(r.x, r.y, 0) + 0.7152f * input(r.x, r.y, 1) + 0.0722f * input(r.x, r.y, 2));
 		Expr bucket = clamp(cast<uint8_t>(value), 0, 255);
 
-		output(r.x, 255 - bucket, 1) += cast<uint8_t>(50);
+		output(r.x, 255 - bucket, 1) += cast<uint8_t>(16); // 50, 16
 
 		output.dim(0).set_extent(input.dim(0).extent());
 		output.dim(1).set_extent(255);
@@ -99,10 +100,15 @@ public:
 			const Expr width  = input.dim (0).extent();
 			const Expr height = input.dim (1).extent();
 
+			// -------- HALIDE SCHEDULING --------
+			// * interleaved: input/output
+			// * parallel
+			// * vectorize
+			
 			output
 			.tile (x, y, xi, yi, min (width, vec * 12), min (height, 30 * 8))
 			.fuse (x, y, t)
-			.parallel (t)
+			.parallel (t) 			// test xi, yi, x, y
 			.vectorize (xi, vec);
 
 			// Allow the input and output to have arbitrary memory layout,
@@ -142,24 +148,24 @@ public:
 								&& input.dim (2).min() == 0
 								&& input.dim (2).extent() == 4);
 
-			output.specialize (planar);
+			// output.specialize (planar);
 
-			output.specialize (packed_uv)
-			.reorder (c, xi, yi, t)
-			.unroll (c);
+			// output.specialize (packed_uv)
+			// .reorder (c, xi, yi, t)
+			// .unroll (c);
 
 			output.specialize (packed_rgb)
 			.reorder (c, xi, yi, t)
 			.unroll (c);
 
-			output.specialize (packed_rgba)
-			.reorder (c, xi, yi, t)
-			.unroll (c);
+			// output.specialize (packed_rgba)
+			// .reorder (c, xi, yi, t)
+			// .unroll (c);
 		}
 	}
 };
 
-class RGBParade : public Halide::Generator<RGBParade>
+class RGBParade : public Halide::Generator<LumaScope> // Halide::Generator<RGBParade>
 {
 public:
 	Input<Buffer<>>  input { "input", 3 };
@@ -253,7 +259,6 @@ public:
 			const Expr width  = input.dim (0).extent();
 			const Expr height = input.dim (1).extent();
 
-			// ------------------ SCHEDULE EXPERIMENTATION ------------------------
 			output
 			.tile (x, y, xi, yi, min (width, vec * 12), min (height, 30 * 8))
 			.fuse (x, y, t)
