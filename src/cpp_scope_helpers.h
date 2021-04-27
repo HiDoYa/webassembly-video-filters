@@ -8,12 +8,12 @@
 // assigns Y given R,G,B
 // Source: https://softpixel.com/~cwright/programming/colorspace/yuv/
 //
-void RGB_to_Y(unsigned char R, unsigned char G, unsigned char B, double* Y);
+void RGBtoY(unsigned char R, unsigned char G, unsigned char B, double* Y);
 
 //
 // assigns U,V given R,G,B
 //
-void RGB_to_UV(unsigned char R, unsigned char G, unsigned char B, double* U, double* V);
+void RGBtoUV(unsigned char R, unsigned char G, unsigned char B, double* U, double* V);
 
 //
 // assigns R,G,B given U,V

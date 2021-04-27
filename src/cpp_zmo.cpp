@@ -1,5 +1,7 @@
 #define KEEPALIVE extern "C" __attribute__((used))
 
+#include "cpp_scope_helpers.h"
+
 /////// CONVERSIONS ///////
 // convert RGB to luminance scale 0-1 (uses itu bt.709 standard)
 double convert_itu_bt709(unsigned char r, unsigned char g, unsigned char b) {
