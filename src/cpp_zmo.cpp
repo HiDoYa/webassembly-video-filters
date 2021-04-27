@@ -2,60 +2,72 @@
 
 #include "cpp_scope_helpers.h"
 
+//
+// Helper functions for the cpp scopes
+//
+
 /////// CONVERSIONS ///////
-// convert RGB to luminance scale 0-1 (uses itu bt.709 standard)
-double convert_itu_bt709(unsigned char r, unsigned char g, unsigned char b) {
-	double luminance = 0.2126*r + 0.7152*g + 0.0722*b; // Y value
-	//rerange from 0 -> 1
-	luminance = luminance / 255.0;
-	return luminance;
-}
 
-// convert to luminance scale 0-1 (regardless of R,G,B)
-double convert_simple(unsigned char pixel) {
-	double luminance = pixel / 255.0;
-	return luminance;
-}
-
-// source: https://softpixel.com/~cwright/programming/colorspace/yuv/
+//
+// assigns Y given R,G,B
+// Source: https://softpixel.com/~cwright/programming/colorspace/yuv/
+//
 void RGBtoY(unsigned char R, unsigned char G, unsigned char B, double* Y) {
 	*Y = (R *  .299000) + (G *  .587000) + (B *  .114000); 	  	// 0 - 255
 }
 
+//
+// assigns U,V given R,G,B
+//
 void RGBtoUV(unsigned char R, unsigned char G, unsigned char B, double* U, double* V) {
 	*U = (R * -.168736) + (G * -.331264) + (B *  .500000) + 128; 	// 0 - 255
 	*V = (R *  .500000) + (G * -.418688) + (B * -.081312) + 128; 	// 0 - 255
 }
 
+//
+// assigns R,G,B given U,V
+//
 void YUVtoRGB(double Y, double U, double V, unsigned char* R, unsigned char* G, unsigned char* B) {
 	*R = Y + 1.4075 * (V - 128);
 	*G = Y - 0.3455 * (U - 128) - (0.7169 * (V - 128));
 	*B = Y + 1.7790 * (U - 128);
-
-	// if (*R > 255) *R = 255;
-	// if (*G > 255) *G = 255;
-	// if (*B > 255) *B = 255;
 }
 
-double normalize(double input) {
-	return input / 255.0;
+
+/////// MISC HELPERS ///////
+//
+// normalize input (0-255) to output (0-1)
+//
+double normalize(unsigned char pixel) {
+	return (double)pixel / 255.0;
 }
 
-int getIndex(int x, int y, int width) {
+//
+// return index of array from x,y coordinates
+//
+int get_index(int x, int y, int width) {
 	return ((y * width) + x) * 4;
 }
 
-unsigned char getUpdatedColor(unsigned char pixel_cur, unsigned char pixel_new, int divider, int constant) {
+//
+// updates & saturates a pixel value
+/// @param pixel_cur    current pixel value
+/// @param pixel_new    new pixel's value to add to current
+/// @param divider      the denominator of the pixel change
+/// @param constant     the multiplier of the pixel change
+//
+unsigned char get_updated_color(unsigned char pixel_cur, unsigned char pixel_new, int divider, int constant) {
 	double result = pixel_cur + (constant * pixel_new / divider);
 	if (result > 255) return (char)255;
 	return (char)result;
-
 }
+
 /////// SCOPE GENERATORS ///////
 // get itu_bt.709 luminance (waveform)
 KEEPALIVE void cpp_lumascope(char data_in[], char data_out[], int width, int height) {
 	int index;				
-	int Y;					
+	double Y;
+	int Y_height;
 	
 	float histogram[1024];
 
@@ -65,22 +77,17 @@ KEEPALIVE void cpp_lumascope(char data_in[], char data_out[], int width, int hei
 		for (int h = 0; h < height; h++) {
 			index = ((h * width) + w) * 4;
 			
-			Y = (int) (height * convert_itu_bt709(data_in[index], 
-												data_in[index+1], 
-												data_in[index+2]));
+			RGBtoY(data_in[index], data_in[index+1], data_in[index+2], &Y);
+			Y_height = normalize(Y) * (height - 1);
 
 			//increment histogram bucket for the luminance we found
-			histogram[height-(Y+1)]+=4.0*256/height; // (Y, U, V)
+			histogram[height-Y_height-1] += 16.0*256/height; // (Y, U, V)
 		}
 
 		for (int h = 0; h < height; h++) {
 			index = ((h * width) + w) * 4;
 
 			//  display histogram using green pixels (i.e. set r and b to 0)
-			// data_out[index] = histogram[h];
-			// data_out[index+1] = histogram[h];
-			// data_out[index+2] = histogram[h];
-
 			data_out[index] = 0;
 			data_out[index+1] = histogram[h];
 			data_out[index+2] = 0;
@@ -127,7 +134,7 @@ KEEPALIVE void cpp_color_lumascope(char data_in[], char data_out[], int width, i
 			Y_height = normalize(Y) * (height-1); // 0 - (height - 1)
 
 			// increment histogram bucket for the luminance we found (inverted)
-			histogramY[height-Y_height-1] += 4 * 256.0/height;
+			histogramY[height-Y_height-1] += 16.0*256/height;
 
 			// sum RGB
 			totalR[height-Y_height-1] += data_in[index];
@@ -187,13 +194,13 @@ KEEPALIVE void cpp_rgb_parade(char data_in[], char data_out[], int width, int he
 		//find luminance, increment histogram bucket
 		for (int h = 0; h < height; h++) {
 			index = ((h * width) + (w * 3)) * 4;
-			Yr = (int) (convert_simple(data_in[index]) * height);
-			Yg = (int) (convert_simple(data_in[index+1]) * height);
-			Yb = (int) (convert_simple(data_in[index+2]) * height);
+			Yr = (int) (data_in[index]/255.0) * height;
+			Yg = (int) (data_in[index+1]/255.0) * height;
+			Yb = (int) (data_in[index+2]/255.0) * height;
 
-			histogram[height - (Yr+1)][0] += 4.0*256/height;
-			histogram[height - (Yg+1)][1] += 4.0*256/height;
-			histogram[height - (Yb+1)][2] += 4.0*256/height;
+			histogram[height - (Yr+1)][0] += 16.0*256/height;
+			histogram[height - (Yg+1)][1] += 16.0*256/height;
+			histogram[height - (Yb+1)][2] += 16.0*256/height;
 		}
 
 		w_r = w;
@@ -229,7 +236,7 @@ KEEPALIVE void cpp_vectorscope(char data_in[], char data_out[], int width, int h
 
 	for (int w = 0; w < width; w++) {
 		for (int h = 0; h < scope_height; h++) {
-				index = getIndex(w, h, width);
+				index = get_index(w, h, width);
 				data_out[index] = 0;
 				data_out[index+1] = 0;
 				data_out[index+2] = 0;
@@ -239,7 +246,7 @@ KEEPALIVE void cpp_vectorscope(char data_in[], char data_out[], int width, int h
 
 	for (int w = 0; w < width; w++) {
 		for (int h = 0; h < height; h++) {
-			index = getIndex(w, h, width);
+			index = get_index(w, h, width);
 
 			R = data_in[index];
 			G = data_in[index+1];
@@ -253,12 +260,12 @@ KEEPALIVE void cpp_vectorscope(char data_in[], char data_out[], int width, int h
 			y = (height-1) - normalize(V) * scope_height + 0.5; // 0 to scope's height
 
 			// calculate resulting pixel brightness
-			index = getIndex(x, y, scope_height);
+			index = get_index(x, y, scope_height);
 
 			// insert result
-			data_out[index] = getUpdatedColor(data_out[index], R, height, 4);
-			data_out[index+1] = getUpdatedColor(data_out[index+1], G, height, 4);
-			data_out[index+2] = getUpdatedColor(data_out[index+2], B, height, 4);
+			data_out[index] = get_updated_color(data_out[index], R, height, 4);
+			data_out[index+1] = get_updated_color(data_out[index+1], G, height, 4);
+			data_out[index+2] = get_updated_color(data_out[index+2], B, height, 4);
 		}
 	}
 }
