@@ -8,17 +8,18 @@
 // assigns Y given R,G,B
 // Source: https://softpixel.com/~cwright/programming/colorspace/yuv/
 //
-void RGBtoY(unsigned char R, unsigned char G, unsigned char B, double* Y);
+void RGB_to_Y(unsigned char R, unsigned char G, unsigned char B, double* Y);
 
 //
 // assigns U,V given R,G,B
 //
-void RGBtoUV(unsigned char R, unsigned char G, unsigned char B, double* U, double* V);
+void RGB_to_UV(unsigned char R, unsigned char G, unsigned char B, double* U, double* V);
 
 //
 // assigns R,G,B given U,V
 //
 void YUVtoRGB(double Y, double U, double V, unsigned char* R, unsigned char* G, unsigned char* B);
+
 
 /////// MISC HELPERS ///////
 //
@@ -39,6 +40,7 @@ int get_index(int x, int y, int width);
 /// @param constant     the multiplier of the pixel change
 //
 unsigned char get_updated_color(unsigned char pixel_cur, unsigned char pixel_new, int divider, int constant);
+
 
 
 // //
