@@ -41,6 +41,14 @@ async function loadWasm() {
     instance = wasm.instance;
 }
 
+let GLOBAL_SCOPE = "luma";
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) {
+    GLOBAL_SCOPE = request.scope;
+    sendResponse({done: "done"});
+  }
+);
+
 
 let processor = {
     timerCallback: function() {
@@ -93,14 +101,25 @@ let processor = {
       let data = Array.prototype.slice.call(frame.data);
 
       this.inputArray.set(data);
-      instance.exports.lumascope(this.inputPointer, this.outputPointer, this.width, this.height);
+      switch(GLOBAL_SCOPE) {
+        case "luma":
+          instance.exports.lumascope(this.inputPointer, this.outputPointer, this.width, this.height);
+          break;
+        case "rgbp":
+          instance.exports.rgbparade(this.inputPointer, this.outputPointer, this.width/3, this.height);
+          break;
+        case "vect":
+          instance.exports.vectorscope(this.inputPointer, this.outputPointer, this.width, this.height);
+          break;
+      }
       this.ctx2.putImageData(new ImageData(new Uint8ClampedArray(this.outputArray), this.width, this.height), 0, 0);
       return;
     }
   };
 
-document.getElementById("container").innerHTML = "<canvas id=\"c1\" style=\"display: none;\" width=\"255\" height=\"255\"></canvas>" + document.getElementById("container").innerHTML
-document.getElementById("container").innerHTML = "<canvas id=\"c2\" style=\"border: 1px solid white;position:absolute; top: 20px; left: 20px; z-index: 500;\" width=\"255\" height=\"255\"></canvas>" + document.getElementById("container").innerHTML
+document.getElementById("logo").innerHTML += "<canvas id=\"c1\" style=\"display: none;\" width=\"255\" height=\"255\"></canvas>"
+document.getElementById("logo").innerHTML += "<canvas id=\"c2\" style=\"border: 1px solid white;position:absolute; top: 20px; left: 60px; z-index: 500;\" width=\"255\" height=\"255\"></canvas>"
+
 loadWasm().then(function() {
     instance.exports.memory.grow(15);
     processor.doLoad();
