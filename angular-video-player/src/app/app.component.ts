@@ -24,11 +24,13 @@ export class AppComponent {
   @ViewChild('files') files: any | undefined;
   @ViewChild('scopecanvas') scopecanvas: ElementRef | undefined;
   @ViewChild('vidcanvas') vidcanvas: ElementRef | undefined;
+  @ViewChild('bgScope') bgScope: ElementRef | undefined;
   @ViewChild('video') video: ElementRef | undefined;
 
   scopes: any = null;
   currentScope: ScopeDescriptor = new ScopeDescriptor('', null);
 
+  bgScopeCtx: CanvasRenderingContext2D | undefined;
   scopecanvasCtx: CanvasRenderingContext2D | undefined;
   vidcanvasCtx: CanvasRenderingContext2D | undefined;
   backendUrl: SafeResourceUrl = 'http://localhost:4201/';
@@ -57,6 +59,7 @@ export class AppComponent {
   ngAfterViewInit() {
     this.loadWasm();
     this.doLoad();
+    
     this.http.get(this.backendUrl + 'download', {responseType:'json'}).subscribe(response => {
       let videos = Object.values(response);
       videos.forEach ((element: any) => {
@@ -284,7 +287,20 @@ export class AppComponent {
     // Get html elements
     this.scopecanvasCtx = this.scopecanvas?.nativeElement.getContext("2d");
     this.vidcanvasCtx = this.vidcanvas?.nativeElement.getContext("2d");
+    this.bgScopeCtx = this.bgScope?.nativeElement.getContext("2d");
+    this.bgScopeCtx!.canvas.width = 256;
+    this.bgScopeCtx!.canvas.height = 256;
+    let image = new Image();
+   
+    this.bgScopeCtx?.clearRect( 0, 0, this.bgScope?.nativeElement.width, this.bgScope?.nativeElement.height);
+    //this.cxFg.fillStyle = 'hsla(0, 0%, 100%, 0)';
 
+    image.onload = ()=> {
+        this.bgScopeCtx?.drawImage(image, 0, 0, this.bgScope?.nativeElement.width  , this.bgScope?.nativeElement.height );
+    }
+
+    //where I am putting the chart for the scope.
+    image.src = "../../assets/images/scopes_test_9.png";
     // Start callback to process frame
     this.video?.nativeElement.addEventListener("play", () => {
       this.timerCallback();
