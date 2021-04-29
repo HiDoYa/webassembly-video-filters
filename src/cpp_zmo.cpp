@@ -234,7 +234,7 @@ KEEPALIVE void cpp_vectorscope(char data_in[], char data_out[], int width, int h
 	unsigned char R, G, B;
 	double U, V;
 
-	for (int w = 0; w < width; w++) {
+	for (int w = 0; w < scope_height; w++) {
 		for (int h = 0; h < scope_height; h++) {
 				index = get_index(w, h, width);
 				data_out[index] = 0;
