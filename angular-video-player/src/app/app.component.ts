@@ -255,7 +255,6 @@ export class AppComponent {
       case this.scopes.CPP_LUMASCOPE: 
       case this.scopes.CPP_COLOR_LUMASCOPE: 
       case this.scopes.CPP_RGB_PARADE: 
-      case this.scopes.VECTORSCOPE: 
       case this.scopes.LUMASCOPE: 
         this.vidcanvasCtx!.canvas.width = 128;
         this.vidcanvasCtx!.canvas.height = 256;
@@ -265,7 +264,7 @@ export class AppComponent {
       case this.scopes.VECTORSCOPE: 
       case this.scopes.CPP_VECTORSCOPE: 
         this.vidcanvasCtx!.canvas.width = 128;
-        this.vidcanvasCtx!.canvas.height = 128;
+        this.vidcanvasCtx!.canvas.height = 256;
         this.scopecanvasCtx!.canvas.width = 256;
         this.scopecanvasCtx!.canvas.height = 256;
         break;
