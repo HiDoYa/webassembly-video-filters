@@ -59,7 +59,7 @@ export class AppComponent {
   ngAfterViewInit() {
     this.loadWasm();
     this.doLoad();
-    
+
     this.http.get(this.backendUrl + 'download', {responseType:'json'}).subscribe(response => {
       let videos = Object.values(response);
       videos.forEach ((element: any) => {
@@ -98,7 +98,7 @@ export class AppComponent {
     this.renderer.addClass(container, 'mat-button-focus-overlay');
     this.renderer.addClass(container, 'mat-ripple')
     this.renderer.addClass(container, 'mat-button-ripple');
-    
+
     const recaptchaContainer = this.renderer.createElement('a');
     recaptchaContainer.textContent = element;
     this.renderer.appendChild(recaptchaContainer, container);
@@ -109,7 +109,7 @@ export class AppComponent {
     this.renderer.addClass(recaptchaContainer, 'cdk-mouse-focused')
     this.renderer.addClass(recaptchaContainer, 'mat-button');
     this.renderer.addClass(recaptchaContainer, 'mat-button-wrapper');
-    
+
     this.renderer.listen(recaptchaContainer, 'click', this.getFileToPlay.bind(this) );
     this.renderer.appendChild(this.files?.nativeElement, recaptchaContainer);
   }
@@ -129,7 +129,7 @@ export class AppComponent {
         reportProgress: true,
         observe: 'events'
     }).pipe(finalize(() => this.reset()));
-  
+
     this.uploadSub = upload.subscribe(event => {
       if (event.type == HttpEventType.UploadProgress) {
         const total: number = (event.total == undefined) ? 0 : event.total;
@@ -144,9 +144,9 @@ export class AppComponent {
 
   async loadWasm() {
     const imports = {
-      wasi_snapshot_preview1: { 
+      wasi_snapshot_preview1: {
         proc_exit: () => { },
-        fd_write: () => { }, 
+        fd_write: () => { },
         fd_prestat_get: () => { },
         fd_prestat_dir_name: () => { },
         clock_time_get: () => { },
@@ -168,7 +168,7 @@ export class AppComponent {
         path_link: () => { },
         path_rename: () => { },
         fd_fdstat_set_flags: () => { },
-        fd_seek: () => { },	
+        fd_seek: () => { },
         fd_read: () => { }
       },
       env: {
@@ -255,24 +255,24 @@ export class AppComponent {
     this.computeTimes = [];
     this.currentScope = scope;
     switch(this.currentScope) {
-      case this.scopes.CPP_LUMASCOPE: 
-      case this.scopes.CPP_COLOR_LUMASCOPE: 
-      case this.scopes.CPP_RGB_PARADE: 
-      case this.scopes.VECTORSCOPE: 
-      case this.scopes.LUMASCOPE: 
+      case this.scopes.CPP_LUMASCOPE:
+      case this.scopes.CPP_COLOR_LUMASCOPE:
+      case this.scopes.CPP_RGB_PARADE:
+      case this.scopes.VECTORSCOPE:
+      case this.scopes.LUMASCOPE:
         this.vidcanvasCtx!.canvas.width = 128;
         this.vidcanvasCtx!.canvas.height = 256;
         this.scopecanvasCtx!.canvas.width = 128;
         this.scopecanvasCtx!.canvas.height = 256;
         break;
-      case this.scopes.VECTORSCOPE: 
-      case this.scopes.CPP_VECTORSCOPE: 
+      case this.scopes.VECTORSCOPE:
+      case this.scopes.CPP_VECTORSCOPE:
         this.vidcanvasCtx!.canvas.width = 128;
         this.vidcanvasCtx!.canvas.height = 128;
         this.scopecanvasCtx!.canvas.width = 256;
         this.scopecanvasCtx!.canvas.height = 256;
         break;
-      case this.scopes.RGB_PARADE: 
+      case this.scopes.RGB_PARADE:
         this.vidcanvasCtx!.canvas.width = 128;
         this.vidcanvasCtx!.canvas.height = 256;
         this.scopecanvasCtx!.canvas.width = 128 * 3;
@@ -291,7 +291,7 @@ export class AppComponent {
     this.bgScopeCtx!.canvas.width = 256;
     this.bgScopeCtx!.canvas.height = 256;
     let image = new Image();
-   
+
     this.bgScopeCtx?.clearRect( 0, 0, this.bgScope?.nativeElement.width, this.bgScope?.nativeElement.height);
     //this.cxFg.fillStyle = 'hsla(0, 0%, 100%, 0)';
 
@@ -300,7 +300,7 @@ export class AppComponent {
     }
 
     //where I am putting the chart for the scope.
-    image.src = "../../assets/images/scopes_test_9.png";
+    image.src = "../../assets/images/scopes_test.svg";
     // Start callback to process frame
     this.video?.nativeElement.addEventListener("play", () => {
       this.timerCallback();
@@ -317,7 +317,7 @@ export class AppComponent {
 		let frame = this.vidcanvasCtx?.getImageData(0, 0, width, height);
 		let data = Array.prototype.slice.call(frame?.data);
 		this.inputArray.set(data);
-      
+
     if (this.currentScope.name == "C++ Vector Scope") {
       this.currentScope.func(this.inputPointer, this.outputPointer, width, height, height);
     } else {
