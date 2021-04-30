@@ -82,6 +82,7 @@ KEEPALIVE void cpp_lumascope(char data_in[], char data_out[], int width, int hei
 
 			//increment histogram bucket for the luminance we found
 			histogram[height-Y_height-1] += 16.0*256/height; // (Y, U, V)
+			if (histogram[height-Y_height-1] > 255) histogram[height-Y_height-1] = 255;
 		}
 
 		for (int h = 0; h < height; h++) {
@@ -154,6 +155,10 @@ KEEPALIVE void cpp_color_lumascope(char data_in[], char data_out[], int width, i
 			G = totalG[h]/count[h];
 			B = totalB[h]/count[h];
 
+			if (R > 255) R = 255;
+			if (G > 255) G = 255;
+			if (B > 255) B = 255;
+
 			RGBtoUV(R, G, B, &U, &V);			  		// convert average RGB to UV
 			YUVtoRGB(histogramY[h], U, V, &R, &G, &B); 	// convert back to RGB with HISTOGRAM Y
 
@@ -197,6 +202,10 @@ KEEPALIVE void cpp_rgb_parade(char data_in[], char data_out[], int width, int he
 			histogram[height - Yr - 1][0] += 16.0*256/height;
 			histogram[height - Yg - 1][1] += 16.0*256/height;
 			histogram[height - Yb - 1][2] += 16.0*256/height;
+
+			if (histogram[height - Yr - 1][0] > 255) histogram[height - Yr - 1][0] = 255;
+			if (histogram[height - Yg - 1][1] > 255) histogram[height - Yg - 1][1] = 255;
+			if (histogram[height - Yb - 1][2] > 255) histogram[height - Yb - 1][2] = 255;
 		}
 
 		w_r = w;
@@ -378,7 +387,7 @@ KEEPALIVE void cpp_vectorscope(char data_in[], char data_out[], int width, int h
 			if (result > 256) result = 256;
 
 			data_out[index] = 0;
-			data_out[index+1] = result;
+			data_out[index+1] = (char)result;
 			data_out[index+2] = 0;
 		}
 	}

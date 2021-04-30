@@ -189,10 +189,10 @@ export class AppComponent {
         VECTORSCOPE: new ScopeDescriptor("Vector Scope", this.gModule.instance.exports.vectorscope),
         // TODO: Causes mem access err
         CPP_LUMASCOPE: new ScopeDescriptor("C++ Lumascope", this.gModule.instance.exports.cpp_lumascope),
-        CPP_COLOR_LUMASCOPE: new ScopeDescriptor("C++ Color Lumascope", this.gModule.instance.exports.cpp_color_lumascope),
+        CPP_COLOR_LUMASCOPE: new ScopeDescriptor("C++ Lumascope (Color)", this.gModule.instance.exports.cpp_color_lumascope),
         CPP_RGB_PARADE: new ScopeDescriptor("C++ RGB Parade", this.gModule.instance.exports.cpp_rgb_parade),
         CPP_VECTORSCOPE: new ScopeDescriptor("C++ Vector Scope", this.gModule.instance.exports.cpp_vectorscope),
-        CPP_COLOR_VECTORSCOPE: new ScopeDescriptor("C++ Color Vector Scope", this.gModule.instance.exports.cpp_color_vectorscope),
+        CPP_COLOR_VECTORSCOPE: new ScopeDescriptor("C++ Vector Scope (Color)", this.gModule.instance.exports.cpp_color_vectorscope),
       };
       this.currentScope = this.scopes.LUMASCOPE!;
     });
@@ -271,8 +271,8 @@ export class AppComponent {
         break;
       case this.scopes.CPP_RGB_PARADE: 
         console.log("cpp rgb parade selected");
-        this.vidcanvasCtx!.canvas.width = 256;
-        this.vidcanvasCtx!.canvas.height = 128;
+        this.vidcanvasCtx!.canvas.width = 128;
+        this.vidcanvasCtx!.canvas.height = 256;
         this.scopecanvasCtx!.canvas.width = 256 * 3;
         this.scopecanvasCtx!.canvas.height = 128;
         break;
@@ -309,7 +309,7 @@ export class AppComponent {
 		let data = Array.prototype.slice.call(frame?.data);
 		this.inputArray.set(data);
     
-    if (this.currentScope.name == "C++ Vector Scope" || this.currentScope.name == "C++ Color Vector Scope") {
+    if (this.currentScope.name == "C++ Vector Scope" || this.currentScope.name == "C++ Vector Scope (Color)") {
       this.currentScope.func(this.inputPointer, this.outputPointer, width, height, height);
     } else {
       console.log("width: " + width);
