@@ -168,44 +168,40 @@ KEEPALIVE void cpp_color_lumascope(char data_in[], char data_out[], int width, i
 	}
 }
 
-// get seperate RGB luminance (waveform)
+// get seperate RGB luminance (waveform), output is 3 * width
 KEEPALIVE void cpp_rgb_parade(char data_in[], char data_out[], int width, int height) {
-		int index;					// pixel's index
+	int index;					// pixel's index
 	int indexR, indexG, indexB;	// pixel's index
 	int Yr, Yg, Yb;				// pixel's luminance
 
-	int channel_width = width / 3;
 	int w_r, w_g, w_b;
 
 	// unsigned char histogram[1024][3];
 	float histogram[1024][3];
 
-	for (int w = 0; w <= channel_width; w++) {
-		if (w * 3 >= width) {
-				break;
-		}
-
+	for (int w = 0; w < width; w++) {
 		//initialize histogram elements to zero
 		for (int i=0; i < height; i++) {
 			histogram[i][0] = 0;
 			histogram[i][1] = 0;
 			histogram[i][2] = 0;
 		}
+
 		//find luminance, increment histogram bucket
 		for (int h = 0; h < height; h++) {
-			index = ((h * width) + (w * 3)) * 4;
+			index = (h * (width + w)) * 4;
 			Yr = (int) (data_in[index]/255.0) * height;
 			Yg = (int) (data_in[index+1]/255.0) * height;
 			Yb = (int) (data_in[index+2]/255.0) * height;
 
-			histogram[height - (Yr+1)][0] += 16.0*256/height;
-			histogram[height - (Yg+1)][1] += 16.0*256/height;
-			histogram[height - (Yb+1)][2] += 16.0*256/height;
+			histogram[height - Yr - 1][0] += 16.0*256/height;
+			histogram[height - Yg - 1][1] += 16.0*256/height;
+			histogram[height - Yb - 1][2] += 16.0*256/height;
 		}
 
 		w_r = w;
-		w_g = w + channel_width;
-		w_b = w + (2 * channel_width);
+		w_g = w + width;
+		w_b = w + (2 * width);
 
 		//display histogram
 		for (int h = 0; h < height; h++) {
@@ -213,7 +209,6 @@ KEEPALIVE void cpp_rgb_parade(char data_in[], char data_out[], int width, int he
 			indexG = ((h * width) + w_g) * 4;
 			indexB = ((h * width) + w_b) * 4;
 
-			
 			data_out[indexR+1] = 0; //R
 			data_out[indexR+2] = 0;
 			data_out[indexG]   = 0; //G
@@ -221,14 +216,87 @@ KEEPALIVE void cpp_rgb_parade(char data_in[], char data_out[], int width, int he
 			data_out[indexB]   = 0; //B
 			data_out[indexB+1] = 0;
 
-			data_out[indexR]   = histogram[h][0];
-			data_out[indexG+1] = histogram[h][1];
-			data_out[indexB+2] = histogram[h][2];
+			// data_out[indexR]   = histogram[h][0];
+			// data_out[indexG+1] = histogram[h][1];
+			// data_out[indexB+2] = histogram[h][2];
+
+			data_out[indexR]   = (char)255;
+			data_out[indexG+1] = (char)255;
+			data_out[indexB+2] = (char)255;
+
+			// set alpha
+			data_out[indexR+3] = (char)255;
+			data_out[indexG+3] = (char)255;
+			data_out[indexB+3] = (char)255;
 		}
 	}
 }
 
-KEEPALIVE void cpp_vectorscope(char data_in[], char data_out[], int width, int height, int scope_height) {
+// // get seperate RGB luminance (waveform)
+// KEEPALIVE void cpp_rgb_parade(char data_in[], char data_out[], int width, int height) {
+// 		int index;				// pixel's index
+// 	int indexR, indexG, indexB;	// pixel's index
+// 	int Yr, Yg, Yb;				// pixel's luminance
+
+// 	// int channel_width = width / 3;
+// 	int channel_width = width;
+// 	int w_r, w_g, w_b;
+
+// 	// unsigned char histogram[1024][3];
+// 	float histogram[1024][3];
+
+// 	for (int w = 0; w <= channel_width; w++) {
+// 		if (w * 3 >= width) {
+// 				break;
+// 		}
+
+// 		//initialize histogram elements to zero
+// 		for (int i=0; i < height; i++) {
+// 			histogram[i][0] = 0;
+// 			histogram[i][1] = 0;
+// 			histogram[i][2] = 0;
+// 		}
+// 		//find luminance, increment histogram bucket
+// 		for (int h = 0; h < height; h++) {
+// 			index = ((h * width) + (w * 3)) * 4;
+// 			Yr = (int) (data_in[index]/255.0) * height;
+// 			Yg = (int) (data_in[index+1]/255.0) * height;
+// 			Yb = (int) (data_in[index+2]/255.0) * height;
+
+// 			histogram[height - (Yr+1)][0] += 16.0*256/height;
+// 			histogram[height - (Yg+1)][1] += 16.0*256/height;
+// 			histogram[height - (Yb+1)][2] += 16.0*256/height;
+// 		}
+
+// 		w_r = w;
+// 		w_g = w + channel_width;
+// 		w_b = w + (2 * channel_width);
+
+// 		//display histogram
+// 		for (int h = 0; h < height; h++) {
+// 			indexR = ((h * width) + w_r) * 4;
+// 			indexG = ((h * width) + w_g) * 4;
+// 			indexB = ((h * width) + w_b) * 4;
+
+			
+// 			data_out[indexR+1] = 0; //R
+// 			data_out[indexR+2] = 0;
+// 			data_out[indexG]   = 0; //G
+// 			data_out[indexG+2] = 0;
+// 			data_out[indexB]   = 0; //B
+// 			data_out[indexB+1] = 0;
+
+// 			// data_out[indexR]   = histogram[h][0];
+// 			// data_out[indexG+1] = histogram[h][1];
+// 			// data_out[indexB+2] = histogram[h][2];
+// 			data_out[indexR]   = (char)255;
+// 			data_out[indexG+1] = (char)255;
+// 			data_out[indexB+2] = (char)255;
+// 		}
+// 	}
+// }
+
+KEEPALIVE void cpp_color_vectorscope(char data_in[], char data_out[], int width, int height, int scope_height) {
 	int index;
 	int x, y;
 	unsigned char R, G, B;
@@ -266,6 +334,52 @@ KEEPALIVE void cpp_vectorscope(char data_in[], char data_out[], int width, int h
 			data_out[index] = get_updated_color(data_out[index], R, height, 16);
 			data_out[index+1] = get_updated_color(data_out[index+1], G, height, 16);
 			data_out[index+2] = get_updated_color(data_out[index+2], B, height, 16);
+		}
+	}
+}
+
+KEEPALIVE void cpp_vectorscope(char data_in[], char data_out[], int width, int height, int scope_height) {
+	int index;
+	int x, y;
+	int result;
+	unsigned char R, G, B;
+	double U, V;
+
+	for (int w = 0; w < scope_height; w++) {
+		for (int h = 0; h < scope_height; h++) {
+				index = get_index(w, h, width);
+				data_out[index] = 0;
+				data_out[index+1] = 0;
+				data_out[index+2] = 0;
+				data_out[index+3] = (char)255;
+		}
+	}
+
+	for (int w = 0; w < width; w++) {
+		for (int h = 0; h < height; h++) {
+			index = get_index(w, h, width);
+
+			R = data_in[index];
+			G = data_in[index+1];
+			B = data_in[index+2];
+
+			// get UV
+			RGBtoUV(R, G, B, &U, &V);
+
+			// convert UV to XY
+			x = normalize(U) * scope_height + 0.5;				// 0 to scope's height
+			y = (height-1) - normalize(V) * scope_height + 0.5; // 0 to scope's height
+
+			// calculate resulting pixel brightness
+			index = get_index(x, y, scope_height);
+
+			// insert result
+			result = data_out[index+1] + 16.0*256/scope_height;
+			if (result > 256) result = 256;
+
+			data_out[index] = 0;
+			data_out[index+1] = result;
+			data_out[index+2] = 0;
 		}
 	}
 }
