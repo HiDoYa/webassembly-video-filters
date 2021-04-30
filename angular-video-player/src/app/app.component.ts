@@ -255,13 +255,13 @@ export class AppComponent {
     switch(this.currentScope) {
       case this.scopes.CPP_LUMASCOPE: 
       case this.scopes.CPP_COLOR_LUMASCOPE: 
-      case this.scopes.LUMASCOPE: 
+      // case this.scopes.LUMASCOPE: 
         this.vidcanvasCtx!.canvas.width = 128;
         this.vidcanvasCtx!.canvas.height = 256;
         this.scopecanvasCtx!.canvas.width = 128;
         this.scopecanvasCtx!.canvas.height = 256;
         break;
-      case this.scopes.VECTORSCOPE: 
+      case this.scopes.VECTORSCOPE:
       case this.scopes.CPP_COLOR_VECTORSCOPE: 
       case this.scopes.CPP_VECTORSCOPE: 
         this.vidcanvasCtx!.canvas.width = 128;
@@ -269,8 +269,9 @@ export class AppComponent {
         this.scopecanvasCtx!.canvas.width = 256;
         this.scopecanvasCtx!.canvas.height = 256;
         break;
-      case this.scopes.CPP_RGB_PARADE:
       case this.scopes.RGB_PARADE: 
+      case this.scopes.LUMASCOPE: 
+      case this.scopes.CPP_RGB_PARADE:
         console.log("rgb parade selected");
         this.vidcanvasCtx!.canvas.width = 128;
         this.vidcanvasCtx!.canvas.height = 256;
@@ -307,8 +308,6 @@ export class AppComponent {
     if (this.currentScope.name == "C++ Vector Scope" || this.currentScope.name == "C++ Vector Scope (Color)") {
       this.currentScope.func(this.inputPointer, this.outputPointer, width, height, height);
     } else {
-      console.log("width: " + width);
-      console.log("height: " + height);
       this.currentScope.func(this.inputPointer, this.outputPointer, width, height);
     }
 
