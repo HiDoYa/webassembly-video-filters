@@ -269,14 +269,9 @@ export class AppComponent {
         this.scopecanvasCtx!.canvas.width = 256;
         this.scopecanvasCtx!.canvas.height = 256;
         break;
-      case this.scopes.CPP_RGB_PARADE: 
-        console.log("cpp rgb parade selected");
-        this.vidcanvasCtx!.canvas.width = 128;
-        this.vidcanvasCtx!.canvas.height = 256;
-        this.scopecanvasCtx!.canvas.width = 256 * 3;
-        this.scopecanvasCtx!.canvas.height = 128;
-        break;
+      case this.scopes.CPP_RGB_PARADE:
       case this.scopes.RGB_PARADE: 
+        console.log("rgb parade selected");
         this.vidcanvasCtx!.canvas.width = 128;
         this.vidcanvasCtx!.canvas.height = 256;
         this.scopecanvasCtx!.canvas.width = 128 * 3;

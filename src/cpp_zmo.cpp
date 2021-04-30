@@ -179,44 +179,35 @@ KEEPALIVE void cpp_rgb_parade(char data_in[], char data_out[], int width, int he
 	int indexR, indexG, indexB;	// pixel's index
 	int Yr, Yg, Yb;				// pixel's luminance
 
-	int w_r, w_g, w_b;
+	int output_width = width * 3;
 
-	// unsigned char histogram[1024][3];
 	float histogram[1024][3];
 
 	for (int w = 0; w < width; w++) {
 		//initialize histogram elements to zero
-		for (int i=0; i < height; i++) {
-			histogram[i][0] = 0;
-			histogram[i][1] = 0;
-			histogram[i][2] = 0;
+		for (int h=0; h < height; h++) {
+			histogram[h][0] = 0;
+			histogram[h][1] = 0;
+			histogram[h][2] = 0;
 		}
-
+                     
 		//find luminance, increment histogram bucket
 		for (int h = 0; h < height; h++) {
-			index = (h * (width + w)) * 4;
-			Yr = (int) (data_in[index]/255.0) * height;
-			Yg = (int) (data_in[index+1]/255.0) * height;
-			Yb = (int) (data_in[index+2]/255.0) * height;
+			index = ((h * width) + w) * 4;
+			Yr = (int)(data_in[index]/255.0 * (height-1));
+			Yg = (int)(data_in[index+1]/255.0 * (height-1));
+			Yb = (int)(data_in[index+2]/255.0 * (height-1));
 
 			histogram[height - Yr - 1][0] += 16.0*256/height;
 			histogram[height - Yg - 1][1] += 16.0*256/height;
 			histogram[height - Yb - 1][2] += 16.0*256/height;
-
-			if (histogram[height - Yr - 1][0] > 255) histogram[height - Yr - 1][0] = 255;
-			if (histogram[height - Yg - 1][1] > 255) histogram[height - Yg - 1][1] = 255;
-			if (histogram[height - Yb - 1][2] > 255) histogram[height - Yb - 1][2] = 255;
 		}
-
-		w_r = w;
-		w_g = w + width;
-		w_b = w + (2 * width);
 
 		//display histogram
 		for (int h = 0; h < height; h++) {
-			indexR = ((h * width) + w_r) * 4;
-			indexG = ((h * width) + w_g) * 4;
-			indexB = ((h * width) + w_b) * 4;
+			indexR = ((h * output_width) + w) * 4;
+			indexG = ((h * output_width) + w + width) * 4;
+			indexB = ((h * output_width) + w + 2*width) * 4;
 
 			data_out[indexR+1] = 0; //R
 			data_out[indexR+2] = 0;
@@ -225,13 +216,9 @@ KEEPALIVE void cpp_rgb_parade(char data_in[], char data_out[], int width, int he
 			data_out[indexB]   = 0; //B
 			data_out[indexB+1] = 0;
 
-			// data_out[indexR]   = histogram[h][0];
-			// data_out[indexG+1] = histogram[h][1];
-			// data_out[indexB+2] = histogram[h][2];
-
-			data_out[indexR]   = (char)255;
-			data_out[indexG+1] = (char)255;
-			data_out[indexB+2] = (char)255;
+			data_out[indexR]   = (char)histogram[h][0];
+			data_out[indexG+1] = (char)histogram[h][1];
+			data_out[indexB+2] = (char)histogram[h][2];
 
 			// set alpha
 			data_out[indexR+3] = (char)255;
@@ -240,70 +227,6 @@ KEEPALIVE void cpp_rgb_parade(char data_in[], char data_out[], int width, int he
 		}
 	}
 }
-
-// // get seperate RGB luminance (waveform)
-// KEEPALIVE void cpp_rgb_parade(char data_in[], char data_out[], int width, int height) {
-// 		int index;				// pixel's index
-// 	int indexR, indexG, indexB;	// pixel's index
-// 	int Yr, Yg, Yb;				// pixel's luminance
-
-// 	// int channel_width = width / 3;
-// 	int channel_width = width;
-// 	int w_r, w_g, w_b;
-
-// 	// unsigned char histogram[1024][3];
-// 	float histogram[1024][3];
-
-// 	for (int w = 0; w <= channel_width; w++) {
-// 		if (w * 3 >= width) {
-// 				break;
-// 		}
-
-// 		//initialize histogram elements to zero
-// 		for (int i=0; i < height; i++) {
-// 			histogram[i][0] = 0;
-// 			histogram[i][1] = 0;
-// 			histogram[i][2] = 0;
-// 		}
-// 		//find luminance, increment histogram bucket
-// 		for (int h = 0; h < height; h++) {
-// 			index = ((h * width) + (w * 3)) * 4;
-// 			Yr = (int) (data_in[index]/255.0) * height;
-// 			Yg = (int) (data_in[index+1]/255.0) * height;
-// 			Yb = (int) (data_in[index+2]/255.0) * height;
-
-// 			histogram[height - (Yr+1)][0] += 16.0*256/height;
-// 			histogram[height - (Yg+1)][1] += 16.0*256/height;
-// 			histogram[height - (Yb+1)][2] += 16.0*256/height;
-// 		}
-
-// 		w_r = w;
-// 		w_g = w + channel_width;
-// 		w_b = w + (2 * channel_width);
-
-// 		//display histogram
-// 		for (int h = 0; h < height; h++) {
-// 			indexR = ((h * width) + w_r) * 4;
-// 			indexG = ((h * width) + w_g) * 4;
-// 			indexB = ((h * width) + w_b) * 4;
-
-			
-// 			data_out[indexR+1] = 0; //R
-// 			data_out[indexR+2] = 0;
-// 			data_out[indexG]   = 0; //G
-// 			data_out[indexG+2] = 0;
-// 			data_out[indexB]   = 0; //B
-// 			data_out[indexB+1] = 0;
-
-// 			// data_out[indexR]   = histogram[h][0];
-// 			// data_out[indexG+1] = histogram[h][1];
-// 			// data_out[indexB+2] = histogram[h][2];
-// 			data_out[indexR]   = (char)255;
-// 			data_out[indexG+1] = (char)255;
-// 			data_out[indexB+2] = (char)255;
-// 		}
-// 	}
-// }
 
 KEEPALIVE void cpp_color_vectorscope(char data_in[], char data_out[], int width, int height, int scope_height) {
 	int index;
