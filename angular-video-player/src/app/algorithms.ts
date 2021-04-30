@@ -8,6 +8,9 @@ function convert_itu_bt709(r: number, g: number, b: number) {
 // convert to luminance scale 0-1 (regardless of R,G,B)
 function convert_simple(pixel: number) {
 	let luminance = pixel / 255.0;
+	if (luminance > 1) {
+		return 1;
+	}
 	return luminance;
 }
 
@@ -115,15 +118,15 @@ export function js_color_lumascope(data_in: any, data_out: any, width: number, h
 			Y_height = normalize(Y) * (height-1); // 0 - (height - 1)
 
 			// increment histogram bucket for the luminance we found (inverted)
-			histogramY[height-Y_height-1] += 4 * 256.0/height;
+			histogramY[Math.floor(height-Y_height-1)] += 4 * 256.0/height;
 
 			// sum RGB
-			totalR[height-Y_height-1] += data_in[index];
-			totalG[height-Y_height-1] += data_in[index+1];
-			totalB[height-Y_height-1] += data_in[index+2];
+			totalR[Math.floor(height-Y_height-1)] += data_in[index];
+			totalG[Math.floor(height-Y_height-1)] += data_in[index+1];
+			totalB[Math.floor(height-Y_height-1)] += data_in[index+2];
 
 			// counter
-			count[height-Y_height-1] += 1;
+			count[Math.floor(height-Y_height-1)] += 1;
 		}
 
 		// process data_out[]
@@ -161,11 +164,14 @@ export function js_rgb_parade(data_in: any, data_out: any, width: number, height
 	let indexR, indexG, indexB;	// pixel's index
 	let Yr, Yg, Yb;				// pixel's luminance
 
-	let channel_width = width / 3;
+	let channel_width = Math.floor(width / 3);
 	let w_r, w_g, w_b;
 
 	//  histogram[1024][3];
-	let histogram = new Array(1024).map(() => new Array(3));
+	let histogram = new Array(1024);
+	for (let i = 0; i < 1024; i++) {
+		histogram[i] = new Array(3);
+	}
 
 	for (let w = 0; w <= channel_width; w++) {
 		if (w * 3 >= width) {
@@ -185,9 +191,20 @@ export function js_rgb_parade(data_in: any, data_out: any, width: number, height
 			Yg = Math.floor(convert_simple(data_in[index+1]) * height);
 			Yb = Math.floor(convert_simple(data_in[index+2]) * height);
 
-			histogram[height - (Yr+1)][0] += 4.0*256/height;
-			histogram[height - (Yg+1)][1] += 4.0*256/height;
-			histogram[height - (Yb+1)][2] += 4.0*256/height;
+			function clean_index(input: number) {
+				if (input < 0) {
+					return 0;
+				}
+				if (input >= height) {
+					return height -1;
+				}
+
+				return Math.floor(input)
+
+			}
+			histogram[clean_index(height - (Yr + 1))][0] += 4*256/height;
+			histogram[clean_index(height - (Yg + 1))][1] += 4*256/height;
+			histogram[clean_index(height - (Yb + 1))][2] += 4*256/height;
 		}
 
 		w_r = w;
@@ -215,7 +232,8 @@ export function js_rgb_parade(data_in: any, data_out: any, width: number, height
 	}
 }
 
-export function js_vectorscope(data_in: any, data_out: any, width: number, height: number, scope_height: number) {
+export function js_vectorscope(data_in: any, data_out: any, width: number, height: number) {
+	let scope_height = height;
 	let index;
 	let x, y;
 	let R, G, B;
@@ -249,7 +267,7 @@ export function js_vectorscope(data_in: any, data_out: any, width: number, heigh
 			y = (height-1) - normalize(V) * scope_height + 0.5; // 0 to scope's height
 
 			// calculate resulting pixel brightness
-			index = getIndex(x, y, scope_height);
+			index = getIndex(Math.round(x), Math.round(y), scope_height);
 
 			// insert result
 			data_out[index] = getUpdatedColor(data_out[index], R, height, 4);
