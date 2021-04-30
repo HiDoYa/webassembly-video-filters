@@ -192,6 +192,7 @@ export class AppComponent {
         CPP_COLOR_LUMASCOPE: new ScopeDescriptor("C++ Color Lumascope", this.gModule.instance.exports.cpp_color_lumascope),
         CPP_RGB_PARADE: new ScopeDescriptor("C++ RGB Parade", this.gModule.instance.exports.cpp_rgb_parade),
         CPP_VECTORSCOPE: new ScopeDescriptor("C++ Vector Scope", this.gModule.instance.exports.cpp_vectorscope),
+        CPP_COLOR_VECTORSCOPE: new ScopeDescriptor("C++ Color Vector Scope", this.gModule.instance.exports.cpp_color_vectorscope),
       };
       this.currentScope = this.scopes.LUMASCOPE!;
     });
@@ -254,7 +255,6 @@ export class AppComponent {
     switch(this.currentScope) {
       case this.scopes.CPP_LUMASCOPE: 
       case this.scopes.CPP_COLOR_LUMASCOPE: 
-      case this.scopes.CPP_RGB_PARADE: 
       case this.scopes.LUMASCOPE: 
         this.vidcanvasCtx!.canvas.width = 128;
         this.vidcanvasCtx!.canvas.height = 256;
@@ -262,11 +262,19 @@ export class AppComponent {
         this.scopecanvasCtx!.canvas.height = 256;
         break;
       case this.scopes.VECTORSCOPE: 
+      case this.scopes.CPP_COLOR_VECTORSCOPE: 
       case this.scopes.CPP_VECTORSCOPE: 
         this.vidcanvasCtx!.canvas.width = 128;
         this.vidcanvasCtx!.canvas.height = 256;
         this.scopecanvasCtx!.canvas.width = 256;
         this.scopecanvasCtx!.canvas.height = 256;
+        break;
+      case this.scopes.CPP_RGB_PARADE: 
+        console.log("cpp rgb parade selected");
+        this.vidcanvasCtx!.canvas.width = 256;
+        this.vidcanvasCtx!.canvas.height = 128;
+        this.scopecanvasCtx!.canvas.width = 256 * 3;
+        this.scopecanvasCtx!.canvas.height = 128;
         break;
       case this.scopes.RGB_PARADE: 
         this.vidcanvasCtx!.canvas.width = 128;
@@ -300,12 +308,15 @@ export class AppComponent {
 		let frame = this.vidcanvasCtx?.getImageData(0, 0, width, height);
 		let data = Array.prototype.slice.call(frame?.data);
 		this.inputArray.set(data);
-      
-    if (this.currentScope.name == "C++ Vector Scope") {
+    
+    if (this.currentScope.name == "C++ Vector Scope" || this.currentScope.name == "C++ Color Vector Scope") {
       this.currentScope.func(this.inputPointer, this.outputPointer, width, height, height);
     } else {
+      console.log("width: " + width);
+      console.log("height: " + height);
       this.currentScope.func(this.inputPointer, this.outputPointer, width, height);
     }
+
     this.scopecanvasCtx?.putImageData(new ImageData(new Uint8ClampedArray(this.outputArray), outputWidth, outputHeight), 0, 0);
 		return;
 	}
