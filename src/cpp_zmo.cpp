@@ -168,7 +168,7 @@ KEEPALIVE void cpp_color_lumascope(char data_in[], char data_out[], int width, i
 			data_out[index]   = R;
 			data_out[index+1] = G;
 			data_out[index+2] = B;
-			data_out[index+3] = (char)255;
+			data_out[index+3] = (unsigned char)255;
 		}
 	}
 }
@@ -216,31 +216,32 @@ KEEPALIVE void cpp_rgb_parade(char data_in[], char data_out[], int width, int he
 			data_out[indexB]   = 0; //B
 			data_out[indexB+1] = 0;
 
-			data_out[indexR]   = (char)histogram[h][0];
-			data_out[indexG+1] = (char)histogram[h][1];
-			data_out[indexB+2] = (char)histogram[h][2];
+			data_out[indexR]   = (unsigned char)histogram[h][0];
+			data_out[indexG+1] = (unsigned char)histogram[h][1];
+			data_out[indexB+2] = (unsigned char)histogram[h][2];
 
 			// set alpha
-			data_out[indexR+3] = (char)255;
-			data_out[indexG+3] = (char)255;
-			data_out[indexB+3] = (char)255;
+			data_out[indexR+3] = (unsigned char)255;
+			data_out[indexG+3] = (unsigned char)255;
+			data_out[indexB+3] = (unsigned char)255;
 		}
 	}
 }
 
-KEEPALIVE void cpp_color_vectorscope(char data_in[], char data_out[], int width, int height, int scope_height) {
+KEEPALIVE void cpp_color_vectorscope(char data_in[], char data_out[], int width, int height) {
 	int index;
 	int x, y;
 	unsigned char R, G, B;
 	double U, V;
 
-	for (int w = 0; w < scope_height; w++) {
-		for (int h = 0; h < scope_height; h++) {
-				index = get_index(w, h, width);
-				data_out[index] = 0;
-				data_out[index+1] = 0;
-				data_out[index+2] = 0;
-				data_out[index+3] = (char)255;
+	for (int w = 0; w < height; w++) {
+		for (int h = 0; h < height; h++) {
+			index = get_index(w, h, height);
+
+			data_out[index] = 0;
+			data_out[index+1] = 0;
+			data_out[index+2] = 0;
+			data_out[index+3] = (unsigned char)255;
 		}
 	}
 
@@ -256,11 +257,15 @@ KEEPALIVE void cpp_color_vectorscope(char data_in[], char data_out[], int width,
 			RGBtoUV(R, G, B, &U, &V);
 
 			// convert UV to XY
-			x = normalize(U) * scope_height + 0.5;				// 0 to scope's height
-			y = (height-1) - normalize(V) * scope_height + 0.5; // 0 to scope's height
+			// x = normalize(U) * height + 0.5;				// 0 to scope's height
+			// y = (height-1) - normalize(V) * height + 0.5; // 0 to scope's height
+
+			x = normalize(U) * (height -1);				// 0 to scope's height
+			y = (height-1) - (normalize(V) * (height -1)); // 0 to scope's height
+
 
 			// calculate resulting pixel brightness
-			index = get_index(x, y, scope_height);
+			index = get_index(x, y, height);
 
 			// insert result
 			data_out[index] = get_updated_color(data_out[index], R, height, 16);
@@ -270,16 +275,16 @@ KEEPALIVE void cpp_color_vectorscope(char data_in[], char data_out[], int width,
 	}
 }
 
-KEEPALIVE void cpp_vectorscope(char data_in[], char data_out[], int width, int height, int scope_height) {
+KEEPALIVE void cpp_vectorscope(char data_in[], char data_out[], int width, int height) {
 	int index;
 	int x, y;
 	int result;
 	unsigned char R, G, B;
 	double U, V;
 
-	for (int w = 0; w < scope_height; w++) {
-		for (int h = 0; h < scope_height; h++) {
-				index = get_index(w, h, width);
+	for (int w = 0; w < height; w++) {
+		for (int h = 0; h < height; h++) {
+				index = get_index(w, h, height);
 				data_out[index] = 0;
 				data_out[index+1] = 0;
 				data_out[index+2] = 0;
@@ -299,14 +304,14 @@ KEEPALIVE void cpp_vectorscope(char data_in[], char data_out[], int width, int h
 			RGBtoUV(R, G, B, &U, &V);
 
 			// convert UV to XY
-			x = normalize(U) * scope_height + 0.5;				// 0 to scope's height
-			y = (height-1) - normalize(V) * scope_height + 0.5; // 0 to scope's height
+			x = normalize(U) * height + 0.5;				// 0 to scope's height
+			y = (height-1) - normalize(V) * height + 0.5; // 0 to scope's height
 
 			// calculate resulting pixel brightness
-			index = get_index(x, y, scope_height);
+			index = get_index(x, y, height);
 
 			// insert result
-			result = data_out[index+1] + 16.0*256/scope_height;
+			result = data_out[index+1] + 16.0*256/height;
 			if (result > 256) result = 256;
 
 			data_out[index] = 0;
