@@ -305,11 +305,11 @@ export class AppComponent {
 		let data = Array.prototype.slice.call(frame?.data);
 		this.inputArray.set(data);
     
-    if (this.currentScope.name == "C++ Vector Scope" || this.currentScope.name == "C++ Vector Scope (Color)") {
-      this.currentScope.func(this.inputPointer, this.outputPointer, width, height, height);
-    } else {
+    // if (this.currentScope.name == "C++ Vector Scope" || this.currentScope.name == "C++ Vector Scope (Color)") {
+    //   this.currentScope.func(this.inputPointer, this.outputPointer, width, height, height);
+    // } else {
       this.currentScope.func(this.inputPointer, this.outputPointer, width, height);
-    }
+    // }
 
     this.scopecanvasCtx?.putImageData(new ImageData(new Uint8ClampedArray(this.outputArray), outputWidth, outputHeight), 0, 0);
 		return;
