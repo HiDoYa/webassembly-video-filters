@@ -263,13 +263,16 @@ export function js_vectorscope(data_in: any, data_out: any, width: number, heigh
             V = uvVal[1];
 
 			// convert UV to XY
-			x = normalize(U) * scope_height + 0.5;				// 0 to scope's height
-			y = (height-1) - normalize(V) * scope_height + 0.5; // 0 to scope's height
+			x = normalize(U) * (height-1);				// 0 to scope's height
+			y = (height-1) - (normalize(V) * (height-1)); // 0 to scope's height
+			// convert UV to XY
 
 			// calculate resulting pixel brightness
 			index = getIndex(Math.round(x), Math.round(y), scope_height);
 
-			// insert result
+			let result = data_out[index+1] + 16.0*256/height;
+			if (result > 255) result = 255;
+
 			data_out[index] = getUpdatedColor(data_out[index], R, height, 4);
 			data_out[index+1] = getUpdatedColor(data_out[index+1], G, height, 4);
 			data_out[index+2] = getUpdatedColor(data_out[index+2], B, height, 4);
