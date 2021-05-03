@@ -257,11 +257,11 @@ KEEPALIVE void cpp_color_vectorscope(char data_in[], char data_out[], int width,
 			RGBtoUV(R, G, B, &U, &V);
 
 			// convert UV to XY
-			// x = normalize(U) * height + 0.5;				// 0 to scope's height
-			// y = (height-1) - normalize(V) * height + 0.5; // 0 to scope's height
+			// x = normalize(U) * height + 0.5;					// 0 to scope's height
+			// y = (height-1) - normalize(V) * height + 0.5; 	// 0 to scope's height
 
-			x = normalize(U) * (height -1);				// 0 to scope's height
-			y = (height-1) - (normalize(V) * (height -1)); // 0 to scope's height
+			x = normalize(U) * (height -1);					// 0 to scope's height
+			y = (height-1) - (normalize(V) * (height -1)); 	// 0 to scope's height
 
 
 			// calculate resulting pixel brightness
@@ -304,8 +304,8 @@ KEEPALIVE void cpp_vectorscope(char data_in[], char data_out[], int width, int h
 			RGBtoUV(R, G, B, &U, &V);
 
 			// convert UV to XY
-			x = normalize(U) * height + 0.5;				// 0 to scope's height
-			y = (height-1) - normalize(V) * height + 0.5; // 0 to scope's height
+			x = normalize(U) * (height -1);					// 0 to scope's height
+			y = (height-1) - (normalize(V) * (height -1)); 	// 0 to scope's height
 
 			// calculate resulting pixel brightness
 			index = get_index(x, y, height);

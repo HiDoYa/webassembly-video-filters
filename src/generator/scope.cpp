@@ -438,33 +438,33 @@ public:
 			.parallel (t)
 			.vectorize (xi, vec);
 
-			// // Allow the input and output to have arbitrary memory layout,
-			// // and add some specializations for a few common cases. If
-			// // your case is not covered (e.g. planar input, packed rgb
-			// // output), you could add a new specialization here.
+			// Allow the input and output to have arbitrary memory layout,
+			// and add some specializations for a few common cases. If
+			// your case is not covered (e.g. planar input, packed rgb
+			// output), you could add a new specialization here.
 
-			// output.dim (0).set_stride (Expr());
-			// input.dim (0).set_stride (Expr());
+			output.dim (0).set_stride (Expr());
+			input.dim (0).set_stride (Expr());
 
-			// Expr planar = (output.dim (0).stride() == 1 && input.dim (0).stride() == 1);
+			Expr planar = (output.dim (0).stride() == 1 && input.dim (0).stride() == 1);
 
-			// Expr packed_uv = (output.dim (0).stride() == 2
-			// 				  && output.dim (2).stride() == 1
-			// 				  && output.dim (2).min() == 0
-			// 				  && output.dim (2).extent() == 2
-			// 				  && input.dim (0).stride() == 2
-			// 				  && input.dim (2).stride() == 1
-			// 				  && input.dim (2).min() == 0
-			// 				  && input.dim (2).extent() == 2);
+			Expr packed_uv = (output.dim (0).stride() == 2
+							  && output.dim (2).stride() == 1
+							  && output.dim (2).min() == 0
+							  && output.dim (2).extent() == 2
+							  && input.dim (0).stride() == 2
+							  && input.dim (2).stride() == 1
+							  && input.dim (2).min() == 0
+							  && input.dim (2).extent() == 2);
 
-			// Expr packed_rgb = (output.dim (0).stride() == 3
-			// 				   && output.dim (2).stride() == 1
-			// 				   && output.dim (2).min() == 0
-			// 				   && output.dim (2).extent() == 3
-			// 				   && input.dim (0).stride() == 3
-			// 				   && input.dim (2).stride() == 1
-			// 				   && input.dim (2).min() == 0
-			// 				   && input.dim (2).extent() == 3);
+			Expr packed_rgb = (output.dim (0).stride() == 3
+							   && output.dim (2).stride() == 1
+							   && output.dim (2).min() == 0
+							   && output.dim (2).extent() == 3
+							   && input.dim (0).stride() == 3
+							   && input.dim (2).stride() == 1
+							   && input.dim (2).min() == 0
+							   && input.dim (2).extent() == 3);
 
 			Expr packed_rgba = (output.dim (0).stride() == 4
 								&& output.dim (2).stride() == 1
@@ -475,15 +475,15 @@ public:
 								&& input.dim (2).min() == 0
 								&& input.dim (2).extent() == 4);
 
-			// output.specialize (planar);
+			output.specialize (planar);
 
-			// output.specialize (packed_uv)
-			// .reorder (c, xi, yi, t)
-			// .unroll (c);
+			output.specialize (packed_uv)
+			.reorder (c, xi, yi, t)
+			.unroll (c);
 
-			// output.specialize (packed_rgb)
-			// .reorder (c, xi, yi, t)
-			// .unroll (c);
+			output.specialize (packed_rgb)
+			.reorder (c, xi, yi, t)
+			.unroll (c);
 
 			output.specialize (packed_rgba)
 			.reorder (c, xi, yi, t)
