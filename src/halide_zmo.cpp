@@ -18,6 +18,6 @@ KEEPALIVE void rgbparade(unsigned char data[], unsigned char data2[], int width,
 KEEPALIVE void vectorscope(unsigned char data[], unsigned char data2[], int width, int height) {
 	const int selector = ZMO::VECTORSCOPE;
 	ZMO::Region<int32_t> r(width,height);
-	ZMO::Scope_u8_C4(selector, data, width * 4, data2, 256 * 3, r);
+	ZMO::Scope_u8_C4(selector, data, width * 4, data2, width * 4, r);
 }
 

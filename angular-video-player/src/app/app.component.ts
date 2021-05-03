@@ -4,6 +4,8 @@ import { DomSanitizer, SafeResourceUrl, SafeUrl } from '@angular/platform-browse
 import { finalize } from 'rxjs/operators';
 import { Observable, Subscription } from 'rxjs';
 
+import { js_color_lumascope, js_lumascope, js_rgb_parade, js_vectorscope } from "./algorithms"
+
 class ScopeDescriptor {
   name: string = '';
   func: any;
@@ -187,13 +189,17 @@ export class AppComponent {
         LUMASCOPE: new ScopeDescriptor("Lumascope", this.gModule.instance.exports.lumascope),
         RGB_PARADE: new ScopeDescriptor("RGB Parade", this.gModule.instance.exports.rgbparade),
         VECTORSCOPE: new ScopeDescriptor("Vector Scope", this.gModule.instance.exports.vectorscope),
-        // TODO: Causes mem access err
         CPP_LUMASCOPE: new ScopeDescriptor("C++ Lumascope", this.gModule.instance.exports.cpp_lumascope),
         CPP_COLOR_LUMASCOPE: new ScopeDescriptor("C++ Color Lumascope", this.gModule.instance.exports.cpp_color_lumascope),
         CPP_RGB_PARADE: new ScopeDescriptor("C++ RGB Parade", this.gModule.instance.exports.cpp_rgb_parade),
         CPP_VECTORSCOPE: new ScopeDescriptor("C++ Vector Scope", this.gModule.instance.exports.cpp_vectorscope),
+        JS_LUMASCOPE: new ScopeDescriptor("JS Lumascope", js_lumascope),
+        JS_COLOR_LUMASCOPE: new ScopeDescriptor("JS Color Lumascope", js_color_lumascope),
+        JS_RGB_PARADE: new ScopeDescriptor("JS RGB Parade", js_rgb_parade),
+        JS_VECTORSCOPE: new ScopeDescriptor("JS Vector Scope", js_vectorscope),
       };
       this.currentScope = this.scopes.LUMASCOPE!;
+      this.changeScope(this.currentScope);
     });
   };
 
@@ -255,17 +261,16 @@ export class AppComponent {
       case this.scopes.CPP_LUMASCOPE: 
       case this.scopes.CPP_COLOR_LUMASCOPE: 
       case this.scopes.CPP_RGB_PARADE: 
-      case this.scopes.VECTORSCOPE: 
       case this.scopes.LUMASCOPE: 
-        this.vidcanvasCtx!.canvas.width = 128;
+        this.vidcanvasCtx!.canvas.width = 256;
         this.vidcanvasCtx!.canvas.height = 256;
-        this.scopecanvasCtx!.canvas.width = 128;
+        this.scopecanvasCtx!.canvas.width = 256;
         this.scopecanvasCtx!.canvas.height = 256;
         break;
       case this.scopes.VECTORSCOPE: 
       case this.scopes.CPP_VECTORSCOPE: 
-        this.vidcanvasCtx!.canvas.width = 128;
-        this.vidcanvasCtx!.canvas.height = 128;
+        this.vidcanvasCtx!.canvas.width = 256;
+        this.vidcanvasCtx!.canvas.height = 256;
         this.scopecanvasCtx!.canvas.width = 256;
         this.scopecanvasCtx!.canvas.height = 256;
         break;
@@ -300,14 +305,17 @@ export class AppComponent {
 
 		let frame = this.vidcanvasCtx?.getImageData(0, 0, width, height);
 		let data = Array.prototype.slice.call(frame?.data);
-		this.inputArray.set(data);
       
-    if (this.currentScope.name == "C++ Vector Scope") {
-      this.currentScope.func(this.inputPointer, this.outputPointer, width, height, height);
+    if (this.currentScope.name.includes("JS")) {
+      let data_out = Array.prototype.slice.call(data);
+      this.currentScope.func(data, data_out, width, height);
+      this.scopecanvasCtx?.putImageData(new ImageData(new Uint8ClampedArray(data_out), outputWidth, outputHeight), 0, 0);
     } else {
+      this.inputArray.set(data);
       this.currentScope.func(this.inputPointer, this.outputPointer, width, height);
+      this.scopecanvasCtx?.putImageData(new ImageData(new Uint8ClampedArray(this.outputArray), outputWidth, outputHeight), 0, 0);
     }
-    this.scopecanvasCtx?.putImageData(new ImageData(new Uint8ClampedArray(this.outputArray), outputWidth, outputHeight), 0, 0);
+
 		return;
 	}
 }
