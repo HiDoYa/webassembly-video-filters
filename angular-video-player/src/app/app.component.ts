@@ -194,7 +194,8 @@ export class AppComponent {
         CPP_VECTORSCOPE: new ScopeDescriptor("C++ Vector Scope", this.gModule.instance.exports.cpp_vectorscope),
         CPP_COLOR_VECTORSCOPE: new ScopeDescriptor("C++ Vector Scope (Color)", this.gModule.instance.exports.cpp_color_vectorscope),
       };
-      this.currentScope = this.scopes.LUMASCOPE!;
+      // this.currentScope = this.scopes.LUMASCOPE!;
+      this.currentScope = this.scopes.VECTORSCOPE!;
     });
   };
 
@@ -255,7 +256,7 @@ export class AppComponent {
     switch(this.currentScope) {
       case this.scopes.CPP_LUMASCOPE: 
       case this.scopes.CPP_COLOR_LUMASCOPE: 
-      // case this.scopes.LUMASCOPE: 
+      case this.scopes.LUMASCOPE: 
         this.vidcanvasCtx!.canvas.width = 128;
         this.vidcanvasCtx!.canvas.height = 256;
         this.scopecanvasCtx!.canvas.width = 128;
@@ -270,9 +271,7 @@ export class AppComponent {
         this.scopecanvasCtx!.canvas.height = 256;
         break;
       case this.scopes.RGB_PARADE: 
-      case this.scopes.LUMASCOPE: 
       case this.scopes.CPP_RGB_PARADE:
-        console.log("rgb parade selected");
         this.vidcanvasCtx!.canvas.width = 128;
         this.vidcanvasCtx!.canvas.height = 256;
         this.scopecanvasCtx!.canvas.width = 128 * 3;
