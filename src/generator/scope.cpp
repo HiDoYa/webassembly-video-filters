@@ -34,128 +34,69 @@ public:
 
 	void schedule()
 	{
-		if (auto_schedule == true)
-		{
-			// The auto-scheduler requires estimates on all the input/output
-			// sizes and parameter values in order to compare different
-			// alternatives and decide on a good schedule.
+		const int vec = natural_vector_size (input.type());
 
-			input.set_estimates ({ { 0, 1920 }, { 0, 1080 }, { 0, 3 } });
+		Var xi, yi, t;
 
-			output.set_estimates ({ { 0, 1920 }, { 0, 1080 }, { 0, 3 } });
+		const Expr width  = input.dim (0).extent();
+		const Expr height = input.dim (1).extent();
 
-			// Technically, the estimate values can be anything, but the closer
-			// they are to the actual use-case values, the better the generated
-			// schedule will be.
+		output
+		.tile (x, y, xi, yi, min (width, vec * 12), min (height, 30 * 8))
+		.fuse (x, y, t)
+		.parallel (t)
+		.vectorize (xi, vec);
 
-			// To auto-schedule the the pipeline, we don't have to do anything else:
-			// every Generator implicitly has a GeneratorParam named "auto_schedule";
-			// if this is set to true, Halide will call auto_schedule() on all of
-			// our pipeline's outputs automatically.
+		// Allow the input and output to have arbitrary memory layout,
+		// and add some specializations for a few common cases. If
+		// your case is not covered (e.g. planar input, packed rgb
+		// output), you could add a new specialization here.
 
-			// Every Generator also implicitly has a GeneratorParams named "machine_params",
-			// which allows you to specify characteristics of the machine architecture
-			// for the auto-scheduler; it's generally specified in your Makefile.
-			// If none is specified, the default machine parameters for a generic CPU
-			// architecture will be used by the auto-scheduler.
+		output.dim (0).set_stride (Expr());
+		input.dim (0).set_stride (Expr());
 
-			// Let's see some arbitrary but plausible values for the machine parameters.
-			//
-			//      const int kParallelism = 32;
-			//      const int kLastLevelCacheSize = 16 * 1024 * 1024;
-			//      const int kBalance = 40;
-			//      MachineParams machine_params(kParallelism, kLastLevelCacheSize, kBalance);
-			//
-			// The arguments to MachineParams are the maximum level of parallelism
-			// available, the size of the last-level cache (in KB), and the ratio
-			// between the cost of a miss at the last level cache and the cost
-			// of arithmetic on the target architecture, in that order.
+		Expr planar = (output.dim (0).stride() == 1 && input.dim (0).stride() == 1);
 
-			// Note that when using the auto-scheduler, no schedule should have
-			// been applied to the pipeline; otherwise, the auto-scheduler will
-			// throw an error. The current auto-scheduler cannot handle a
-			// partially-scheduled pipeline.
+		Expr packed_uv = (output.dim (0).stride() == 2
+							&& output.dim (2).stride() == 1
+							&& output.dim (2).min() == 0
+							&& output.dim (2).extent() == 2
+							&& input.dim (0).stride() == 2
+							&& input.dim (2).stride() == 1
+							&& input.dim (2).min() == 0
+							&& input.dim (2).extent() == 2);
 
-			// If HL_DEBUG_CODEGEN is set to 3 or greater, the schedule will be dumped
-			// to stdout (along with much other information); a more useful way is
-			// to add "schedule" to the -e flag to the Generator. (In CMake and Bazel,
-			// this is done using the "extra_outputs" flag.)
+		Expr packed_rgb = (output.dim (0).stride() == 3
+							&& output.dim (2).stride() == 1
+							&& output.dim (2).min() == 0
+							&& output.dim (2).extent() == 3
+							&& input.dim (0).stride() == 3
+							&& input.dim (2).stride() == 1
+							&& input.dim (2).min() == 0
+							&& input.dim (2).extent() == 3);
 
-			// The generated schedule that is dumped to file is an actual
-			// Halide C++ source, which is readily scope-pasteable back into
-			// this very same source file with few modifications. Programmers
-			// can use this as a starting schedule and iteratively improve the
-			// schedule. Note that the current auto-scheduler is only able to
-			// generate CPU schedules and only does tiling, simple vectorization
-			// and parallelization. It doesn't deal with line buffering, storage
-			// reordering, or factoring reductions.
-		}
-		else
-		{
-			const int vec = natural_vector_size (input.type());
+		Expr packed_rgba = (output.dim (0).stride() == 4
+							&& output.dim (2).stride() == 1
+							&& output.dim (2).min() == 0
+							&& output.dim (2).extent() == 4
+							&& input.dim (0).stride() == 4
+							&& input.dim (2).stride() == 1
+							&& input.dim (2).min() == 0
+							&& input.dim (2).extent() == 4);
 
-			Var xi, yi, t;
+		output.specialize (planar);
 
-			const Expr width  = input.dim (0).extent();
-			const Expr height = input.dim (1).extent();
+		output.specialize (packed_uv)
+		.reorder (c, xi, yi, t)
+		.unroll (c);
 
-			output
-			.tile (x, y, xi, yi, min (width, vec * 12), min (height, 30 * 8))
-			.fuse (x, y, t)
-			.parallel (t)
-			.vectorize (xi, vec);
+		output.specialize (packed_rgb)
+		.reorder (c, xi, yi, t)
+		.unroll (c);
 
-			// Allow the input and output to have arbitrary memory layout,
-			// and add some specializations for a few common cases. If
-			// your case is not covered (e.g. planar input, packed rgb
-			// output), you could add a new specialization here.
-
-			output.dim (0).set_stride (Expr());
-			input.dim (0).set_stride (Expr());
-
-			Expr planar = (output.dim (0).stride() == 1 && input.dim (0).stride() == 1);
-
-			Expr packed_uv = (output.dim (0).stride() == 2
-							  && output.dim (2).stride() == 1
-							  && output.dim (2).min() == 0
-							  && output.dim (2).extent() == 2
-							  && input.dim (0).stride() == 2
-							  && input.dim (2).stride() == 1
-							  && input.dim (2).min() == 0
-							  && input.dim (2).extent() == 2);
-
-			Expr packed_rgb = (output.dim (0).stride() == 3
-							   && output.dim (2).stride() == 1
-							   && output.dim (2).min() == 0
-							   && output.dim (2).extent() == 3
-							   && input.dim (0).stride() == 3
-							   && input.dim (2).stride() == 1
-							   && input.dim (2).min() == 0
-							   && input.dim (2).extent() == 3);
-
-			Expr packed_rgba = (output.dim (0).stride() == 4
-								&& output.dim (2).stride() == 1
-								&& output.dim (2).min() == 0
-								&& output.dim (2).extent() == 4
-								&& input.dim (0).stride() == 4
-								&& input.dim (2).stride() == 1
-								&& input.dim (2).min() == 0
-								&& input.dim (2).extent() == 4);
-
-			output.specialize (planar);
-
-			output.specialize (packed_uv)
-			.reorder (c, xi, yi, t)
-			.unroll (c);
-
-			output.specialize (packed_rgb)
-			.reorder (c, xi, yi, t)
-			.unroll (c);
-
-			output.specialize (packed_rgba)
-			.reorder (c, xi, yi, t)
-			.unroll (c);
-		}
+		output.specialize (packed_rgba)
+		.reorder (c, xi, yi, t)
+		.unroll (c);
 	}
 };
 
@@ -195,128 +136,69 @@ public:
 
 	void schedule()
 	{
-		if (auto_schedule == true)
-		{
-			// The auto-scheduler requires estimates on all the input/output
-			// sizes and parameter values in order to compare different
-			// alternatives and decide on a good schedule.
+		const int vec = natural_vector_size (input.type());
 
-			input.set_estimates ({ { 0, 1920 }, { 0, 1080 }, { 0, 3 } });
+		Var xi, yi, t;
 
-			output.set_estimates ({ { 0, 1920 }, { 0, 1080 }, { 0, 3 } });
+		const Expr width  = input.dim (0).extent();
+		const Expr height = input.dim (1).extent();
 
-			// Technically, the estimate values can be anything, but the closer
-			// they are to the actual use-case values, the better the generated
-			// schedule will be.
+		output
+		.tile (x, y, xi, yi, min (width, vec * 12), min (height, 30 * 8))
+		.fuse (x, y, t)
+		.parallel (t)
+		.vectorize (xi, vec);
 
-			// To auto-schedule the the pipeline, we don't have to do anything else:
-			// every Generator implicitly has a GeneratorParam named "auto_schedule";
-			// if this is set to true, Halide will call auto_schedule() on all of
-			// our pipeline's outputs automatically.
+		// Allow the input and output to have arbitrary memory layout,
+		// and add some specializations for a few common cases. If
+		// your case is not covered (e.g. planar input, packed rgb
+		// output), you could add a new specialization here.
 
-			// Every Generator also implicitly has a GeneratorParams named "machine_params",
-			// which allows you to specify characteristics of the machine architecture
-			// for the auto-scheduler; it's generally specified in your Makefile.
-			// If none is specified, the default machine parameters for a generic CPU
-			// architecture will be used by the auto-scheduler.
+		output.dim (0).set_stride (Expr());
+		input.dim (0).set_stride (Expr());
 
-			// Let's see some arbitrary but plausible values for the machine parameters.
-			//
-			//      const int kParallelism = 32;
-			//      const int kLastLevelCacheSize = 16 * 1024 * 1024;
-			//      const int kBalance = 40;
-			//      MachineParams machine_params(kParallelism, kLastLevelCacheSize, kBalance);
-			//
-			// The arguments to MachineParams are the maximum level of parallelism
-			// available, the size of the last-level cache (in KB), and the ratio
-			// between the cost of a miss at the last level cache and the cost
-			// of arithmetic on the target architecture, in that order.
+		Expr planar = (output.dim (0).stride() == 1 && input.dim (0).stride() == 1);
 
-			// Note that when using the auto-scheduler, no schedule should have
-			// been applied to the pipeline; otherwise, the auto-scheduler will
-			// throw an error. The current auto-scheduler cannot handle a
-			// partially-scheduled pipeline.
+		Expr packed_uv = (output.dim (0).stride() == 2
+							&& output.dim (2).stride() == 1
+							&& output.dim (2).min() == 0
+							&& output.dim (2).extent() == 2
+							&& input.dim (0).stride() == 2
+							&& input.dim (2).stride() == 1
+							&& input.dim (2).min() == 0
+							&& input.dim (2).extent() == 2);
 
-			// If HL_DEBUG_CODEGEN is set to 3 or greater, the schedule will be dumped
-			// to stdout (along with much other information); a more useful way is
-			// to add "schedule" to the -e flag to the Generator. (In CMake and Bazel,
-			// this is done using the "extra_outputs" flag.)
+		Expr packed_rgb = (output.dim (0).stride() == 3
+							&& output.dim (2).stride() == 1
+							&& output.dim (2).min() == 0
+							&& output.dim (2).extent() == 3
+							&& input.dim (0).stride() == 3
+							&& input.dim (2).stride() == 1
+							&& input.dim (2).min() == 0
+							&& input.dim (2).extent() == 3);
 
-			// The generated schedule that is dumped to file is an actual
-			// Halide C++ source, which is readily scope-pasteable back into
-			// this very same source file with few modifications. Programmers
-			// can use this as a starting schedule and iteratively improve the
-			// schedule. Note that the current auto-scheduler is only able to
-			// generate CPU schedules and only does tiling, simple vectorization
-			// and parallelization. It doesn't deal with line buffering, storage
-			// reordering, or factoring reductions.
-		}
-		else
-		{
-			const int vec = natural_vector_size (input.type());
+		Expr packed_rgba = (output.dim (0).stride() == 4
+							&& output.dim (2).stride() == 1
+							&& output.dim (2).min() == 0
+							&& output.dim (2).extent() == 4
+							&& input.dim (0).stride() == 4
+							&& input.dim (2).stride() == 1
+							&& input.dim (2).min() == 0
+							&& input.dim (2).extent() == 4);
 
-			Var xi, yi, t;
+		output.specialize (planar);
 
-			const Expr width  = input.dim (0).extent();
-			const Expr height = input.dim (1).extent();
+		output.specialize (packed_uv)
+		.reorder (c, xi, yi, t)
+		.unroll (c);
 
-			output
-			.tile (x, y, xi, yi, min (width, vec * 12), min (height, 30 * 8))
-			.fuse (x, y, t)
-			.parallel (t)
-			.vectorize (xi, vec);
+		output.specialize (packed_rgb)
+		.reorder (c, xi, yi, t)
+		.unroll (c);
 
-			// Allow the input and output to have arbitrary memory layout,
-			// and add some specializations for a few common cases. If
-			// your case is not covered (e.g. planar input, packed rgb
-			// output), you could add a new specialization here.
-
-			output.dim (0).set_stride (Expr());
-			input.dim (0).set_stride (Expr());
-
-			Expr planar = (output.dim (0).stride() == 1 && input.dim (0).stride() == 1);
-
-			Expr packed_uv = (output.dim (0).stride() == 2
-							  && output.dim (2).stride() == 1
-							  && output.dim (2).min() == 0
-							  && output.dim (2).extent() == 2
-							  && input.dim (0).stride() == 2
-							  && input.dim (2).stride() == 1
-							  && input.dim (2).min() == 0
-							  && input.dim (2).extent() == 2);
-
-			Expr packed_rgb = (output.dim (0).stride() == 3
-							   && output.dim (2).stride() == 1
-							   && output.dim (2).min() == 0
-							   && output.dim (2).extent() == 3
-							   && input.dim (0).stride() == 3
-							   && input.dim (2).stride() == 1
-							   && input.dim (2).min() == 0
-							   && input.dim (2).extent() == 3);
-
-			Expr packed_rgba = (output.dim (0).stride() == 4
-								&& output.dim (2).stride() == 1
-								&& output.dim (2).min() == 0
-								&& output.dim (2).extent() == 4
-								&& input.dim (0).stride() == 4
-								&& input.dim (2).stride() == 1
-								&& input.dim (2).min() == 0
-								&& input.dim (2).extent() == 4);
-
-			output.specialize (planar);
-
-			output.specialize (packed_uv)
-			.reorder (c, xi, yi, t)
-			.unroll (c);
-
-			output.specialize (packed_rgb)
-			.reorder (c, xi, yi, t)
-			.unroll (c);
-
-			output.specialize (packed_rgba)
-			.reorder (c, xi, yi, t)
-			.unroll (c);
-		}
+		output.specialize (packed_rgba)
+		.reorder (c, xi, yi, t)
+		.unroll (c);
 	}
 };
 
@@ -357,128 +239,69 @@ public:
 
 	void schedule()
 	{
-		if (auto_schedule == true)
-		{
-			// The auto-scheduler requires estimates on all the input/output
-			// sizes and parameter values in order to compare different
-			// alternatives and decide on a good schedule.
+		const int vec = natural_vector_size (input.type());
 
-			input.set_estimates ({ { 0, 1920 }, { 0, 1080 }, { 0, 3 } });
+		Var xi, yi, t;
 
-			output.set_estimates ({ { 0, 1920 }, { 0, 1080 }, { 0, 3 } });
+		const Expr width  = input.dim (0).extent();
+		const Expr height = input.dim (1).extent();
 
-			// Technically, the estimate values can be anything, but the closer
-			// they are to the actual use-case values, the better the generated
-			// schedule will be.
+		output
+		.tile (x, y, xi, yi, min (width, vec * 12), min (height, 30 * 8))
+		.fuse (x, y, t)
+		.parallel (t)
+		.vectorize (xi, vec);
 
-			// To auto-schedule the the pipeline, we don't have to do anything else:
-			// every Generator implicitly has a GeneratorParam named "auto_schedule";
-			// if this is set to true, Halide will call auto_schedule() on all of
-			// our pipeline's outputs automatically.
+		// Allow the input and output to have arbitrary memory layout,
+		// and add some specializations for a few common cases. If
+		// your case is not covered (e.g. planar input, packed rgb
+		// output), you could add a new specialization here.
 
-			// Every Generator also implicitly has a GeneratorParams named "machine_params",
-			// which allows you to specify characteristics of the machine architecture
-			// for the auto-scheduler; it's generally specified in your Makefile.
-			// If none is specified, the default machine parameters for a generic CPU
-			// architecture will be used by the auto-scheduler.
+		output.dim (0).set_stride (Expr());
+		input.dim (0).set_stride (Expr());
 
-			// Let's see some arbitrary but plausible values for the machine parameters.
-			//
-			//      const int kParallelism = 32;
-			//      const int kLastLevelCacheSize = 16 * 1024 * 1024;
-			//      const int kBalance = 40;
-			//      MachineParams machine_params(kParallelism, kLastLevelCacheSize, kBalance);
-			//
-			// The arguments to MachineParams are the maximum level of parallelism
-			// available, the size of the last-level cache (in KB), and the ratio
-			// between the cost of a miss at the last level cache and the cost
-			// of arithmetic on the target architecture, in that order.
+		Expr planar = (output.dim (0).stride() == 1 && input.dim (0).stride() == 1);
 
-			// Note that when using the auto-scheduler, no schedule should have
-			// been applied to the pipeline; otherwise, the auto-scheduler will
-			// throw an error. The current auto-scheduler cannot handle a
-			// partially-scheduled pipeline.
+		Expr packed_uv = (output.dim (0).stride() == 2
+							&& output.dim (2).stride() == 1
+							&& output.dim (2).min() == 0
+							&& output.dim (2).extent() == 2
+							&& input.dim (0).stride() == 2
+							&& input.dim (2).stride() == 1
+							&& input.dim (2).min() == 0
+							&& input.dim (2).extent() == 2);
 
-			// If HL_DEBUG_CODEGEN is set to 3 or greater, the schedule will be dumped
-			// to stdout (along with much other information); a more useful way is
-			// to add "schedule" to the -e flag to the Generator. (In CMake and Bazel,
-			// this is done using the "extra_outputs" flag.)
+		Expr packed_rgb = (output.dim (0).stride() == 3
+							&& output.dim (2).stride() == 1
+							&& output.dim (2).min() == 0
+							&& output.dim (2).extent() == 3
+							&& input.dim (0).stride() == 3
+							&& input.dim (2).stride() == 1
+							&& input.dim (2).min() == 0
+							&& input.dim (2).extent() == 3);
 
-			// The generated schedule that is dumped to file is an actual
-			// Halide C++ source, which is readily scope-pasteable back into
-			// this very same source file with few modifications. Programmers
-			// can use this as a starting schedule and iteratively improve the
-			// schedule. Note that the current auto-scheduler is only able to
-			// generate CPU schedules and only does tiling, simple vectorization
-			// and parallelization. It doesn't deal with line buffering, storage
-			// reordering, or factoring reductions.
-		}
-		else
-		{
-			const int vec = natural_vector_size (input.type());
+		Expr packed_rgba = (output.dim (0).stride() == 4
+							&& output.dim (2).stride() == 1
+							&& output.dim (2).min() == 0
+							&& output.dim (2).extent() == 4
+							&& input.dim (0).stride() == 4
+							&& input.dim (2).stride() == 1
+							&& input.dim (2).min() == 0
+							&& input.dim (2).extent() == 4);
 
-			Var xi, yi, t;
+		output.specialize (planar);
 
-			const Expr width  = input.dim (0).extent();
-			const Expr height = input.dim (1).extent();
+		output.specialize (packed_uv)
+		.reorder (c, xi, yi, t)
+		.unroll (c);
 
-			output
-			.tile (x, y, xi, yi, min (width, vec * 12), min (height, 30 * 8))
-			.fuse (x, y, t)
-			.parallel (t)
-			.vectorize (xi, vec);
+		output.specialize (packed_rgb)
+		.reorder (c, xi, yi, t)
+		.unroll (c);
 
-			// Allow the input and output to have arbitrary memory layout,
-			// and add some specializations for a few common cases. If
-			// your case is not covered (e.g. planar input, packed rgb
-			// output), you could add a new specialization here.
-
-			output.dim (0).set_stride (Expr());
-			input.dim (0).set_stride (Expr());
-
-			Expr planar = (output.dim (0).stride() == 1 && input.dim (0).stride() == 1);
-
-			Expr packed_uv = (output.dim (0).stride() == 2
-							  && output.dim (2).stride() == 1
-							  && output.dim (2).min() == 0
-							  && output.dim (2).extent() == 2
-							  && input.dim (0).stride() == 2
-							  && input.dim (2).stride() == 1
-							  && input.dim (2).min() == 0
-							  && input.dim (2).extent() == 2);
-
-			Expr packed_rgb = (output.dim (0).stride() == 3
-							   && output.dim (2).stride() == 1
-							   && output.dim (2).min() == 0
-							   && output.dim (2).extent() == 3
-							   && input.dim (0).stride() == 3
-							   && input.dim (2).stride() == 1
-							   && input.dim (2).min() == 0
-							   && input.dim (2).extent() == 3);
-
-			Expr packed_rgba = (output.dim (0).stride() == 4
-								&& output.dim (2).stride() == 1
-								&& output.dim (2).min() == 0
-								&& output.dim (2).extent() == 4
-								&& input.dim (0).stride() == 4
-								&& input.dim (2).stride() == 1
-								&& input.dim (2).min() == 0
-								&& input.dim (2).extent() == 4);
-
-			output.specialize (planar);
-
-			output.specialize (packed_uv)
-			.reorder (c, xi, yi, t)
-			.unroll (c);
-
-			output.specialize (packed_rgb)
-			.reorder (c, xi, yi, t)
-			.unroll (c);
-
-			output.specialize (packed_rgba)
-			.reorder (c, xi, yi, t)
-			.unroll (c);
-		}
+		output.specialize (packed_rgba)
+		.reorder (c, xi, yi, t)
+		.unroll (c);
 	}
 };
 

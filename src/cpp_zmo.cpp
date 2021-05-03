@@ -214,7 +214,9 @@ KEEPALIVE void cpp_rgb_parade(char data_in[], char data_out[], int width, int he
 	}
 }
 
-KEEPALIVE void cpp_vectorscope(char data_in[], char data_out[], int width, int height, int scope_height) {
+KEEPALIVE void cpp_vectorscope(char data_in[], char data_out[], int width, int height) {
+	int scope_height = 255;
+
 	int index;
 	int x, y;
 	unsigned char R, G, B;

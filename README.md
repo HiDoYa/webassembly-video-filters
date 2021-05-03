@@ -1,5 +1,7 @@
 # Webassembly Video Filters
 
+Webassembly is a technology allowing binary instruction format to be run on the browser. We put this to the test using video scopes written in C++ and translated to Webassembly.
+
 ## Running the Webserver
 To run the website, you must have node and python3 installed. 
 
