@@ -307,7 +307,7 @@ export class AppComponent {
 		let data = Array.prototype.slice.call(frame?.data);
       
     if (this.currentScope.name.includes("JS")) {
-      let data_out = data;
+      let data_out = Array.prototype.slice.call(data);
       this.currentScope.func(data, data_out, width, height);
       this.scopecanvasCtx?.putImageData(new ImageData(new Uint8ClampedArray(data_out), outputWidth, outputHeight), 0, 0);
     } else {
