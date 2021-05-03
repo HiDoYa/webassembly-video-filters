@@ -184,11 +184,12 @@ export class AppComponent {
 
       // Get scopes
       this.scopes = {
-        LUMASCOPE: new ScopeDescriptor("Lumascope", this.gModule.instance.exports.lumascope),
-        RGB_PARADE: new ScopeDescriptor("RGB Parade", this.gModule.instance.exports.rgbparade),
-        VECTORSCOPE: new ScopeDescriptor("Vector Scope", this.gModule.instance.exports.vectorscope),
-        CVECTORSCOPE: new ScopeDescriptor("Color Vector Scope", this.gModule.instance.exports.cvectorscope),
-        CLUMASCOPE: new ScopeDescriptor("Color Lumascope", this.gModule.instance.exports.clumascope),
+        LUMASCOPE: new ScopeDescriptor("Halide Lumascope", this.gModule.instance.exports.lumascope),
+        CLUMASCOPE: new ScopeDescriptor("Halide Lumascope (Color)", this.gModule.instance.exports.clumascope),
+        RGB_PARADE: new ScopeDescriptor("Halide RGB Parade", this.gModule.instance.exports.rgbparade),
+        VECTORSCOPE: new ScopeDescriptor("Halide Vector Scope", this.gModule.instance.exports.vectorscope),
+        CVECTORSCOPE: new ScopeDescriptor("Halide Vector Scope (Color)", this.gModule.instance.exports.cvectorscope),
+        
         // TODO: Causes mem access err
         CPP_LUMASCOPE: new ScopeDescriptor("C++ Lumascope", this.gModule.instance.exports.cpp_lumascope),
         CPP_COLOR_LUMASCOPE: new ScopeDescriptor("C++ Lumascope (Color)", this.gModule.instance.exports.cpp_color_lumascope),
@@ -308,11 +309,7 @@ export class AppComponent {
 		let data = Array.prototype.slice.call(frame?.data);
 		this.inputArray.set(data);
     
-    // if (this.currentScope.name == "C++ Vector Scope" || this.currentScope.name == "C++ Vector Scope (Color)") {
-    //   this.currentScope.func(this.inputPointer, this.outputPointer, width, height, height);
-    // } else {
-      this.currentScope.func(this.inputPointer, this.outputPointer, width, height);
-    // }
+    this.currentScope.func(this.inputPointer, this.outputPointer, width, height);
 
     this.scopecanvasCtx?.putImageData(new ImageData(new Uint8ClampedArray(this.outputArray), outputWidth, outputHeight), 0, 0);
 		return;
