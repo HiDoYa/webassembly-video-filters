@@ -101,6 +101,7 @@ public:
 		}
 		else
 		{
+			// // Schedule: None
 			const int vec = natural_vector_size (input.type());
 
 			Var xi, yi, t;
@@ -263,18 +264,19 @@ public:
 		}
 		else
 		{
+			// Schedule: Vectorize X 
 			const int vec = natural_vector_size (input.type());
 
-			Var xi, yi, t;
+			// Var xi, yi, t;
 
-			const Expr width  = input.dim (0).extent();
-			const Expr height = input.dim (1).extent();
+			// const Expr width  = input.dim (0).extent();
+			// const Expr height = input.dim (1).extent();
 
 			output
-			.tile (x, y, xi, yi, min (width, vec * 12), min (height, 30 * 8))
-			.fuse (x, y, t)
-			.parallel (t)
-			.vectorize (xi, vec);
+			// .tile (x, y, xi, yi, min (width, vec * 12), min (height, 30 * 8))
+			// .fuse (x, y, t)
+			// .parallel (xi)
+			.vectorize (x, vec); //xi
 
 			// Allow the input and output to have arbitrary memory layout,
 			// and add some specializations for a few common cases. If
@@ -284,48 +286,48 @@ public:
 			output.dim (0).set_stride (Expr());
 			input.dim (0).set_stride (Expr());
 
-			Expr planar = (output.dim (0).stride() == 1 && input.dim (0).stride() == 1);
+			// Expr planar = (output.dim (0).stride() == 1 && input.dim (0).stride() == 1);
 
-			Expr packed_uv = (output.dim (0).stride() == 2
-							  && output.dim (2).stride() == 1
-							  && output.dim (2).min() == 0
-							  && output.dim (2).extent() == 2
-							  && input.dim (0).stride() == 2
-							  && input.dim (2).stride() == 1
-							  && input.dim (2).min() == 0
-							  && input.dim (2).extent() == 2);
+			// Expr packed_uv = (output.dim (0).stride() == 2
+			// 				  && output.dim (2).stride() == 1
+			// 				  && output.dim (2).min() == 0
+			// 				  && output.dim (2).extent() == 2
+			// 				  && input.dim (0).stride() == 2
+			// 				  && input.dim (2).stride() == 1
+			// 				  && input.dim (2).min() == 0
+			// 				  && input.dim (2).extent() == 2);
 
-			Expr packed_rgb = (output.dim (0).stride() == 3
-							   && output.dim (2).stride() == 1
-							   && output.dim (2).min() == 0
-							   && output.dim (2).extent() == 3
-							   && input.dim (0).stride() == 3
-							   && input.dim (2).stride() == 1
-							   && input.dim (2).min() == 0
-							   && input.dim (2).extent() == 3);
+			// Expr packed_rgb = (output.dim (0).stride() == 3
+			// 				   && output.dim (2).stride() == 1
+			// 				   && output.dim (2).min() == 0
+			// 				   && output.dim (2).extent() == 3
+			// 				   && input.dim (0).stride() == 3
+			// 				   && input.dim (2).stride() == 1
+			// 				   && input.dim (2).min() == 0
+			// 				   && input.dim (2).extent() == 3);
 
-			Expr packed_rgba = (output.dim (0).stride() == 4
-								&& output.dim (2).stride() == 1
-								&& output.dim (2).min() == 0
-								&& output.dim (2).extent() == 4
-								&& input.dim (0).stride() == 4
-								&& input.dim (2).stride() == 1
-								&& input.dim (2).min() == 0
-								&& input.dim (2).extent() == 4);
+			// Expr packed_rgba = (output.dim (0).stride() == 4
+			// 					&& output.dim (2).stride() == 1
+			// 					&& output.dim (2).min() == 0
+			// 					&& output.dim (2).extent() == 4
+			// 					&& input.dim (0).stride() == 4
+			// 					&& input.dim (2).stride() == 1
+			// 					&& input.dim (2).min() == 0
+			// 					&& input.dim (2).extent() == 4);
 
-			output.specialize (planar);
+			// output.specialize (planar);
 
-			output.specialize (packed_uv)
-			.reorder (c, xi, yi, t)
-			.unroll (c);
+			// output.specialize (packed_uv)
+			// .reorder (c, xi, yi, t)
+			// .unroll (c);
 
-			output.specialize (packed_rgb)
-			.reorder (c, xi, yi, t)
-			.unroll (c);
+			// output.specialize (packed_rgb)
+			// .reorder (c, xi, yi, t)
+			// .unroll (c);
 
-			output.specialize (packed_rgba)
-			.reorder (c, xi, yi, t)
-			.unroll (c);
+			// output.specialize (packed_rgba)
+			// .reorder (c, xi, yi, t)
+			// .unroll (c);
 		}
 	}
 };
@@ -425,18 +427,19 @@ public:
 		}
 		else
 		{
+			// Schedule: Vectorize X
 			const int vec = natural_vector_size (input.type());
 
-			Var xi, yi, t;
+			// Var xi, yi, t;
 
-			const Expr width  = input.dim (0).extent();
-			const Expr height = input.dim (1).extent();
+			// const Expr width  = input.dim (0).extent();
+			// const Expr height = input.dim (1).extent();
 
 			output
-			.tile (x, y, xi, yi, min (width, vec * 12), min (height, 30 * 8))
-			.fuse (x, y, t)
-			.parallel (t)
-			.vectorize (xi, vec);
+			// .tile (x, y, xi, yi, min (width, vec * 12), min (height, 30 * 8))
+			// .fuse (x, y, t)
+			// .parallel (t);
+			.vectorize (x, vec); // xi
 
 			// Allow the input and output to have arbitrary memory layout,
 			// and add some specializations for a few common cases. If
@@ -446,48 +449,48 @@ public:
 			output.dim (0).set_stride (Expr());
 			input.dim (0).set_stride (Expr());
 
-			Expr planar = (output.dim (0).stride() == 1 && input.dim (0).stride() == 1);
+			// Expr planar = (output.dim (0).stride() == 1 && input.dim (0).stride() == 1);
 
-			Expr packed_uv = (output.dim (0).stride() == 2
-							  && output.dim (2).stride() == 1
-							  && output.dim (2).min() == 0
-							  && output.dim (2).extent() == 2
-							  && input.dim (0).stride() == 2
-							  && input.dim (2).stride() == 1
-							  && input.dim (2).min() == 0
-							  && input.dim (2).extent() == 2);
+			// Expr packed_uv = (output.dim (0).stride() == 2
+			// 				  && output.dim (2).stride() == 1
+			// 				  && output.dim (2).min() == 0
+			// 				  && output.dim (2).extent() == 2
+			// 				  && input.dim (0).stride() == 2
+			// 				  && input.dim (2).stride() == 1
+			// 				  && input.dim (2).min() == 0
+			// 				  && input.dim (2).extent() == 2);
 
-			Expr packed_rgb = (output.dim (0).stride() == 3
-							   && output.dim (2).stride() == 1
-							   && output.dim (2).min() == 0
-							   && output.dim (2).extent() == 3
-							   && input.dim (0).stride() == 3
-							   && input.dim (2).stride() == 1
-							   && input.dim (2).min() == 0
-							   && input.dim (2).extent() == 3);
+			// Expr packed_rgb = (output.dim (0).stride() == 3
+			// 				   && output.dim (2).stride() == 1
+			// 				   && output.dim (2).min() == 0
+			// 				   && output.dim (2).extent() == 3
+			// 				   && input.dim (0).stride() == 3
+			// 				   && input.dim (2).stride() == 1
+			// 				   && input.dim (2).min() == 0
+			// 				   && input.dim (2).extent() == 3);
 
-			Expr packed_rgba = (output.dim (0).stride() == 4
-								&& output.dim (2).stride() == 1
-								&& output.dim (2).min() == 0
-								&& output.dim (2).extent() == 4
-								&& input.dim (0).stride() == 4
-								&& input.dim (2).stride() == 1
-								&& input.dim (2).min() == 0
-								&& input.dim (2).extent() == 4);
+			// Expr packed_rgba = (output.dim (0).stride() == 4
+			// 					&& output.dim (2).stride() == 1
+			// 					&& output.dim (2).min() == 0
+			// 					&& output.dim (2).extent() == 4
+			// 					&& input.dim (0).stride() == 4
+			// 					&& input.dim (2).stride() == 1
+			// 					&& input.dim (2).min() == 0
+			// 					&& input.dim (2).extent() == 4);
 
-			output.specialize (planar);
+			// output.specialize (planar);
 
-			output.specialize (packed_uv)
-			.reorder (c, xi, yi, t)
-			.unroll (c);
+			// output.specialize (packed_uv)
+			// .reorder (c, xi, yi, t)
+			// .unroll (c);
 
-			output.specialize (packed_rgb)
-			.reorder (c, xi, yi, t)
-			.unroll (c);
+			// output.specialize (packed_rgb)
+			// .reorder (c, xi, yi, t)
+			// .unroll (c);
 
-			output.specialize (packed_rgba)
-			.reorder (c, xi, yi, t)
-			.unroll (c);
+			// output.specialize (packed_rgba)
+			// .reorder (c, xi, yi, t)
+			// .unroll (c);
 		}
 	}
 };
@@ -590,18 +593,19 @@ public:
 		}
 		else
 		{
+			// Schedule: Vectorize X
 			const int vec = natural_vector_size (input.type());
 
-			Var xi, yi, t;
+			// Var xi, yi, t;
 
-			const Expr width  = input.dim (0).extent();
-			const Expr height = input.dim (1).extent();
+			// const Expr width  = input.dim (0).extent();
+			// const Expr height = input.dim (1).extent();
 
 			output
-			.tile (x, y, xi, yi, min (width, vec * 12), min (height, 30 * 8))
-			.fuse (x, y, t)
-			.parallel (t)
-			.vectorize (xi, vec);
+			// .tile (x, y, xi, yi, min (width, vec * 12), min (height, 30 * 8))
+			// .fuse (x, y, t)
+			// .parallel (t)
+			.vectorize (x, vec); // xi
 
 			// Allow the input and output to have arbitrary memory layout,
 			// and add some specializations for a few common cases. If
@@ -764,6 +768,7 @@ public:
 		}
 		else
 		{
+			// Schedule: None
 			const int vec = natural_vector_size (input.type());
 
 			Var xi, yi, t;
