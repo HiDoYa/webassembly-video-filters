@@ -3,7 +3,7 @@
   "version": "1.0",
   "description": "Webassembly video filters for youtube",
   "content_scripts": [{
-    "matches": ["*://*.youtube.com/watch*"],
+    "matches": ["*://*.youtube.com/watch*", "*://vimeo.com/*"],
     "all_frames": true,
     "js":      ["contentScript.js"]
   }],
