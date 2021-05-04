@@ -1,4 +1,17 @@
+let GLOBAL_SCOPE = "luma";
 let instance;
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) {
+    if (request.type == "SCOPE_TYPE") {
+      GLOBAL_SCOPE = request.scope;
+    } else if  (request.type == "SCOPE_TOGGLE") {
+      toggle(document.getElementById("c2"));
+    }
+    sendResponse({done: "done"});
+  }
+);
+init();
+
 async function loadWasm() {
     const imports = {
       wasi_snapshot_preview1: { 
@@ -40,15 +53,6 @@ async function loadWasm() {
     let wasm = await WebAssembly.instantiateStreaming(fetch(chrome.runtime.getURL("zmo.wasm")), imports);
     instance = wasm.instance;
 }
-
-let GLOBAL_SCOPE = "luma";
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
-    GLOBAL_SCOPE = request.scope;
-    sendResponse({done: "done"});
-  }
-);
-
 
 let processor = {
     timerCallback: function() {
@@ -117,19 +121,36 @@ let processor = {
     }
   };
 
-document.getElementById("logo").innerHTML += "<canvas id=\"c1\" style=\"display: none;\" width=\"255\" height=\"255\"></canvas>"
-document.getElementById("logo").innerHTML += "<canvas id=\"c2\" style=\"border: 1px solid white;position:absolute; top: 20px; left: 60px; z-index: 500;\" width=\"255\" height=\"255\"></canvas>"
+function init() {
+  let url = window.location.href;
+  let id = "topnav";
+  if (url.includes("youtube.com")) {
+    id = "logo";
+  } else if (url.includes("vimeo.com")) {
+    id = "topnav_desktop";
+  }
 
-loadWasm().then(function() {
-    instance.exports.memory.grow(15);
-    processor.doLoad();
-});
+  document.getElementById(id).innerHTML += "<canvas id=\"c1\" style=\"display: none;\" width=\"255\" height=\"255\"></canvas>"
+  document.getElementById(id).innerHTML += "<canvas id=\"c2\" style=\"border: 1px solid white;position:absolute; top: 20px; left: 60px; z-index: 500;\" width=\"255\" height=\"255\"></canvas>"
 
+  // Make the DIV element draggable:
+  dragElement(document.getElementById("c2"));
+
+  loadWasm().then(function() {
+      instance.exports.memory.grow(15);
+      processor.doLoad();
+  });
+}
+
+function toggle(elmnt) {
+  if (elmnt.style.display == "none") {
+    elmnt.style.display = "block";
+  } else {
+    elmnt.style.display = "none";
+  }
+}
 
 /// FOLLOWING ADAPTED FROM W3 SCHOOLS
-// Make the DIV element draggable:
-dragElement(document.getElementById("c2"));
-
 function dragElement(elmnt) {
   var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
   if (document.getElementById(elmnt.id + "header")) {
