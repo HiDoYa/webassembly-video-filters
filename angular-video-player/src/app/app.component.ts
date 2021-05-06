@@ -4,7 +4,7 @@ import { DomSanitizer, SafeResourceUrl, SafeUrl } from '@angular/platform-browse
 import { finalize } from 'rxjs/operators';
 import { Observable, Subscription } from 'rxjs';
 
-import { js_color_lumascope, js_lumascope, js_rgb_parade, js_vectorscope } from "./algorithms"
+import { js_color_lumascope, js_lumascope, js_rgb_parade, js_color_vectorscope, js_vectorscope } from "./algorithms"
 
 class ScopeDescriptor {
   name: string = '';
@@ -202,8 +202,8 @@ export class AppComponent {
         JS_LUMASCOPE: new ScopeDescriptor("JS Lumascope", js_lumascope),
         JS_COLOR_LUMASCOPE: new ScopeDescriptor("JS Color Lumascope", js_color_lumascope),
         JS_RGB_PARADE: new ScopeDescriptor("JS RGB Parade", js_rgb_parade),
-        JS_VECTORSCOPE: new ScopeDescriptor("JS Vector Scope", js_vectorscope),
-
+        JS_VECTORSCOPE: new ScopeDescriptor("JS Vector Scope (Color)", js_color_vectorscope),
+        JS_COLOR_VECTORSCOPE: new ScopeDescriptor("JS Vector Scope", js_vectorscope),
       };
       this.currentScope = this.scopes.LUMASCOPE!;
       this.changeScope(this.currentScope);
@@ -265,10 +265,10 @@ export class AppComponent {
     this.computeTimes = [];
     this.currentScope = scope;
     switch(this.currentScope) {
-
       case this.scopes.LUMASCOPE: 
       case this.scopes.CLUMASCOPE: 
-      case this.scopes.VECTORSCOPE: 
+      case this.scopes.CPP_LUMASCOPE: 
+      case this.scopes.CPP_COLOR_LUMASCOPE: 
       case this.scopes.JS_LUMASCOPE:
       case this.scopes.JS_COLOR_LUMASCOPE:
         this.vidcanvasCtx!.canvas.width = 128;
@@ -281,6 +281,7 @@ export class AppComponent {
       case this.scopes.CPP_VECTORSCOPE: 
       case this.scopes.CPP_COLOR_VECTORSCOPE: 
       case this.scopes.JS_VECTORSCOPE:
+      case this.scopes.JS_COLOR_VECTORSCOPE:
         this.vidcanvasCtx!.canvas.width = 128;
         this.vidcanvasCtx!.canvas.height = 256;
         this.scopecanvasCtx!.canvas.width = 256;
@@ -321,9 +322,10 @@ export class AppComponent {
     let data = Array.prototype.slice.call(frame?.data);
       
     if (this.currentScope.name.includes("JS")) {
-      let data_out = Array.prototype.slice.call(data);
+      let data_out = new Array(outputWidth * outputHeight * 4);
       this.currentScope.func(data, data_out, width, height);
       this.scopecanvasCtx?.putImageData(new ImageData(new Uint8ClampedArray(data_out), outputWidth, outputHeight), 0, 0);
+      
     } else {
       this.inputArray.set(data);
       this.currentScope.func(this.inputPointer, this.outputPointer, width, height);

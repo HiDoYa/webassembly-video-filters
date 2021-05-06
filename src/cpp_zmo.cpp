@@ -174,7 +174,7 @@ KEEPALIVE void cpp_color_lumascope(char data_in[], char data_out[], int width, i
 }
 
 // get seperate RGB luminance (waveform), output is 3 * width
-KEEPALIVE void cpp_rgb_parade(char data_in[], char data_out[], int width, int height) {
+KEEPALIVE void js_rgb_parade(char data_in[], char data_out[], int width, int height) {
 	int index;					// pixel's index
 	int indexR, indexG, indexB;	// pixel's index
 	int Yr, Yg, Yb;				// pixel's luminance
@@ -228,7 +228,7 @@ KEEPALIVE void cpp_rgb_parade(char data_in[], char data_out[], int width, int he
 	}
 }
 
-KEEPALIVE void cpp_color_vectorscope(char data_in[], char data_out[], int width, int height) {
+KEEPALIVE void js_color_vectorscope(char data_in[], char data_out[], int width, int height) {
 	int index;
 	int x, y;
 	unsigned char R, G, B;

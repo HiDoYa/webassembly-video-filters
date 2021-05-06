@@ -66,16 +66,16 @@ export function js_lumascope(data_in: any, data_out: any, width: number, height:
 												data_in[index+2]));
 
 			//increment histogram bucket for the luminance we found
-			histogram[height-(Y+1)]+=4.0*256/height; // (Y, U, V)
+			histogram[height-(Y+1)]+=16.0*256/height;
 		}
 
 		for (let h = 0; h < height; h++) {
 			index = ((h * width) + w) * 4;
 
 			//  display histogram using green pixels (i.e. set r and b to 0)
-			data_out[index] = histogram[h];
+			data_out[index] = 0;
 			data_out[index+1] = histogram[h];
-			data_out[index+2] = histogram[h];
+			data_out[index+2] = 0;
 			data_out[index+3] = 255;
 		}
 	}
@@ -118,7 +118,7 @@ export function js_color_lumascope(data_in: any, data_out: any, width: number, h
 			Y_height = normalize(Y) * (height-1); // 0 - (height - 1)
 
 			// increment histogram bucket for the luminance we found (inverted)
-			histogramY[Math.floor(height-Y_height-1)] += 4 * 256.0/height;
+			histogramY[Math.floor(height-Y_height-1)] += 16 * 256.0/height;
 
 			// sum RGB
 			totalR[Math.floor(height-Y_height-1)] += data_in[index];
@@ -138,11 +138,13 @@ export function js_color_lumascope(data_in: any, data_out: any, width: number, h
 			G = totalG[h]/count[h];
 			B = totalB[h]/count[h];
 
-			let uvVal = RGBtoUV(R, G, B);			  		// convert average RGB to UV
+			// convert to UV
+			let uvVal = RGBtoUV(R, G, B);
             U = uvVal[0];
             V = uvVal[1];
 
-			let rgbVal = YUVtoRGB(histogramY[h], U, V); 	// convert back to RGB with HISTOGRAM Y
+ 			// convert back to RGB with HISTOGRAM Y
+			let rgbVal = YUVtoRGB(histogramY[h], U, V);
             R = rgbVal[0];
             G = rgbVal[1];
             B = rgbVal[2];
@@ -164,58 +166,39 @@ export function js_rgb_parade(data_in: any, data_out: any, width: number, height
 	let indexR, indexG, indexB;	// pixel's index
 	let Yr, Yg, Yb;				// pixel's luminance
 
-	let channel_width = Math.floor(width / 3);
+	let output_width = width * 3;
 	let w_r, w_g, w_b;
 
-	//  histogram[1024][3];
 	let histogram = new Array(1024);
-	for (let i = 0; i < 1024; i++) {
-		histogram[i] = new Array(3);
+	for (let h=0; h < 1024; h++) {
+		histogram[h] = new Array(3);
 	}
 
-	for (let w = 0; w <= channel_width; w++) {
-		if (w * 3 >= width) {
-				break;
+	for (let w = 0; w < width; w++) {
+		//initialize histogram elements to zero
+		for (let h=0; h < height; h++) {
+			histogram[h][0] = 0;
+			histogram[h][1] = 0;
+			histogram[h][2] = 0;
 		}
 
-		//initialize histogram elements to zero
-		for (let i=0; i < height; i++) {
-			histogram[i][0] = 0;
-			histogram[i][1] = 0;
-			histogram[i][2] = 0;
-		}
 		//find luminance, increment histogram bucket
 		for (let h = 0; h < height; h++) {
-			index = ((h * width) + (w * 3)) * 4;
-			Yr = Math.floor(convert_simple(data_in[index]) * height);
-			Yg = Math.floor(convert_simple(data_in[index+1]) * height);
-			Yb = Math.floor(convert_simple(data_in[index+2]) * height);
+			index = ((h * width) + w) * 4;
+			Yr = Math.floor(data_in[index]/255.0 * (height-1));
+			Yg = Math.floor(data_in[index+1]/255.0 * (height-1));
+			Yb = Math.floor(data_in[index+2]/255.0 * (height-1));
 
-			function clean_index(input: number) {
-				if (input < 0) {
-					return 0;
-				}
-				if (input >= height) {
-					return height -1;
-				}
-
-				return Math.floor(input)
-
-			}
-			histogram[clean_index(height - (Yr + 1))][0] += 4*256/height;
-			histogram[clean_index(height - (Yg + 1))][1] += 4*256/height;
-			histogram[clean_index(height - (Yb + 1))][2] += 4*256/height;
+			histogram[height - Yr - 1][0] += 16.0*256/height;
+			histogram[height - Yg - 1][1] += 16.0*256/height;
+			histogram[height - Yb - 1][2] += 16.0*256/height;
 		}
-
-		w_r = w;
-		w_g = w + channel_width;
-		w_b = w + (2 * channel_width);
 
 		//display histogram
 		for (let h = 0; h < height; h++) {
-			indexR = ((h * width) + w_r) * 4;
-			indexG = ((h * width) + w_g) * 4;
-			indexB = ((h * width) + w_b) * 4;
+			indexR = ((h * output_width) + w) * 4;
+			indexG = ((h * output_width) + w + width) * 4;
+			indexB = ((h * output_width) + w + 2*width) * 4;
 
 			
 			data_out[indexR+1] = 0; //R
@@ -228,19 +211,23 @@ export function js_rgb_parade(data_in: any, data_out: any, width: number, height
 			data_out[indexR]   = histogram[h][0];
 			data_out[indexG+1] = histogram[h][1];
 			data_out[indexB+2] = histogram[h][2];
+
+			// set alpha
+			data_out[indexR+3] = 255;
+			data_out[indexG+3] = 255;
+			data_out[indexB+3] = 255;
 		}
 	}
 }
 
-export function js_vectorscope(data_in: any, data_out: any, width: number, height: number) {
-	let scope_height = height;
+export function js_color_vectorscope(data_in: any, data_out: any, width: number, height: number) {
 	let index;
 	let x, y;
 	let R, G, B;
 	let U, V;
 
 	for (let w = 0; w < width; w++) {
-		for (let h = 0; h < scope_height; h++) {
+		for (let h = 0; h < height; h++) {
 				index = getIndex(w, h, width);
 				data_out[index] = 0;
 				data_out[index+1] = 0;
@@ -263,19 +250,64 @@ export function js_vectorscope(data_in: any, data_out: any, width: number, heigh
             V = uvVal[1];
 
 			// convert UV to XY
-			x = normalize(U) * (height-1);				// 0 to scope's height
-			y = (height-1) - (normalize(V) * (height-1)); // 0 to scope's height
-			// convert UV to XY
+			x = normalize(U) * (height-1);
+			y = (height-1) - (normalize(V) * (height-1));
 
 			// calculate resulting pixel brightness
-			index = getIndex(Math.round(x), Math.round(y), scope_height);
+			index = getIndex(Math.round(x), Math.round(y), height);
+
+			data_out[index] = getUpdatedColor(data_out[index], R, height, 16);
+			data_out[index+1] = getUpdatedColor(data_out[index+1], G, height, 16);
+			data_out[index+2] = getUpdatedColor(data_out[index+2], B, height, 16);
+		}
+	}
+}
+
+
+export function js_vectorscope(data_in: any, data_out: any, width: number, height: number) {
+	
+	let index;
+	let x, y;
+	let R, G, B;
+	let U, V;
+
+	for (let w = 0; w < width; w++) {
+		for (let h = 0; h < height; h++) {
+				index = getIndex(w, h, width);
+				data_out[index] = 0;
+				data_out[index+1] = 0;
+				data_out[index+2] = 0;
+				data_out[index+3] = 255;
+			
+		}
+	}
+
+	for (let w = 0; w < width; w++) {
+		for (let h = 0; h < height; h++) {
+			index = getIndex(w, h, width);
+
+			R = data_in[index];
+			G = data_in[index+1];
+			B = data_in[index+2];
+
+			// get UV
+			let uvVal = RGBtoUV(R, G, B);
+            U = uvVal[0];
+            V = uvVal[1];
+
+			// convert UV to XY
+			x = normalize(U) * (height-1);
+			y = (height-1) - (normalize(V) * (height-1));
+
+			// calculate resulting pixel brightness
+			index = getIndex(Math.round(x), Math.round(y), height);
 
 			let result = data_out[index+1] + 16.0*256/height;
 			if (result > 255) result = 255;
 
-			data_out[index] = getUpdatedColor(data_out[index], R, height, 4);
-			data_out[index+1] = getUpdatedColor(data_out[index+1], G, height, 4);
-			data_out[index+2] = getUpdatedColor(data_out[index+2], B, height, 4);
+			data_out[index] = 0;
+			data_out[index+1] = result;
+			data_out[index+2] = 0;
 		}
 	}
 }
