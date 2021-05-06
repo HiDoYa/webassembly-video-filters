@@ -80,3 +80,8 @@ Adding a new generator is required to create a new Halide pipeline for a scope.
 ### Frontend Changes
 The new generator simply needs to be called from the frontend.
 * In the loadWasm() function in app.component.ts, add the new scope and its function call.
+
+## Running the Chrome Extension from Source
+* Navigate to ![chrome://extensions](chrome://extensions) in your chrome browser. 
+* Click on `Load Unpacked` and select the chrome-extension folder int he directory.
+* Navigate to youtube or vimeo to see the extension in use.
