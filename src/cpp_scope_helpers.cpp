@@ -3,7 +3,6 @@
 //
 
 /////// CONVERSIONS ///////
-
 //
 // assigns Y given R,G,B
 // Source: https://softpixel.com/~cwright/programming/colorspace/yuv/
@@ -57,15 +56,3 @@ unsigned char get_updated_color(unsigned char pixel_cur, unsigned char pixel_new
 	if (result > 255) return (char)255;
 	return (char)result;
 }
-
-
-
-// //
-// // convert RGB to luminance scale 0-1 (uses itu bt.709 standard)
-// //
-// double convert_itu_bt709(unsigned char r, unsigned char g, unsigned char b) {
-// 	double luminance = 0.2126*r + 0.7152*g + 0.0722*b; // Y value
-// 	//rerange from 0 -> 1
-// 	luminance = luminance / 255.0;
-// 	return luminance;
-// }

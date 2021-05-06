@@ -1,19 +1,14 @@
 //
-// Helper functions for the cpp scopes
+// Helper functions for the cpp scopes (cpp_zmo)
 //
 
 /////// CONVERSIONS ///////
-
-//
-// assigns Y given R,G,B
-// Source: https://softpixel.com/~cwright/programming/colorspace/yuv/
-//
-void RGB_to_Y(unsigned char R, unsigned char G, unsigned char B, double* Y);
+void RGBtoY(unsigned char R, unsigned char G, unsigned char B, double* Y);
 
 //
 // assigns U,V given R,G,B
 //
-void RGB_to_UV(unsigned char R, unsigned char G, unsigned char B, double* U, double* V);
+void RGBtoUV(unsigned char R, unsigned char G, unsigned char B, double* U, double* V);
 
 //
 // assigns R,G,B given U,V
@@ -40,15 +35,3 @@ int get_index(int x, int y, int width);
 /// @param constant     the multiplier of the pixel change
 //
 unsigned char get_updated_color(unsigned char pixel_cur, unsigned char pixel_new, int divider, int constant);
-
-
-
-// //
-// // convert RGB to luminance scale 0-1 (uses itu bt.709 standard)
-// //
-// double convert_itu_bt709(unsigned char r, unsigned char g, unsigned char b) {
-// 	double luminance = 0.2126*r + 0.7152*g + 0.0722*b; // Y value
-// 	//rerange from 0 -> 1
-// 	luminance = luminance / 255.0;
-// 	return luminance;
-// }

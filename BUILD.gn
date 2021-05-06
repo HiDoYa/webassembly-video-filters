@@ -45,6 +45,8 @@ library_sources =
     "//src/halide_zmo.cpp",
 
     "//src/cpp_zmo.cpp",
+
+    "//src/cpp_scope_helpers.cpp",
 ]
 
 #
@@ -57,6 +59,8 @@ header_files =
     "//src/types.h",
 
     "//src/scope.h",
+
+    #"//src/cpp_scope_helpers.h",
 ]
 
 #
