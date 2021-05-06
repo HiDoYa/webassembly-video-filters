@@ -184,11 +184,11 @@ export class AppComponent {
 
       // Get scopes
       this.scopes = {
-        LUMASCOPE: new ScopeDescriptor("Halide Lumascope", this.gModule.instance.exports.lumascope),
-        CLUMASCOPE: new ScopeDescriptor("Halide Lumascope (Color)", this.gModule.instance.exports.clumascope),
-        RGB_PARADE: new ScopeDescriptor("Halide RGB Parade", this.gModule.instance.exports.rgbparade),
-        VECTORSCOPE: new ScopeDescriptor("Halide Vector Scope", this.gModule.instance.exports.vectorscope),
-        CVECTORSCOPE: new ScopeDescriptor("Halide Vector Scope (Color)", this.gModule.instance.exports.cvectorscope),
+        LUMASCOPE: new ScopeDescriptor("Lumascope", this.gModule.instance.exports.lumascope),
+        CLUMASCOPE: new ScopeDescriptor("Lumascope (Color)", this.gModule.instance.exports.clumascope),
+        RGB_PARADE: new ScopeDescriptor("RGB Parade", this.gModule.instance.exports.rgbparade),
+        VECTORSCOPE: new ScopeDescriptor("Vector Scope", this.gModule.instance.exports.vectorscope),
+        CVECTORSCOPE: new ScopeDescriptor("Vector Scope (Color)", this.gModule.instance.exports.cvectorscope),
         
         // TODO: Causes mem access err
         CPP_LUMASCOPE: new ScopeDescriptor("C++ Lumascope", this.gModule.instance.exports.cpp_lumascope),
@@ -197,8 +197,7 @@ export class AppComponent {
         CPP_VECTORSCOPE: new ScopeDescriptor("C++ Vector Scope", this.gModule.instance.exports.cpp_vectorscope),
         CPP_COLOR_VECTORSCOPE: new ScopeDescriptor("C++ Vector Scope (Color)", this.gModule.instance.exports.cpp_color_vectorscope),
       };
-      // this.currentScope = this.scopes.LUMASCOPE!;
-      this.currentScope = this.scopes.VECTORSCOPE!;
+      this.currentScope = this.scopes.LUMASCOPE!;
     });
   };
 
@@ -275,8 +274,8 @@ export class AppComponent {
         this.scopecanvasCtx!.canvas.width = 256;
         this.scopecanvasCtx!.canvas.height = 256;
         break;
-      case this.scopes.RGB_PARADE: 
       case this.scopes.CPP_RGB_PARADE:
+      case this.scopes.RGB_PARADE: 
         this.vidcanvasCtx!.canvas.width = 128;
         this.vidcanvasCtx!.canvas.height = 256;
         this.scopecanvasCtx!.canvas.width = 128 * 3;
