@@ -1,3 +1,17 @@
+let lastUrl = location.href; 
+new MutationObserver(() => {
+  const url = location.href;
+  if (url !== lastUrl) {
+    lastUrl = url;
+    onUrlChange();
+  }
+}).observe(document, {subtree: true, childList: true});
+
+function onUrlChange() {
+  console.log('URL changed!', location.href);
+  init();
+}
+
 let GLOBAL_SCOPE = "luma";
 let instance;
 chrome.runtime.onMessage.addListener(
@@ -10,6 +24,7 @@ chrome.runtime.onMessage.addListener(
     sendResponse({done: "done"});
   }
 );
+
 init();
 
 async function loadWasm() {
@@ -130,12 +145,22 @@ function init() {
     id = "topnav_desktop";
   }
 
-  document.getElementById(id).innerHTML += "<canvas id=\"c1\" style=\"display: none;\" width=\"255\" height=\"255\"></canvas>"
-  document.getElementById(id).innerHTML += "<canvas id=\"c2\" style=\"border: 1px solid white;position:absolute; top: 20px; left: 60px; z-index: 500;\" width=\"255\" height=\"255\"></canvas>"
+  const youtubeRegex = new RegExp('watch');
+  const vimeoRegex = new RegExp('[0-9]+');
 
-  // Make the DIV element draggable:
-  dragElement(document.getElementById("c2"));
+  console.log(document.getElementById("c1"))
+  if ((url.includes("youtube.com") && url.match(youtubeRegex) == null) ||
+      (url.includes("vimeo.com")   && url.match(vimeoRegex)   == null)) {
+    console.log("Current URL may not have a video")
+    return
+  } else if (document.getElementById("c1") == null) {
+    console.log("Element to inject wasm:", document.getElementById(id));
+    document.getElementById(id).innerHTML += "<canvas id=\"c1\" style=\"display: none;\" width=\"255\" height=\"255\"></canvas>"
+    document.getElementById(id).innerHTML += "<canvas id=\"c2\" style=\"border: 1px solid white;position:absolute; top: 20px; left: 60px; z-index: 500;\" width=\"255\" height=\"255\"></canvas>"
+    // Make the DIV element draggable:
+    dragElement(document.getElementById("c2"));
 
+  } 
   loadWasm().then(function() {
       instance.exports.memory.grow(15);
       processor.doLoad();
