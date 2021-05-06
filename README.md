@@ -83,5 +83,5 @@ The new generator simply needs to be called from the frontend.
 
 ## Running the Chrome Extension from Source
 * Navigate to ![chrome://extensions](chrome://extensions) in your chrome browser. 
-* Click on `Load Unpacked` and select the chrome-extension folder int he directory.
+* Click on `Load Unpacked` and select the chrome-extension folder in the directory.
 * Navigate to youtube or vimeo to see the extension in use.
