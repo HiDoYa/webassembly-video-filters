@@ -159,8 +159,8 @@ KEEPALIVE void cpp_color_lumascope(char data_in[], char data_out[], int width, i
 			if (G > 255) G = 255;
 			if (B > 255) B = 255;
 
-			RGBtoUV(R, G, B, &U, &V);			  		// convert average RGB to UV
-			YUVtoRGB(histogramY[h], U, V, &R, &G, &B); 	// convert back to RGB with HISTOGRAM Y
+			RGBtoUV(R, G, B, &U, &V);
+			YUVtoRGB(histogramY[h], U, V, &R, &G, &B); 
 
 			index = ((h * width) + w) * 4;
 
@@ -256,10 +256,6 @@ KEEPALIVE void js_color_vectorscope(char data_in[], char data_out[], int width, 
 			// get UV
 			RGBtoUV(R, G, B, &U, &V);
 
-			// convert UV to XY
-			// x = normalize(U) * height + 0.5;					// 0 to scope's height
-			// y = (height-1) - normalize(V) * height + 0.5; 	// 0 to scope's height
-
 			x = normalize(U) * (height -1);					// 0 to scope's height
 			y = (height-1) - (normalize(V) * (height -1)); 	// 0 to scope's height
 
@@ -304,8 +300,8 @@ KEEPALIVE void cpp_vectorscope(char data_in[], char data_out[], int width, int h
 			RGBtoUV(R, G, B, &U, &V);
 
 			// convert UV to XY
-			x = normalize(U) * (height -1);					// 0 to scope's height
-			y = (height-1) - (normalize(V) * (height -1)); 	// 0 to scope's height
+			x = normalize(U) * (height -1);
+			y = (height-1) - (normalize(V) * (height -1));
 
 			// calculate resulting pixel brightness
 			index = get_index(x, y, height);
