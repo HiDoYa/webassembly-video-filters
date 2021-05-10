@@ -48,6 +48,8 @@ export class AppComponent {
   outputArray: any;
   outputPointer: any;
 
+  image = new Image();
+
   // Time for each computeFrame in ms
   computeTimes: Array<number> = [];
 
@@ -258,21 +260,27 @@ export class AppComponent {
       case this.scopes.CPP_LUMASCOPE:
       case this.scopes.CPP_COLOR_LUMASCOPE:
       case this.scopes.CPP_RGB_PARADE:
-      case this.scopes.VECTORSCOPE:
+     // case this.scopes.VECTORSCOPE:
       case this.scopes.LUMASCOPE:
-        this.vidcanvasCtx!.canvas.width = 128;
+        this.bgScopeCtx?.clearRect( 0, 0, this.bgScope?.nativeElement.width, this.bgScope?.nativeElement.height);
+        this.image.src = "../../assets/images/scopes_test_11.svg";
+        this.vidcanvasCtx!.canvas.width = 116;
         this.vidcanvasCtx!.canvas.height = 256;
-        this.scopecanvasCtx!.canvas.width = 128;
+        this.scopecanvasCtx!.canvas.width = 116;
         this.scopecanvasCtx!.canvas.height = 256;
         break;
       case this.scopes.VECTORSCOPE:
       case this.scopes.CPP_VECTORSCOPE:
+        this.bgScopeCtx?.clearRect( 0, 0, this.bgScope?.nativeElement.width, this.bgScope?.nativeElement.height);
+        this.image.src = "../../assets/images/Vectorscope.png";
         this.vidcanvasCtx!.canvas.width = 128;
         this.vidcanvasCtx!.canvas.height = 128;
         this.scopecanvasCtx!.canvas.width = 256;
         this.scopecanvasCtx!.canvas.height = 256;
         break;
       case this.scopes.RGB_PARADE:
+        this.bgScopeCtx?.clearRect( 0, 0, this.bgScope?.nativeElement.width, this.bgScope?.nativeElement.height);
+        this.image.src = "../../assets/images/scopes_test_11.svg";
         this.vidcanvasCtx!.canvas.width = 128;
         this.vidcanvasCtx!.canvas.height = 256;
         this.scopecanvasCtx!.canvas.width = 128 * 3;
@@ -290,17 +298,17 @@ export class AppComponent {
     this.bgScopeCtx = this.bgScope?.nativeElement.getContext("2d");
     this.bgScopeCtx!.canvas.width = 256;
     this.bgScopeCtx!.canvas.height = 256;
-    let image = new Image();
+    
 
     this.bgScopeCtx?.clearRect( 0, 0, this.bgScope?.nativeElement.width, this.bgScope?.nativeElement.height);
     //this.cxFg.fillStyle = 'hsla(0, 0%, 100%, 0)';
 
-    image.onload = ()=> {
-        this.bgScopeCtx?.drawImage(image, 0, 0, this.bgScope?.nativeElement.width  , this.bgScope?.nativeElement.height );
+    this.image.onload = ()=> {
+        this.bgScopeCtx?.drawImage(this.image, 0, 0, this.bgScope?.nativeElement.width  , this.bgScope?.nativeElement.height );
     }
 
     //where I am putting the chart for the scope.
-    image.src = "../../assets/images/scopes_test.svg";
+    this.image.src = "../../assets/images/scopes_test_11.svg";
     // Start callback to process frame
     this.video?.nativeElement.addEventListener("play", () => {
       this.timerCallback();
@@ -314,7 +322,8 @@ export class AppComponent {
 
 		this.vidcanvasCtx?.drawImage(this.video?.nativeElement, 0, 0, width, height);
 
-		let frame = this.vidcanvasCtx?.getImageData(0, 0, width, height);
+    //change
+		let frame = this.vidcanvasCtx?.getImageData(-12, 0, width, height);
 		let data = Array.prototype.slice.call(frame?.data);
 		this.inputArray.set(data);
 
