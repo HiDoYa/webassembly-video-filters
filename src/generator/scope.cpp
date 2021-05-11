@@ -510,16 +510,32 @@ public:
 		Expr Xloc = clamp(cast<uint8_t>(U), 0, 255);
 		Expr Yloc = clamp(cast<uint8_t>(V), 0, 255);
 
-		output(Xloc, 255-Yloc, 0) += cast<uint8_t>(input(r.x, r.y, 0));
-		output(Xloc, 255-Yloc, 1) += cast<uint8_t>(input(r.x, r.y, 1));
-		output(Xloc, 255-Yloc, 2) += cast<uint8_t>(input(r.x, r.y, 2));
+		Expr rVal = cast<int>(output(Xloc, 255-Yloc, 0)) + cast<int>(input(r.x, r.y, 0));
+		Expr gVal = cast<int>(output(Xloc, 255-Yloc, 1)) + cast<int>(input(r.x, r.y, 1));
+		Expr bVal = cast<int>(output(Xloc, 255-Yloc, 2)) + cast<int>(input(r.x, r.y, 2));
 
-		output(r.x, r.y, 0) = min(output(r.x, r.y, 0),cast<uint8_t>(255));
-		output(r.x, r.y, 1) = min(output(r.x, r.y, 1),cast<uint8_t>(255));
-		output(r.x, r.y, 2) = min(output(r.x, r.y, 2),cast<uint8_t>(255));
-		output(r.x, r.y, 3) = cast<uint8_t>(255);
+		output(Xloc, 255-Yloc, 0) = select
+			(rVal > 255
+    		// true case
+    		, cast<uint8_t>(255)
+    		// false case
+    		, cast<uint8_t>(rVal));
+
+		output(Xloc, 255-Yloc, 1) = select
+			(gVal > 255
+    		// true case
+    		, cast<uint8_t>(255)
+    		// false case
+    		, cast<uint8_t>(gVal));
+
+		output(Xloc, 255-Yloc, 2) = select
+			(bVal > 255
+    		// true case
+    		, cast<uint8_t>(255)
+    		// false case
+    		, cast<uint8_t>(bVal));
 		
-		output.dim(0).set_extent (255);
+		output.dim(0).set_extent(255);
 		output.dim(1).set_extent(255);
 		output.dim(2).set_extent(input.dim(2).extent());
 		
