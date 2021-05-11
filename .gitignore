@@ -7,5 +7,4 @@ Thumbs.db
 /tpp.code-workspace
 /.vscode
 /.idea
-server/videos/color-bars.mp4
 angular-video-player/src/assets/zmo.wasm
