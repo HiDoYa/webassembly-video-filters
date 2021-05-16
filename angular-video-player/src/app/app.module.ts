@@ -20,6 +20,7 @@ import { VgControlsModule } from '@videogular/ngx-videogular/controls';
 
 import { HttpClientModule } from '@angular/common/http';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+
 @NgModule({
   declarations: [
     MsToFps,

@@ -1,0 +1,16 @@
+{
+  "name": "Webassembly Video Filter",
+  "version": "1.0",
+  "description": "Webassembly video filters for youtube",
+  "content_scripts": [{
+    "matches": ["*://*.youtube.com/*", "*://vimeo.com/*"],
+    "all_frames": true,
+    "js":      ["contentScript.js"]
+  }],
+  "browser_action": {
+    "default_popup": "popup.html"
+  },
+  "web_accessible_resources": ["zmo.wasm"],
+  "manifest_version": 2,
+  "content_security_policy": "script-src 'self' 'wasm-eval'; object-src 'self'"
+}
