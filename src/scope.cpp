@@ -4,6 +4,8 @@
 #include "lumascope_uint8_cpu.h"
 #include "rgbparade_uint8_cpu.h"
 #include "vectorscope_uint8_cpu.h"
+#include "cvectorscope_uint8_cpu.h"
+#include "clumascope_uint8_cpu.h"
 
 #include "HalideRuntime.h"
 
@@ -23,6 +25,10 @@ scope_func select_scope(const int selector)
 			return rgbparade_uint8_cpu;
 		case VECTORSCOPE:
 			return vectorscope_uint8_cpu;
+		case CVECTORSCOPE:
+			return cvectorscope_uint8_cpu;
+		case CLUMASCOPE:
+			return clumascope_uint8_cpu;
 		default:
 			return lumascope_uint8_cpu;
 	}

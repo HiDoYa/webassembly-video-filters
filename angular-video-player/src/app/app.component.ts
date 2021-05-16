@@ -4,6 +4,8 @@ import { DomSanitizer, SafeResourceUrl, SafeUrl } from '@angular/platform-browse
 import { finalize } from 'rxjs/operators';
 import { Observable, Subscription } from 'rxjs';
 
+import { js_color_lumascope, js_lumascope, js_rgb_parade, js_color_vectorscope, js_vectorscope } from "./algorithms"
+
 class ScopeDescriptor {
   name: string = '';
   func: any;
@@ -170,7 +172,9 @@ export class AppComponent {
         path_link: () => { },
         path_rename: () => { },
         fd_fdstat_set_flags: () => { },
+
         fd_seek: () => { },
+
         fd_read: () => { }
       },
       env: {
@@ -190,15 +194,26 @@ export class AppComponent {
       // Get scopes
       this.scopes = {
         LUMASCOPE: new ScopeDescriptor("Lumascope", this.gModule.instance.exports.lumascope),
+        CLUMASCOPE: new ScopeDescriptor("Lumascope (Color)", this.gModule.instance.exports.clumascope),
         RGB_PARADE: new ScopeDescriptor("RGB Parade", this.gModule.instance.exports.rgbparade),
         VECTORSCOPE: new ScopeDescriptor("Vector Scope", this.gModule.instance.exports.vectorscope),
+        CVECTORSCOPE: new ScopeDescriptor("Vector Scope (Color)", this.gModule.instance.exports.cvectorscope),
+        
         // TODO: Causes mem access err
         CPP_LUMASCOPE: new ScopeDescriptor("C++ Lumascope", this.gModule.instance.exports.cpp_lumascope),
-        CPP_COLOR_LUMASCOPE: new ScopeDescriptor("C++ Color Lumascope", this.gModule.instance.exports.cpp_color_lumascope),
+        CPP_COLOR_LUMASCOPE: new ScopeDescriptor("C++ Lumascope (Color)", this.gModule.instance.exports.cpp_color_lumascope),
         CPP_RGB_PARADE: new ScopeDescriptor("C++ RGB Parade", this.gModule.instance.exports.cpp_rgb_parade),
         CPP_VECTORSCOPE: new ScopeDescriptor("C++ Vector Scope", this.gModule.instance.exports.cpp_vectorscope),
+        CPP_COLOR_VECTORSCOPE: new ScopeDescriptor("C++ Vector Scope (Color)", this.gModule.instance.exports.cpp_color_vectorscope),
+
+        JS_LUMASCOPE: new ScopeDescriptor("JS Lumascope", js_lumascope),
+        JS_COLOR_LUMASCOPE: new ScopeDescriptor("JS Color Lumascope", js_color_lumascope),
+        JS_RGB_PARADE: new ScopeDescriptor("JS RGB Parade", js_rgb_parade),
+        JS_VECTORSCOPE: new ScopeDescriptor("JS Vector Scope (Color)", js_color_vectorscope),
+        JS_COLOR_VECTORSCOPE: new ScopeDescriptor("JS Vector Scope", js_vectorscope),
       };
       this.currentScope = this.scopes.LUMASCOPE!;
+      this.changeScope(this.currentScope);
     });
   };
 
@@ -257,11 +272,14 @@ export class AppComponent {
     this.computeTimes = [];
     this.currentScope = scope;
     switch(this.currentScope) {
-      case this.scopes.CPP_LUMASCOPE:
-      case this.scopes.CPP_COLOR_LUMASCOPE:
-      case this.scopes.CPP_RGB_PARADE:
-     // case this.scopes.VECTORSCOPE:
-      case this.scopes.LUMASCOPE:
+
+
+      case this.scopes.LUMASCOPE: 
+      case this.scopes.CLUMASCOPE: 
+      case this.scopes.CPP_LUMASCOPE: 
+      case this.scopes.CPP_COLOR_LUMASCOPE: 
+      case this.scopes.JS_LUMASCOPE:
+      case this.scopes.JS_COLOR_LUMASCOPE:
         this.bgScopeCtx?.clearRect( 0, 0, this.bgScope?.nativeElement.width, this.bgScope?.nativeElement.height);
         this.image.src = "../../assets/images/scopes_test_11.svg";
         this.vidcanvasCtx!.canvas.width = 116;
@@ -269,18 +287,27 @@ export class AppComponent {
         this.scopecanvasCtx!.canvas.width = 116;
         this.scopecanvasCtx!.canvas.height = 256;
         break;
-      case this.scopes.VECTORSCOPE:
-      case this.scopes.CPP_VECTORSCOPE:
+
+      case this.scopes.VECTORSCOPE: 
+      case this.scopes.CVECTORSCOPE: 
+      case this.scopes.CPP_VECTORSCOPE: 
+      case this.scopes.CPP_COLOR_VECTORSCOPE: 
+      case this.scopes.JS_VECTORSCOPE:
+      case this.scopes.JS_COLOR_VECTORSCOPE:
         this.bgScopeCtx?.clearRect( 0, 0, this.bgScope?.nativeElement.width, this.bgScope?.nativeElement.height);
         this.image.src = "../../assets/images/vectorscope_test_5.svg";
+
         this.vidcanvasCtx!.canvas.width = 128;
-        this.vidcanvasCtx!.canvas.height = 128;
+        this.vidcanvasCtx!.canvas.height = 256;
         this.scopecanvasCtx!.canvas.width = 256;
         this.scopecanvasCtx!.canvas.height = 256;
         break;
       case this.scopes.RGB_PARADE:
+      case this.scopes.CPP_RGB_PARADE: 
+      case this.scopes.JS_RGB_PARADE:
         this.bgScopeCtx?.clearRect( 0, 0, this.bgScope?.nativeElement.width, this.bgScope?.nativeElement.height);
         this.image.src = "../../assets/images/scopes_test_11.svg";
+
         this.vidcanvasCtx!.canvas.width = 128;
         this.vidcanvasCtx!.canvas.height = 256;
         this.scopecanvasCtx!.canvas.width = 128 * 3;
@@ -316,23 +343,26 @@ export class AppComponent {
   }
 
   computeFrame() {
-		// Draw original frame
+    // Draw original frame
     let dim = this.getDimensions();
     let width = dim[0], height = dim[1], outputWidth = dim[2], outputHeight = dim[3];
 
-		this.vidcanvasCtx?.drawImage(this.video?.nativeElement, 0, 0, width, height);
+    this.vidcanvasCtx?.drawImage(this.video?.nativeElement, 0, 0, width, height);
 
-    //change
-		let frame = this.vidcanvasCtx?.getImageData(-12, 0, width, height);
-		let data = Array.prototype.slice.call(frame?.data);
-		this.inputArray.set(data);
-
-    if (this.currentScope.name == "C++ Vector Scope") {
-      this.currentScope.func(this.inputPointer, this.outputPointer, width, height, height);
+    let frame = this.vidcanvasCtx?.getImageData(0, 0, width, height);
+    let data = Array.prototype.slice.call(frame?.data);
+      
+    if (this.currentScope.name.includes("JS")) {
+      let data_out = new Array(outputWidth * outputHeight * 4);
+      this.currentScope.func(data, data_out, width, height);
+      this.scopecanvasCtx?.putImageData(new ImageData(new Uint8ClampedArray(data_out), outputWidth, outputHeight), 0, 0);
+      
     } else {
+      this.inputArray.set(data);
       this.currentScope.func(this.inputPointer, this.outputPointer, width, height);
+      this.scopecanvasCtx?.putImageData(new ImageData(new Uint8ClampedArray(this.outputArray), outputWidth, outputHeight), 0, 0);
     }
-    this.scopecanvasCtx?.putImageData(new ImageData(new Uint8ClampedArray(this.outputArray), outputWidth, outputHeight), 0, 0);
-		return;
-	}
+
+    return;
+  }
 }
