@@ -272,7 +272,7 @@ export class AppComponent {
       case this.scopes.VECTORSCOPE:
       case this.scopes.CPP_VECTORSCOPE:
         this.bgScopeCtx?.clearRect( 0, 0, this.bgScope?.nativeElement.width, this.bgScope?.nativeElement.height);
-        this.image.src = "../../assets/images/Vectorscope.png";
+        this.image.src = "../../assets/images/vectorscope_test_5.svg";
         this.vidcanvasCtx!.canvas.width = 128;
         this.vidcanvasCtx!.canvas.height = 128;
         this.scopecanvasCtx!.canvas.width = 256;
