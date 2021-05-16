@@ -26,11 +26,13 @@ export class AppComponent {
   @ViewChild('files') files: any | undefined;
   @ViewChild('scopecanvas') scopecanvas: ElementRef | undefined;
   @ViewChild('vidcanvas') vidcanvas: ElementRef | undefined;
+  @ViewChild('bgScope') bgScope: ElementRef | undefined;
   @ViewChild('video') video: ElementRef | undefined;
 
   scopes: any = null;
   currentScope: ScopeDescriptor = new ScopeDescriptor('', null);
 
+  bgScopeCtx: CanvasRenderingContext2D | undefined;
   scopecanvasCtx: CanvasRenderingContext2D | undefined;
   vidcanvasCtx: CanvasRenderingContext2D | undefined;
   backendUrl: SafeResourceUrl = 'http://localhost:4201/';
@@ -48,6 +50,8 @@ export class AppComponent {
   outputArray: any;
   outputPointer: any;
 
+  image = new Image();
+
   // Time for each computeFrame in ms
   computeTimes: Array<number> = [];
 
@@ -59,6 +63,7 @@ export class AppComponent {
   ngAfterViewInit() {
     this.loadWasm();
     this.doLoad();
+
     this.http.get(this.backendUrl + 'download', {responseType:'json'}).subscribe(response => {
       let videos = Object.values(response);
       videos.forEach ((element: any) => {
@@ -97,7 +102,7 @@ export class AppComponent {
     this.renderer.addClass(container, 'mat-button-focus-overlay');
     this.renderer.addClass(container, 'mat-ripple')
     this.renderer.addClass(container, 'mat-button-ripple');
-    
+
     const recaptchaContainer = this.renderer.createElement('a');
     recaptchaContainer.textContent = element;
     this.renderer.appendChild(recaptchaContainer, container);
@@ -108,7 +113,7 @@ export class AppComponent {
     this.renderer.addClass(recaptchaContainer, 'cdk-mouse-focused')
     this.renderer.addClass(recaptchaContainer, 'mat-button');
     this.renderer.addClass(recaptchaContainer, 'mat-button-wrapper');
-    
+
     this.renderer.listen(recaptchaContainer, 'click', this.getFileToPlay.bind(this) );
     this.renderer.appendChild(this.files?.nativeElement, recaptchaContainer);
   }
@@ -128,7 +133,7 @@ export class AppComponent {
         reportProgress: true,
         observe: 'events'
     }).pipe(finalize(() => this.reset()));
-  
+
     this.uploadSub = upload.subscribe(event => {
       if (event.type == HttpEventType.UploadProgress) {
         const total: number = (event.total == undefined) ? 0 : event.total;
@@ -143,9 +148,9 @@ export class AppComponent {
 
   async loadWasm() {
     const imports = {
-      wasi_snapshot_preview1: { 
+      wasi_snapshot_preview1: {
         proc_exit: () => { },
-        fd_write: () => { }, 
+        fd_write: () => { },
         fd_prestat_get: () => { },
         fd_prestat_dir_name: () => { },
         clock_time_get: () => { },
@@ -167,7 +172,9 @@ export class AppComponent {
         path_link: () => { },
         path_rename: () => { },
         fd_fdstat_set_flags: () => { },
-        fd_seek: () => { }, 
+
+        fd_seek: () => { },
+
         fd_read: () => { }
       },
       env: {
@@ -265,23 +272,31 @@ export class AppComponent {
     this.computeTimes = [];
     this.currentScope = scope;
     switch(this.currentScope) {
+
+
       case this.scopes.LUMASCOPE: 
       case this.scopes.CLUMASCOPE: 
       case this.scopes.CPP_LUMASCOPE: 
       case this.scopes.CPP_COLOR_LUMASCOPE: 
       case this.scopes.JS_LUMASCOPE:
       case this.scopes.JS_COLOR_LUMASCOPE:
-        this.vidcanvasCtx!.canvas.width = 128;
+        this.bgScopeCtx?.clearRect( 0, 0, this.bgScope?.nativeElement.width, this.bgScope?.nativeElement.height);
+        this.image.src = "../../assets/images/scopes_test_11.svg";
+        this.vidcanvasCtx!.canvas.width = 116;
         this.vidcanvasCtx!.canvas.height = 256;
-        this.scopecanvasCtx!.canvas.width = 128;
+        this.scopecanvasCtx!.canvas.width = 116;
         this.scopecanvasCtx!.canvas.height = 256;
         break;
+
       case this.scopes.VECTORSCOPE: 
       case this.scopes.CVECTORSCOPE: 
       case this.scopes.CPP_VECTORSCOPE: 
       case this.scopes.CPP_COLOR_VECTORSCOPE: 
       case this.scopes.JS_VECTORSCOPE:
       case this.scopes.JS_COLOR_VECTORSCOPE:
+        this.bgScopeCtx?.clearRect( 0, 0, this.bgScope?.nativeElement.width, this.bgScope?.nativeElement.height);
+        this.image.src = "../../assets/images/vectorscope_test_5.svg";
+
         this.vidcanvasCtx!.canvas.width = 128;
         this.vidcanvasCtx!.canvas.height = 256;
         this.scopecanvasCtx!.canvas.width = 256;
@@ -290,6 +305,9 @@ export class AppComponent {
       case this.scopes.RGB_PARADE:
       case this.scopes.CPP_RGB_PARADE: 
       case this.scopes.JS_RGB_PARADE:
+        this.bgScopeCtx?.clearRect( 0, 0, this.bgScope?.nativeElement.width, this.bgScope?.nativeElement.height);
+        this.image.src = "../../assets/images/scopes_test_11.svg";
+
         this.vidcanvasCtx!.canvas.width = 128;
         this.vidcanvasCtx!.canvas.height = 256;
         this.scopecanvasCtx!.canvas.width = 128 * 3;
@@ -304,7 +322,20 @@ export class AppComponent {
     // Get html elements
     this.scopecanvasCtx = this.scopecanvas?.nativeElement.getContext("2d");
     this.vidcanvasCtx = this.vidcanvas?.nativeElement.getContext("2d");
+    this.bgScopeCtx = this.bgScope?.nativeElement.getContext("2d");
+    this.bgScopeCtx!.canvas.width = 256;
+    this.bgScopeCtx!.canvas.height = 256;
+    
 
+    this.bgScopeCtx?.clearRect( 0, 0, this.bgScope?.nativeElement.width, this.bgScope?.nativeElement.height);
+    //this.cxFg.fillStyle = 'hsla(0, 0%, 100%, 0)';
+
+    this.image.onload = ()=> {
+        this.bgScopeCtx?.drawImage(this.image, 0, 0, this.bgScope?.nativeElement.width  , this.bgScope?.nativeElement.height );
+    }
+
+    //where I am putting the chart for the scope.
+    this.image.src = "../../assets/images/scopes_test_11.svg";
     // Start callback to process frame
     this.video?.nativeElement.addEventListener("play", () => {
       this.timerCallback();
