@@ -2,7 +2,13 @@
 
 const express = require('express');
 const fileUpload = require('express-fileupload');
+const http = require('http');
+const https = require('https');
 const fs = require('fs');
+
+const privateKey = fs.readFileSync('privkey.pem');
+const certificate = fs.readFileSync('fullchain.pem');
+const credentials = {key: privateKey, cert: certificate};
 
 const app = express();
 
@@ -62,3 +68,9 @@ app.get('/playFile', function(req, res) {
 app.listen(4201, function() {
   console.log("Server now listening on 4201")
 });
+
+var httpServer = http.createServer(app);
+var httpsServer = https.createServer(credentials, app);
+
+httpServer.listen(8080);
+httpsServer.listen(8443);
