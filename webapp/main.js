@@ -221,7 +221,7 @@ class AppComponent {
         this.renderer = renderer;
         this.scopes = null;
         this.currentScope = new ScopeDescriptor('', null);
-        this.backendUrl = 'http://localhost:4201/';
+        this.backendUrl = 'https://wasm.asucd.dev:8443/';
         this.currentVidSrc = '';
         this.fileName = '';
         // Time for each computeFrame in ms

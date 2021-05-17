@@ -1,0 +1,15 @@
+[Unit]
+Description=Webassembly Backend
+
+[Service]
+ExecStart=/usr/bin/node /opt/server/server-prod.js
+Restart=always
+User=root
+# Note Debian/Ubuntu uses 'nogroup', RHEL/Fedora uses 'nobody'
+Group=root
+Environment=PATH=/usr/bin:/usr/local/bin
+Environment=NODE_ENV=production
+WorkingDirectory=/opt/server
+
+[Install]
+WantedBy=multi-user.target
