@@ -65,7 +65,8 @@ async function loadWasm() {
         STACKTOP: 0
       }
     };
-    let wasm = await WebAssembly.instantiateStreaming(fetch(chrome.runtime.getURL("zmo.wasm")), imports);
+    let url = await fetch(chrome.runtime.getURL("zmo.wasm"));
+    let wasm = await WebAssembly.instantiateStreaming(url, imports);
     instance = wasm.instance;
 }
 
@@ -124,11 +125,17 @@ let processor = {
         case "luma":
           instance.exports.lumascope(this.inputPointer, this.outputPointer, this.width, this.height);
           break;
+        case "cluma":
+          instance.exports.clumascope(this.inputPointer, this.outputPointer, this.width, this.height);
+          break;
         case "rgbp":
           instance.exports.rgbparade(this.inputPointer, this.outputPointer, this.width/3, this.height);
           break;
         case "vect":
           instance.exports.vectorscope(this.inputPointer, this.outputPointer, this.width, this.height);
+          break;
+        case "cvect":
+          instance.exports.cvectorscope(this.inputPointer, this.outputPointer, this.width, this.height);
           break;
       }
       this.ctx2.putImageData(new ImageData(new Uint8ClampedArray(this.outputArray), this.width, this.height), 0, 0);
@@ -148,7 +155,6 @@ function init() {
   const youtubeRegex = new RegExp('watch');
   const vimeoRegex = new RegExp('[0-9]+');
 
-  console.log(document.getElementById("c1"))
   if ((url.includes("youtube.com") && url.match(youtubeRegex) == null) ||
       (url.includes("vimeo.com")   && url.match(vimeoRegex)   == null)) {
     console.log("Current URL may not have a video")
