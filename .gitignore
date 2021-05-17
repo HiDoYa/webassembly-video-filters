@@ -8,3 +8,5 @@ Thumbs.db
 /.vscode
 /.idea
 angular-video-player/src/assets/zmo.wasm
+
+*.pem
