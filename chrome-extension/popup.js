@@ -5,7 +5,7 @@ function sendMessage(type, scope=null) {
     });
 }
 
-arr = ["luma", "cluma", "rgbp", "vect", "cvect"]
+arr = ["luma", "rgbp", "cvect"]
 
 for (ind in arr) {
     let i = ind;
