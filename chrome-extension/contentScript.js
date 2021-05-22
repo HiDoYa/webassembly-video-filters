@@ -125,14 +125,8 @@ let processor = {
         case "luma":
           instance.exports.lumascope(this.inputPointer, this.outputPointer, this.width, this.height);
           break;
-        case "cluma":
-          instance.exports.clumascope(this.inputPointer, this.outputPointer, this.width, this.height);
-          break;
         case "rgbp":
           instance.exports.rgbparade(this.inputPointer, this.outputPointer, this.width/3, this.height);
-          break;
-        case "vect":
-          instance.exports.cvectorscope(this.inputPointer, this.outputPointer, this.width, this.height);
           break;
         case "cvect":
           instance.exports.cvectorscope(this.inputPointer, this.outputPointer, this.width, this.height);
