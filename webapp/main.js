@@ -222,7 +222,7 @@ class AppComponent {
         this.renderer = renderer;
         this.scopes = null;
         this.currentScope = new ScopeDescriptor('', null);
-        this.backendUrl = 'https://wasm.asucd.dev:8443/';
+        this.backendUrl = 'http://localhost:4201/';
         this.currentVidSrc = '';
         this.fileName = '';
         this.image = new Image();
