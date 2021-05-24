@@ -18,57 +18,56 @@
 //  * js_color_vectorscope()
 //  * js_rgb_parade()
 
-import { js_color_lumascope, js_lumascope, js_rgb_parade, js_color_vectorscope, js_vectorscope } from "./algorithms.ts"
+// import { js_color_lumascope, js_lumascope, js_rgb_parade, js_color_vectorscope, js_vectorscope } from "./algorithms"
 
-// class WASM() {
-//     this.gModule = 0;
-// }
+async loadWasm() {
+    const imports = {
+        wasi_snapshot_preview1: {
+            proc_exit: () => { },
+            fd_write: () => { },
+            fd_prestat_get: () => { },
+            fd_prestat_dir_name: () => { },
+            clock_time_get: () => { },
+            poll_oneoff: () => { },
+            sched_yield: () => { },
+            environ_sizes_get: () => { },
+            environ_get: () => { },
+            path_filestat_get: () => { },
+            fd_fdstat_get: () => { },
+            path_open: () => { },
+            path_readlink: () => { },
+            path_filestat_set_times: () => { },
+            path_unlink_file: () => { },
+            path_remove_directory: () => { },
+            path_create_directory: () => { },
+            fd_readdir: () => { },
+            fd_close: () => { },
+            path_symlink: () => { },
+            path_link: () => { },
+            path_rename: () => { },
+            fd_fdstat_set_flags: () => { },
+    
+            fd_seek: () => { },
+    
+            fd_read: () => { }
+        },
+        env: {
+                __memory_base: 0,
+                __table_base: 0,
+                __indirect_function_table: new WebAssembly.Table({ initial: 0, element: 'anyfunc' }),
+                __stack_pointer: new WebAssembly.Global({value:'i32', mutable:true}, 0),
+                memory: new WebAssembly.Memory({initial: 65536}),
+                STACKTOP: 0
+        }
+    }
+    
+        await WebAssembly.instantiateStreaming(fetch('assets/zmo.wasm'), imports).then((obj: any) => {
+        let gModule = obj;
+        gModule.instance.exports.memory.grow(15);
+    });
 
-// async loadWasm() {
-//     const imports = {
-//         wasi_snapshot_preview1: {
-//             proc_exit: () => { },
-//             fd_write: () => { },
-//             fd_prestat_get: () => { },
-//             fd_prestat_dir_name: () => { },
-//             clock_time_get: () => { },
-//             poll_oneoff: () => { },
-//             sched_yield: () => { },
-//             environ_sizes_get: () => { },
-//             environ_get: () => { },
-//             path_filestat_get: () => { },
-//             fd_fdstat_get: () => { },
-//             path_open: () => { },
-//             path_readlink: () => { },
-//             path_filestat_set_times: () => { },
-//             path_unlink_file: () => { },
-//             path_remove_directory: () => { },
-//             path_create_directory: () => { },
-//             fd_readdir: () => { },
-//             fd_close: () => { },
-//             path_symlink: () => { },
-//             path_link: () => { },
-//             path_rename: () => { },
-//             fd_fdstat_set_flags: () => { },
-    
-//             fd_seek: () => { },
-    
-//             fd_read: () => { }
-//         },
-//         env: {
-//                 __memory_base: 0,
-//                 __table_base: 0,
-//                 __indirect_function_table: new WebAssembly.Table({ initial: 0, element: 'anyfunc' }),
-//                 __stack_pointer: new WebAssembly.Global({value:'i32', mutable:true}, 0),
-//                 memory: new WebAssembly.Memory({initial: 65536}),
-//                 STACKTOP: 0
-//         }
-//     }
-    
-//         await WebAssembly.instantiateStreaming(fetch('assets/zmo.wasm'), imports).then((obj: any) => {
-//         this.gModule = obj;
-//         this.gModule.instance.exports.memory.grow(15);
-//     }
+    return gModule;
+}
 
 function benchmark() {
     // init variables
@@ -80,14 +79,10 @@ function benchmark() {
     let HEIGHT = 256;
     let WIDTH = 128;
 
-    // write results to file
+    // file
     var fs = require('fs');
-    
 
-    // initWasm();
-    // WebAssembly.instantiateStreaming(fetch('zmo.wasm'), imports).then((obj: any) => {
-    // this.gModule = obj;
-    // this.gModule.instance.exports.memory.grow(15);
+    let gModule = loadWasm();
 
     // create data
     let data_in = initData(WIDTH, HEIGHT);
@@ -97,7 +92,8 @@ function benchmark() {
     const start = Date.now();
 
     for (let i = 0; i < 65556; i++) {
-        js_color_lumascope(data_in, data_out, WIDTH, HEIGHT);
+        gModule.exports.clumascope(data_in, data_out, WIDTH, HEIGHT);
+        // js_color_lumascope(data_in, data_out, WIDTH, HEIGHT);
     }
 
     // timer end
@@ -111,19 +107,10 @@ function benchmark() {
         if (err) throw err;
         console.log("Results in file: " + file);
     })
-    
-    // import zmo.wasm
-    // run various functions with timer
-    // this.gModule.instance.exports.cpp_vectorscope(data_in, data_out, WIDTH, HEIGHT, HEIGHT);
-    
-    
-
-
-    
 }
 
 function initData(width, height) {
-    let data;
+    let data = new Array(width * height * 4);
 
     for (let h = 0; h < height; h++) {
         for (let w = 0; w < width; w++) {
@@ -136,6 +123,5 @@ function initData(width, height) {
     }
     return data;
 }
-
 
 benchmark();
