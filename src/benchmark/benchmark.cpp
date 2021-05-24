@@ -2,6 +2,7 @@
 #include <cinttypes>
 #include <stdio.h>
 #include <stdlib.h>
+#include <iostream>
 #include "../cpp_scope_helpers.h"
 #include "../cpp_zmo.h"
 
