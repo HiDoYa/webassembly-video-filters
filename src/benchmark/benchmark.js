@@ -18,10 +18,33 @@
 //  * js_color_vectorscope()
 //  * js_rgb_parade()
 
+// import { js_color_lumascope, js_lumascope, js_rgb_parade, js_color_vectorscope, js_vectorscope } from "./assets/algorithms"
 
-// import { js_color_lumascope, js_lumascope, js_rgb_parade, js_color_vectorscope, js_vectorscope } from "./algorithms"
+// var js_scopes = require('./assets/algorithms.ts');
 
-async function loadWasm() {
+
+// GLOBAL VARIABLES
+var scopes = [];
+
+// CLASSES
+class ScopeDescriptor {
+    name = '';
+    func = null;
+    time = 0;
+  
+    constructor(name, func) {
+      this.name = name;
+      this.func = func;
+      this.time = -1;
+    }
+
+    setTime(time) {
+        this.time = time;
+    }
+}
+
+// LOCAL FUNCTIONS
+async function benchmark(data_in, data_out, width, height) {
     const imports = {
         wasi_snapshot_preview1: {
             proc_exit: () => { },
@@ -47,9 +70,7 @@ async function loadWasm() {
             path_link: () => { },
             path_rename: () => { },
             fd_fdstat_set_flags: () => { },
-    
             fd_seek: () => { },
-    
             fd_read: () => { }
         },
         env: {
@@ -61,56 +82,60 @@ async function loadWasm() {
                 STACKTOP: 0
         }
     }
-    
-        await WebAssembly.instantiateStreaming(fetch('zmo.wasm'), imports).then((obj) => {
-        let gModule = obj;
+
+    const fs = require('fs');
+    await WebAssembly.instantiate(new Uint8Array(fs.readFileSync('./assets/zmo.wasm')), imports).then((obj) => {
+        var gModule = obj;
         gModule.instance.exports.memory.grow(15);
+        console.log("init gModule");
+        console.log(gModule);
+
+        scopes = new Array (
+            new ScopeDescriptor("Lumascope", gModule.instance.exports.lumascope),
+            new ScopeDescriptor("Lumascope (Color)", gModule.instance.exports.clumascope),
+            // new ScopeDescriptor("RGB Parade", gModule.instance.exports.rgbparade),
+            // new ScopeDescriptor("Vector Scope", gModule.instance.exports.vectorscope),
+            // new ScopeDescriptor("Vector Scope (Color)", gModule.instance.exports.cvectorscope),
+            
+            new ScopeDescriptor("C++ Lumascope", gModule.instance.exports.cpp_lumascope),
+            new ScopeDescriptor("C++ Lumascope (Color)", gModule.instance.exports.cpp_color_lumascope),
+            // new ScopeDescriptor("C++ RGB Parade", gModule.instance.exports.cpp_rgb_parade),
+            // new ScopeDescriptor("C++ Vector Scope", gModule.instance.exports.cpp_vectorscope),
+            // new ScopeDescriptor("C++ Vector Scope (Color)", gModule.instance.exports.cpp_color_vectorscope),
+    
+            // JS_LUMASCOPE: new ScopeDescriptor("JS Lumascope", js_scopes.js_lumascope),
+            // JS_COLOR_LUMASCOPE: new ScopeDescriptor("JS Color Lumascope", js_scopes.js_color_lumascope),
+            // JS_RGB_PARADE: new ScopeDescriptor("JS RGB Parade", js_scopes.js_rgb_parade),
+            // JS_VECTORSCOPE: new ScopeDescriptor("JS Vector Scope (Color)", js_scopes.js_color_vectorscope),
+            // JS_COLOR_VECTORSCOPE: new ScopeDescriptor("JS Vector Scope", js_scopes.js_vectorscope),
+        );
+
+        // BENCHMARK TESTS
+        for (const scope of scopes) {
+            t = timer(scope, data_in, data_out, width, height);
+            scope.setTime(t);
+        }
+
+        for (const scope of scopes) {
+            console.log(scope);
+        }
+
     });
-
-    console.log(gModule);
-
-    return gModule;
 }
 
-function benchmark() {
-    // init variables
-    // scopes: any = null;
+function timer(scope, data_in, data_out, width, height) {
+    console.log("Timing \'" + scope.name + "\'...");
+    var time = 0;
 
-    let file = 'benchmark_data.txt'
-    let results = 'RESULTS GO HERE'
+    for (let i = 0; i < 3; i++) {
+        const start = Date.now();
+        scope.func(data_in, data_out, width, height);
+        const end = Date.now();
 
-    let HEIGHT = 256;
-    let WIDTH = 128;
-
-    // file
-    var fs = require('fs');
-
-    let gModule = loadWasm();
-
-    // create data
-    let data_in = initData(WIDTH, HEIGHT);
-    let data_out = initData(WIDTH, HEIGHT);
-
-    // timer start
-    const start = Date.now();
-
-    for (let i = 0; i < 5/*65556*/; i++) {
-        console.log("loop " + i);
-        // gModule.exports.clumascope(data_in, data_out, WIDTH, HEIGHT);
-        // js_color_lumascope(data_in, data_out, WIDTH, HEIGHT);
+        time += (end - start);
     }
 
-    // timer end
-    const end = Date.now();
-
-    const elapsed = end - start;
-
-    results = elapsed.toString();
-
-    fs.writeFile(file, results, function(err) {
-        if (err) throw err;
-        console.log("Results in file: " + file);
-    })
+    return time;
 }
 
 function initData(width, height) {
@@ -128,4 +153,25 @@ function initData(width, height) {
     return data;
 }
 
-benchmark();
+// MAIN
+function main() {
+    // init variables
+    let file = 'benchmark_data.txt'
+    let results = 'RESULTS GO HERE'
+
+    let width = 128;
+    let height = 256;
+
+    var data_in = initData(width, height);
+    var data_out = initData(width, height);
+
+    benchmark(data_in, data_out, width, height);
+
+    const fs = require('fs');
+    fs.writeFile(file, results, function(err) {
+        if (err) throw err;
+        console.log("Benchmarks complete.\nResults in file: " + file);
+    })
+}
+
+main();
