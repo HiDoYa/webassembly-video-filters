@@ -1,3 +1,9 @@
+exports.js_lumascope = js_color_lumascope;
+exports.js_color_lumascope = js_color_lumascope;
+exports.js_rgb_parade = js_rgb_parade;
+exports.js_vectorscope = js_vectorscope;
+exports.js_color_vectorscope = js_color_vectorscope;
+
 function convert_itu_bt709(r, g, b) {
 	let luminance = 0.2126*r + 0.7152*g + 0.0722*b; // Y value
 	//rerange from 0 -> 1
@@ -102,7 +108,7 @@ function js_color_lumascope(data_in, data_out, width, height) {
 
 		// process data_in[]
 		for (let h = 0; h < height; h++) {
-			index = ((h * width) + w) * 4;
+			index = getIndex(w, h, width);
 
 			// get Y
 			Y = RGBtoY(data_in[index], data_in[index+1], data_in[index+2]);
@@ -140,7 +146,7 @@ function js_color_lumascope(data_in, data_out, width, height) {
             G = rgbVal[1];
             B = rgbVal[2];
 
-			index = ((h * width) + w) * 4;
+			index = getIndex(w, h, width);
 
 			// set data_out[] (insert U, V -> RGB)
 			data_out[index]   = R;
@@ -158,10 +164,9 @@ function js_rgb_parade(data_in, data_out, width, height) {
 	let Yr, Yg, Yb;				// pixel's luminance
 
 	let output_width = width * 3;
-	let w_r, w_g, w_b;
 
-	let histogram = new Array(1024);
-	for (let h=0; h < 1024; h++) {
+	let histogram = new Array(height);
+	for (let h=0; h < height; h++) {
 		histogram[h] = new Array(3);
 	}
 
@@ -175,7 +180,7 @@ function js_rgb_parade(data_in, data_out, width, height) {
 
 		//find luminance, increment histogram bucket
 		for (let h = 0; h < height; h++) {
-			index = ((h * width) + w) * 4;
+			index = getIndex(w, h, width);
 			Yr = Math.floor(data_in[index]/255.0 * (height-1));
 			Yg = Math.floor(data_in[index+1]/255.0 * (height-1));
 			Yb = Math.floor(data_in[index+2]/255.0 * (height-1));

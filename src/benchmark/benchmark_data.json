@@ -1,61 +1,85 @@
 [
   {
     "name": "Lumascope",
-    "time": 0.31,
+    "time": 0.305,
     "width": 128,
     "height": 256
   },
   {
     "name": "Lumascope (Color)",
-    "time": 2.596,
+    "time": 2.586,
     "width": 128,
     "height": 256
   },
   {
     "name": "RGB Parade",
-    "time": 0.388,
+    "time": 0.382,
     "width": 384,
     "height": 256
   },
   {
     "name": "Vector Scope",
-    "time": 0.809,
+    "time": 0.823,
     "width": 256,
     "height": 256
   },
   {
     "name": "Vector Scope (Color)",
-    "time": 1.221,
+    "time": 1.212,
     "width": 256,
     "height": 256
   },
   {
     "name": "C++ Lumascope",
-    "time": 1.103,
+    "time": 1.158,
     "width": 128,
     "height": 256
   },
   {
     "name": "C++ Lumascope (Color)",
-    "time": 2.544,
+    "time": 2.55,
     "width": 128,
     "height": 256
   },
   {
     "name": "C++ RGB Parade",
-    "time": 1.537,
+    "time": 1.517,
     "width": 384,
     "height": 256
   },
   {
     "name": "C++ Vector Scope",
-    "time": 2.214,
+    "time": 2.279,
     "width": 256,
     "height": 256
   },
   {
     "name": "C++ Vector Scope (Color)",
-    "time": 3.092,
+    "time": 3.225,
+    "width": 256,
+    "height": 256
+  },
+  {
+    "name": "JS Lumascope",
+    "time": 32.302,
+    "width": 128,
+    "height": 256
+  },
+  {
+    "name": "JS Color Lumascope",
+    "time": 33.153,
+    "width": 128,
+    "height": 256
+  },
+  {
+    "name": "JS Vector Scope (Color)",
+    "time": 30.753,
+    "width": 256,
+    "height": 256
+  },
+  {
+    "name": "JS Vector Scope",
+    "time": 27.587,
     "width": 256,
     "height": 256
   }
