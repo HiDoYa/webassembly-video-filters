@@ -12,6 +12,7 @@ ax = fig.add_axes([0.1, 0.15, 0.8, 0.7])
 scope_name = []
 cpp_scope_name = []
 js_scope_name = []
+
 scope_time = []
 cpp_scope_time = []
 js_scope_time = []
@@ -33,15 +34,18 @@ plt.xlabel("Scope")
 plt.ylabel("Time (ms)")
 
 X = np.arange(len(scope_name))
-ax.bar(X - 0.1, scope_time, color = 'b', width = 0.2)
-ax.bar(X + 0.1, cpp_scope_time, color = 'r', width = 0.2)
+ax.bar(X - 0.2, scope_time, color = 'b', width = 0.2)
+ax.bar(X + 0.0, cpp_scope_time, color = 'r', width = 0.2)
+ax.bar(X + 0.2, js_scope_time, color = 'g', width = 0.2)
 
 plt.xticks(ticks=X, labels=scope_name)
 plt.setp(ax.get_xticklabels(), rotation=40, horizontalalignment='right')
 
 blue_patch = mpatches.Patch(color='blue', label='Halide')
 red_patch = mpatches.Patch(color='red', label='C++')
-plt.legend(handles=[red_patch, blue_patch])
+green_patch = mpatches.Patch(color='green', label='JS')
+
+plt.legend(handles=[blue_patch, red_patch, green_patch])
 
 plt.savefig('graph.png')
 plt.close()
