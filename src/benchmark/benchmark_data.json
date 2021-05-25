@@ -1,85 +1,91 @@
 [
   {
     "name": "Lumascope",
-    "time": 0.305,
+    "time": 0.312,
     "width": 128,
     "height": 256
   },
   {
     "name": "Lumascope (Color)",
-    "time": 2.586,
+    "time": 2.578,
     "width": 128,
     "height": 256
   },
   {
     "name": "RGB Parade",
-    "time": 0.382,
+    "time": 0.396,
     "width": 384,
     "height": 256
   },
   {
     "name": "Vector Scope",
-    "time": 0.823,
+    "time": 0.806,
     "width": 256,
     "height": 256
   },
   {
     "name": "Vector Scope (Color)",
-    "time": 1.212,
+    "time": 1.197,
     "width": 256,
     "height": 256
   },
   {
     "name": "C++ Lumascope",
-    "time": 1.158,
+    "time": 1.117,
     "width": 128,
     "height": 256
   },
   {
     "name": "C++ Lumascope (Color)",
-    "time": 2.55,
+    "time": 2.461,
     "width": 128,
     "height": 256
   },
   {
     "name": "C++ RGB Parade",
-    "time": 1.517,
+    "time": 1.498,
     "width": 384,
     "height": 256
   },
   {
     "name": "C++ Vector Scope",
-    "time": 2.279,
+    "time": 2.215,
     "width": 256,
     "height": 256
   },
   {
     "name": "C++ Vector Scope (Color)",
-    "time": 3.225,
+    "time": 3.155,
     "width": 256,
     "height": 256
   },
   {
     "name": "JS Lumascope",
-    "time": 32.302,
+    "time": 1.261,
     "width": 128,
     "height": 256
   },
   {
-    "name": "JS Color Lumascope",
-    "time": 33.153,
+    "name": "JS Lumascope (Color)",
+    "time": 1.239,
     "width": 128,
+    "height": 256
+  },
+  {
+    "name": "JS RGB Parade",
+    "time": 2.145,
+    "width": 384,
     "height": 256
   },
   {
     "name": "JS Vector Scope (Color)",
-    "time": 30.753,
+    "time": 3.27,
     "width": 256,
     "height": 256
   },
   {
     "name": "JS Vector Scope",
-    "time": 27.587,
+    "time": 2.276,
     "width": 256,
     "height": 256
   }
