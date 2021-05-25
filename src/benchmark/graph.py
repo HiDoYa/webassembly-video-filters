@@ -11,13 +11,18 @@ ax = fig.add_axes([0.1, 0.15, 0.8, 0.7])
 
 scope_name = []
 cpp_scope_name = []
+js_scope_name = []
 scope_time = []
 cpp_scope_time = []
+js_scope_time = []
 
 for scope in data:
     if 'C++' in scope['name']:
         cpp_scope_name.append(scope['name'])
         cpp_scope_time.append(scope['time'])
+    elif 'JS' in scope['name']:
+        js_scope_name.append(scope['name'])
+        js_scope_time.append(scope['time'])
     else:
         scope_name.append(scope['name'])
         scope_time.append(scope['time'])

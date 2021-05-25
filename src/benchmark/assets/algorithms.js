@@ -3,6 +3,7 @@ exports.js_color_lumascope = js_color_lumascope;
 exports.js_rgb_parade = js_rgb_parade;
 exports.js_vectorscope = js_vectorscope;
 exports.js_color_vectorscope = js_color_vectorscope;
+exports.getIndex = getIndex;
 
 function convert_itu_bt709(r, g, b) {
 	let luminance = 0.2126*r + 0.7152*g + 0.0722*b; // Y value

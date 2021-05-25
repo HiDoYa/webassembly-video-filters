@@ -19,6 +19,7 @@
 //  * js_color_vectorscope()
 //  * js_rgb_parade()
 
+const { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } = require('constants');
 const js_scopes = require('./assets/algorithms.js');
 
 // GLOBAL VARIABLES
@@ -104,8 +105,8 @@ async function benchmark(width, height) {
             new ScopeDescriptor("C++ Vector Scope (Color)", gModule.instance.exports.cpp_color_vectorscope, height, height),
     
             new ScopeDescriptor("JS Lumascope", js_scopes.js_lumascope, width, height),
-            new ScopeDescriptor("JS Color Lumascope", js_scopes.js_color_lumascope, width, height),
-            // new ScopeDescriptor("JS RGB Parade", js_scopes.js_rgb_parade, width * 3, height),
+            new ScopeDescriptor("JS Lumascope (Color)", js_scopes.js_color_lumascope, width, height),
+            new ScopeDescriptor("JS RGB Parade", js_scopes.js_rgb_parade, width * 3, height),
             new ScopeDescriptor("JS Vector Scope (Color)", js_scopes.js_color_vectorscope, height, height),
             new ScopeDescriptor("JS Vector Scope", js_scopes.js_vectorscope, height, height),
         );
@@ -131,9 +132,9 @@ async function benchmark(width, height) {
 
             var t;
             if (scope.name.includes("JS")) {
-                inputData = new Array(width * height * 4);
-                outputData = new Array(scope.width * scope.height * 4);
-                t = timer(scope, inputData, outputData, width, height);
+                let jsIn = createData(width, height);
+                jsOut = new Array(scope.width * scope.height * 4);
+                t = timer(scope, jsIn, jsOut, width, height);
             } else {
                 t = timer(scope, inputPointer, outputPointer, width, height);
             }
@@ -172,6 +173,21 @@ function timer(scope, data_in, data_out, width, height) {
 
     return time/iterations;
 }
+
+function createData(width, height)  {
+    let data = new Array(width * height * 4);
+    for (let w = 0; w < width; w++) {
+        for (let h = 0; h < height; h++) {
+            let i = js_scopes.getIndex(w, h, width);
+            data[i] = Math.random() * 255;
+            data[i+1] = Math.random() * 255;
+            data[i+2] = Math.random() * 255;
+            data[i+3] = 255;
+        }
+    }
+    return data;
+}
+
 
 // MAIN
 function main() {
