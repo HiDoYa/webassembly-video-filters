@@ -1,5 +1,6 @@
 // BENCHMARK.js
-// Time each of the following algorithms
+// Instructions: node benchmark.js
+// Goal: Time each of the following algorithms
 //  * cpp_lumascope()
 //  * cpp_color_lumascope()
 //  * cpp_vectorscope()
@@ -31,10 +32,14 @@ class ScopeDescriptor {
     name = '';
     func = null;
     time = 0;
+    width = 0;
+    height = 0;
   
-    constructor(name, func) {
+    constructor(name, func, width, height) {
       this.name = name;
       this.func = func;
+      this.width = width;
+      this.height = height;
       this.time = -1;
     }
 
@@ -44,7 +49,7 @@ class ScopeDescriptor {
 }
 
 // LOCAL FUNCTIONS
-async function benchmark(data_in, data_out, width, height) {
+async function benchmark(width, height) {
     const imports = {
         wasi_snapshot_preview1: {
             proc_exit: () => { },
@@ -87,47 +92,73 @@ async function benchmark(data_in, data_out, width, height) {
     await WebAssembly.instantiate(new Uint8Array(fs.readFileSync('./assets/zmo.wasm')), imports).then((obj) => {
         var gModule = obj;
         gModule.instance.exports.memory.grow(15);
-        console.log("init gModule");
-        console.log(gModule);
+        console.log("Starting benchmarks...\n");
 
         scopes = new Array (
-            new ScopeDescriptor("Lumascope", gModule.instance.exports.lumascope),
-            new ScopeDescriptor("Lumascope (Color)", gModule.instance.exports.clumascope),
-            // new ScopeDescriptor("RGB Parade", gModule.instance.exports.rgbparade),
-            // new ScopeDescriptor("Vector Scope", gModule.instance.exports.vectorscope),
-            // new ScopeDescriptor("Vector Scope (Color)", gModule.instance.exports.cvectorscope),
+            new ScopeDescriptor("Lumascope", gModule.instance.exports.lumascope, width, height),
+            new ScopeDescriptor("Lumascope (Color)", gModule.instance.exports.clumascope, width, height),
+            new ScopeDescriptor("RGB Parade", gModule.instance.exports.rgbparade, width * 3, height),
+            new ScopeDescriptor("Vector Scope", gModule.instance.exports.vectorscope, height, height),
+            new ScopeDescriptor("Vector Scope (Color)", gModule.instance.exports.cvectorscope, height, height),
             
-            new ScopeDescriptor("C++ Lumascope", gModule.instance.exports.cpp_lumascope),
-            new ScopeDescriptor("C++ Lumascope (Color)", gModule.instance.exports.cpp_color_lumascope),
-            // new ScopeDescriptor("C++ RGB Parade", gModule.instance.exports.cpp_rgb_parade),
-            // new ScopeDescriptor("C++ Vector Scope", gModule.instance.exports.cpp_vectorscope),
-            // new ScopeDescriptor("C++ Vector Scope (Color)", gModule.instance.exports.cpp_color_vectorscope),
+            new ScopeDescriptor("C++ Lumascope", gModule.instance.exports.cpp_lumascope, width, height),
+            new ScopeDescriptor("C++ Lumascope (Color)", gModule.instance.exports.cpp_color_lumascope, width, height),
+            new ScopeDescriptor("C++ RGB Parade", gModule.instance.exports.cpp_rgb_parade, width * 3, height),
+            new ScopeDescriptor("C++ Vector Scope", gModule.instance.exports.cpp_vectorscope, height, height),
+            new ScopeDescriptor("C++ Vector Scope (Color)", gModule.instance.exports.cpp_color_vectorscope, height, height),
     
-            // JS_LUMASCOPE: new ScopeDescriptor("JS Lumascope", js_scopes.js_lumascope),
-            // JS_COLOR_LUMASCOPE: new ScopeDescriptor("JS Color Lumascope", js_scopes.js_color_lumascope),
-            // JS_RGB_PARADE: new ScopeDescriptor("JS RGB Parade", js_scopes.js_rgb_parade),
-            // JS_VECTORSCOPE: new ScopeDescriptor("JS Vector Scope (Color)", js_scopes.js_color_vectorscope),
-            // JS_COLOR_VECTORSCOPE: new ScopeDescriptor("JS Vector Scope", js_scopes.js_vectorscope),
+            // JS_LUMASCOPE: new ScopeDescriptor("JS Lumascope", js_scopes.js_lumascope, width, height),
+            // JS_COLOR_LUMASCOPE: new ScopeDescriptor("JS Color Lumascope", js_scopes.js_color_lumascope, width, height),
+            // JS_RGB_PARADE: new ScopeDescriptor("JS RGB Parade", js_scopes.js_rgb_parade, width * 3, height),
+            // JS_VECTORSCOPE: new ScopeDescriptor("JS Vector Scope (Color)", js_scopes.js_color_vectorscope, height, height),
+            // JS_COLOR_VECTORSCOPE: new ScopeDescriptor("JS Vector Scope", js_scopes.js_vectorscope, height, height),
         );
 
         // BENCHMARK TESTS
         for (const scope of scopes) {
-            t = timer(scope, data_in, data_out, width, height);
+            
+            // allocate memory (INPUT)
+            let inputPointer = gModule.instance.exports.malloc(width * height * 4);;
+            let inputData = new Uint8Array(
+                gModule.instance.exports.memory.buffer,
+                inputPointer,
+                width * height * 4
+            );
+
+            // allocate memory (OUTPUT)
+            let outputPointer = gModule.instance.exports.malloc(scope.width * scope.height * 4);;
+            let outputData = new Uint8Array(
+                gModule.instance.exports.memory.buffer,
+                outputPointer,
+                scope.width * scope.height * 4
+            );
+
+            // time scope
+            let t = timer(scope, inputPointer, outputPointer, width, height);
             scope.setTime(t);
+
+            // free memory
+            gModule.instance.exports.free(this.inputPointer);
+            gModule.instance.exports.free(this.outputPointer);
         }
 
-        for (const scope of scopes) {
-            console.log(scope);
-        }
-
+        // gather results and  write to file
+        let file = 'benchmark_data.json'
+        let results = JSON.stringify(scopes, null, 2);
+        fs.writeFile(file, results, function(err) {
+            if (err) throw err;
+            console.log("\nBenchmarks complete.\nResults in \'" + file + "\'");
+        })
     });
 }
 
 function timer(scope, data_in, data_out, width, height) {
-    console.log("Timing \'" + scope.name + "\'...");
+    var iterations = 100;
     var time = 0;
 
-    for (let i = 0; i < 3; i++) {
+    console.log("Timing \'" + scope.name + "\' (" + iterations + " iterations)...");
+    
+    for (let i = 0; i < iterations; i++) {
         const start = Date.now();
         scope.func(data_in, data_out, width, height);
         const end = Date.now();
@@ -155,23 +186,10 @@ function initData(width, height) {
 
 // MAIN
 function main() {
-    // init variables
-    let file = 'benchmark_data.txt'
-    let results = 'RESULTS GO HERE'
-
     let width = 128;
     let height = 256;
 
-    var data_in = initData(width, height);
-    var data_out = initData(width, height);
-
-    benchmark(data_in, data_out, width, height);
-
-    const fs = require('fs');
-    fs.writeFile(file, results, function(err) {
-        if (err) throw err;
-        console.log("Benchmarks complete.\nResults in file: " + file);
-    })
+    benchmark(width, height);
 }
 
 main();
