@@ -19,9 +19,9 @@
 //  * js_color_vectorscope()
 //  * js_rgb_parade()
 
-// import { js_color_lumascope, js_lumascope, js_rgb_parade, js_color_vectorscope, js_vectorscope } from "./assets/algorithms"
+// import { js_color_lumascope, js_lumascope, js_rgb_parade, js_color_vectorscope, js_vectorscope } from "./assets/algorithms.js"
 
-// var js_scopes = require('./assets/algorithms.ts');
+var js_scopes = require('./assets/algorithms.js');
 
 
 // GLOBAL VARIABLES
@@ -107,11 +107,11 @@ async function benchmark(width, height) {
             new ScopeDescriptor("C++ Vector Scope", gModule.instance.exports.cpp_vectorscope, height, height),
             new ScopeDescriptor("C++ Vector Scope (Color)", gModule.instance.exports.cpp_color_vectorscope, height, height),
     
-            // JS_LUMASCOPE: new ScopeDescriptor("JS Lumascope", js_scopes.js_lumascope, width, height),
-            // JS_COLOR_LUMASCOPE: new ScopeDescriptor("JS Color Lumascope", js_scopes.js_color_lumascope, width, height),
-            // JS_RGB_PARADE: new ScopeDescriptor("JS RGB Parade", js_scopes.js_rgb_parade, width * 3, height),
-            // JS_VECTORSCOPE: new ScopeDescriptor("JS Vector Scope (Color)", js_scopes.js_color_vectorscope, height, height),
-            // JS_COLOR_VECTORSCOPE: new ScopeDescriptor("JS Vector Scope", js_scopes.js_vectorscope, height, height),
+            // new ScopeDescriptor("JS Lumascope", js_scopes.js_lumascope, width, height),
+            // new ScopeDescriptor("JS Color Lumascope", js_scopes.js_color_lumascope, width, height),
+            // new ScopeDescriptor("JS RGB Parade", js_scopes.js_rgb_parade, width * 3, height),
+            // new ScopeDescriptor("JS Vector Scope (Color)", js_scopes.js_color_vectorscope, height, height),
+            // new ScopeDescriptor("JS Vector Scope", js_scopes.js_vectorscope, height, height),
         );
 
         // BENCHMARK TESTS
@@ -153,10 +153,10 @@ async function benchmark(width, height) {
 }
 
 function timer(scope, data_in, data_out, width, height) {
-    var iterations = 100;
+    var iterations = 1000;
     var time = 0;
 
-    console.log("Timing \'" + scope.name + "\' (" + iterations + " iterations)...");
+    console.log("Timing \'" + scope.name + "...");
     
     for (let i = 0; i < iterations; i++) {
         const start = Date.now();
@@ -166,7 +166,7 @@ function timer(scope, data_in, data_out, width, height) {
         time += (end - start);
     }
 
-    return time;
+    return time/iterations;
 }
 
 function initData(width, height) {
