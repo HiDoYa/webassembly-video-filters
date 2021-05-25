@@ -1,4 +1,4 @@
-// BENCHMARK.js
+// Name: benchmark.js
 // Instructions: node benchmark.js
 // Goal: Time each of the following algorithms
 //  * cpp_lumascope()
@@ -19,10 +19,7 @@
 //  * js_color_vectorscope()
 //  * js_rgb_parade()
 
-// import { js_color_lumascope, js_lumascope, js_rgb_parade, js_color_vectorscope, js_vectorscope } from "./assets/algorithms.js"
-
-var js_scopes = require('./assets/algorithms.js');
-
+const js_scopes = require('./assets/algorithms.js');
 
 // GLOBAL VARIABLES
 var scopes = [];
@@ -48,7 +45,6 @@ class ScopeDescriptor {
     }
 }
 
-// LOCAL FUNCTIONS
 async function benchmark(width, height) {
     const imports = {
         wasi_snapshot_preview1: {
@@ -107,11 +103,11 @@ async function benchmark(width, height) {
             new ScopeDescriptor("C++ Vector Scope", gModule.instance.exports.cpp_vectorscope, height, height),
             new ScopeDescriptor("C++ Vector Scope (Color)", gModule.instance.exports.cpp_color_vectorscope, height, height),
     
-            // new ScopeDescriptor("JS Lumascope", js_scopes.js_lumascope, width, height),
-            // new ScopeDescriptor("JS Color Lumascope", js_scopes.js_color_lumascope, width, height),
+            new ScopeDescriptor("JS Lumascope", js_scopes.js_lumascope, width, height),
+            new ScopeDescriptor("JS Color Lumascope", js_scopes.js_color_lumascope, width, height),
             // new ScopeDescriptor("JS RGB Parade", js_scopes.js_rgb_parade, width * 3, height),
-            // new ScopeDescriptor("JS Vector Scope (Color)", js_scopes.js_color_vectorscope, height, height),
-            // new ScopeDescriptor("JS Vector Scope", js_scopes.js_vectorscope, height, height),
+            new ScopeDescriptor("JS Vector Scope (Color)", js_scopes.js_color_vectorscope, height, height),
+            new ScopeDescriptor("JS Vector Scope", js_scopes.js_vectorscope, height, height),
         );
 
         // BENCHMARK TESTS
@@ -133,8 +129,16 @@ async function benchmark(width, height) {
                 scope.width * scope.height * 4
             );
 
+            var t;
+            if (scope.name.includes("JS")) {
+                inputData = new Array(width * height * 4);
+                outputData = new Array(scope.width * scope.height * 4);
+                t = timer(scope, inputData, outputData, width, height);
+            } else {
+                t = timer(scope, inputPointer, outputPointer, width, height);
+            }
+
             // time scope
-            let t = timer(scope, inputPointer, outputPointer, width, height);
             scope.setTime(t);
 
             // free memory
@@ -156,7 +160,7 @@ function timer(scope, data_in, data_out, width, height) {
     var iterations = 1000;
     var time = 0;
 
-    console.log("Timing \'" + scope.name + "...");
+    console.log("Timing \'" + scope.name + "\'...");
     
     for (let i = 0; i < iterations; i++) {
         const start = Date.now();
@@ -167,21 +171,6 @@ function timer(scope, data_in, data_out, width, height) {
     }
 
     return time/iterations;
-}
-
-function initData(width, height) {
-    let data = new Array(width * height * 4);
-
-    for (let h = 0; h < height; h++) {
-        for (let w = 0; w < width; w++) {
-            let i = ((h * width) + w) * 4;
-            data[i] = Math.floor(Math.random() * 255);
-            data[i+1] = Math.floor(Math.random() * 255);
-            data[i+2] = Math.floor(Math.random() * 255);
-            data[i+3] = 255;
-        }
-    }
-    return data;
 }
 
 // MAIN
