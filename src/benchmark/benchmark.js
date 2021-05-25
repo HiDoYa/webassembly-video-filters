@@ -18,9 +18,10 @@
 //  * js_color_vectorscope()
 //  * js_rgb_parade()
 
+
 // import { js_color_lumascope, js_lumascope, js_rgb_parade, js_color_vectorscope, js_vectorscope } from "./algorithms"
 
-async loadWasm() {
+async function loadWasm() {
     const imports = {
         wasi_snapshot_preview1: {
             proc_exit: () => { },
@@ -61,20 +62,22 @@ async loadWasm() {
         }
     }
     
-        await WebAssembly.instantiateStreaming(fetch('assets/zmo.wasm'), imports).then((obj: any) => {
+        await WebAssembly.instantiateStreaming(fetch('zmo.wasm'), imports).then((obj) => {
         let gModule = obj;
         gModule.instance.exports.memory.grow(15);
     });
+
+    console.log(gModule);
 
     return gModule;
 }
 
 function benchmark() {
     // init variables
-    scopes: any = null;
+    // scopes: any = null;
 
     let file = 'benchmark_data.txt'
-    let results = 'MY RESULTS'
+    let results = 'RESULTS GO HERE'
 
     let HEIGHT = 256;
     let WIDTH = 128;
@@ -91,8 +94,9 @@ function benchmark() {
     // timer start
     const start = Date.now();
 
-    for (let i = 0; i < 65556; i++) {
-        gModule.exports.clumascope(data_in, data_out, WIDTH, HEIGHT);
+    for (let i = 0; i < 5/*65556*/; i++) {
+        console.log("loop " + i);
+        // gModule.exports.clumascope(data_in, data_out, WIDTH, HEIGHT);
         // js_color_lumascope(data_in, data_out, WIDTH, HEIGHT);
     }
 
