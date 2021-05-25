@@ -1,4 +1,4 @@
-function convert_itu_bt709(r: number, g: number, b: number) {
+function convert_itu_bt709(r, g, b) {
 	let luminance = 0.2126*r + 0.7152*g + 0.0722*b; // Y value
 	//rerange from 0 -> 1
 	luminance = luminance / 255.0;
@@ -6,17 +6,17 @@ function convert_itu_bt709(r: number, g: number, b: number) {
 }
 
 // source: https://softpixel.com/~cwright/programming/colorspace/yuv/
-function RGBtoY(R: number, G: number, B: number) {
+function RGBtoY(R, G, B) {
 	return (R * .299000) + (G * .587000) + (B * .114000); 	  	// 0 - 255
 }
 
-function RGBtoUV(R: number, G: number, B: number) {
+function RGBtoUV(R, G, B) {
 	let U = (R * -.168736) + (G * -.331264) + (B *  .500000) + 128; 	// 0 - 255
 	let V = (R *  .500000) + (G * -.418688) + (B * -.081312) + 128; 	// 0 - 255
     return [U, V]
 }
 
-function YUVtoRGB(Y: number, U: number, V: number) {
+function YUVtoRGB(Y, U, V) {
 	let R = Y + 1.4075 * (V - 128);
 	let G = Y - 0.3455 * (U - 128) - (0.7169 * (V - 128));
 	let B = Y + 1.7790 * (U - 128);
@@ -24,15 +24,15 @@ function YUVtoRGB(Y: number, U: number, V: number) {
     return [R, G, B];
 }
 
-function normalize(input: number) {
+function normalize(input) {
 	return input / 255.0;
 }
 
-function getIndex(x: number, y: number, width: number) {
+function getIndex(x, y, width) {
 	return ((y * width) + x) * 4;
 }
 
-function getUpdatedColor(pixel_cur: number, pixel_new: number, divider: number, constant: number) {
+function getUpdatedColor(pixel_cur, pixel_new, divider, constant) {
 	let result = pixel_cur + (constant * pixel_new / divider);
 	if (result > 255) return 255;
 	return Math.floor(result);
@@ -40,7 +40,7 @@ function getUpdatedColor(pixel_cur: number, pixel_new: number, divider: number, 
 }
 /////// SCOPE GENERATORS ///////
 // get itu_bt.709 luminance (waveform)
-export function js_lumascope(data_in: any, data_out: any, width: number, height: number) {
+function js_lumascope(data_in, data_out, width, height) {
 	let index;				
 	let Y;					
 	
@@ -73,7 +73,7 @@ export function js_lumascope(data_in: any, data_out: any, width: number, height:
 }
 
 // get RGB luminance (waveform)
-export function js_color_lumascope(data_in: any, data_out: any, width: number, height: number) {
+function js_color_lumascope(data_in, data_out, width, height) {
 	let index, Y_height;
 
 	let Y, U, V;
@@ -152,7 +152,7 @@ export function js_color_lumascope(data_in: any, data_out: any, width: number, h
 }
 
 // get seperate RGB luminance (waveform)
-export function js_rgb_parade(data_in: any, data_out: any, width: number, height: number) {
+function js_rgb_parade(data_in, data_out, width, height) {
     let index;					// pixel's index
 	let indexR, indexG, indexB;	// pixel's index
 	let Yr, Yg, Yb;				// pixel's luminance
@@ -211,7 +211,7 @@ export function js_rgb_parade(data_in: any, data_out: any, width: number, height
 	}
 }
 
-export function js_color_vectorscope(data_in: any, data_out: any, width: number, height: number) {
+function js_color_vectorscope(data_in, data_out, width, height) {
 	let index;
 	let x, y;
 	let R, G, B;
@@ -255,7 +255,7 @@ export function js_color_vectorscope(data_in: any, data_out: any, width: number,
 }
 
 
-export function js_vectorscope(data_in: any, data_out: any, width: number, height: number) {
+function js_vectorscope(data_in, data_out, width, height) {
 	
 	let index;
 	let x, y;
