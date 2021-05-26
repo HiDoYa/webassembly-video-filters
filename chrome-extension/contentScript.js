@@ -18,6 +18,7 @@ chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if (request.type == "SCOPE_TYPE") {
       GLOBAL_SCOPE = request.scope;
+      scopeChanged();
     } else if  (request.type == "SCOPE_TOGGLE") {
       toggle(document.getElementById("c2"));
     }
@@ -84,28 +85,46 @@ let processor = {
     },
   
     doLoad: function() {
-        this.inputPointer = instance.exports.malloc(256 * 256 * 4);
+        // FREE POINTERS
+        if (this.inputPointer != null) {
+          instance.exports.free(this.inputPointer);
+        }
+        if (this.outputPointer != null) {
+          instance.exports.free(this.outputPointer);
+        }
+
+        this.width = 256;
+        this.height = 256;
+        if (GLOBAL_SCOPE == "rgbp") {
+          this.width = 255;
+          this.height = 255;
+        }
+
+        this.inputPointer = instance.exports.malloc(this.width * this.height * 4);
         this.inputArray = new Uint8Array(
             instance.exports.memory.buffer,
             this.inputPointer,
-            256 * 256 * 4
+            this.width * this.height * 4
         );
 
-        this.outputPointer = instance.exports.malloc(256 * 256 * 4);
+        this.outputPointer = instance.exports.malloc(this.width * this.height * 4);
         this.outputArray = new Uint8Array(
             instance.exports.memory.buffer,
             this.outputPointer,
-            256 * 256 * 4
+            this.width * this.height * 4
         );
 
         this.c1 = document.getElementById("c1");
         this.ctx1 = this.c1.getContext("2d");
         this.c2 = document.getElementById("c2");
         this.ctx2 = this.c2.getContext("2d");
-        this.video = document.getElementsByTagName("video")[0];
 
-        this.width = 256;
-        this.height = 256;
+        this.ctx1.width = this.width;
+        this.ctx1.height = this.height;
+        this.ctx2.width = this.width;
+        this.ctx2.height = this.height;
+
+        this.video = document.getElementsByTagName("video")[0];
 
         let self = this;
         this.video.addEventListener("play", () => {
@@ -129,7 +148,7 @@ let processor = {
           instance.exports.clumascope(this.inputPointer, this.outputPointer, this.width, this.height);
           break;
         case "rgbp":
-          instance.exports.rgbparade(this.inputPointer, this.outputPointer, this.width/3, this.height);
+          instance.exports.rgbparade(this.inputPointer, this.outputPointer, this.width / 3, this.height);
           break;
         case "cvect":
           instance.exports.cvectorscope(this.inputPointer, this.outputPointer, this.width, this.height);
@@ -139,6 +158,10 @@ let processor = {
       return;
     }
   };
+
+function scopeChanged() {
+  processor.doLoad();
+}
 
 function init() {
   let url = window.location.href;
