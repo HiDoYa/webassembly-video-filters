@@ -295,7 +295,7 @@ export class AppComponent {
       case this.scopes.JS_VECTORSCOPE:
       case this.scopes.JS_COLOR_VECTORSCOPE:
         this.bgScopeCtx?.clearRect( 0, 0, this.bgScope?.nativeElement.width, this.bgScope?.nativeElement.height);
-        this.image.src = "../../assets/images/vectorscope_test_5.svg";
+        this.image.src = "../../assets/images/vectorscope_test_Cropped_colored_noLetters.svg";
         this.vidcanvasCtx!.canvas.width = 128;
         this.vidcanvasCtx!.canvas.height = 256;
         this.scopecanvasCtx!.canvas.width = 256;
