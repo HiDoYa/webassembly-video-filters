@@ -47,5 +47,12 @@ green_patch = mpatches.Patch(color='green', label='JS')
 
 plt.legend(handles=[blue_patch, red_patch, green_patch])
 
+plt.text(x=4.55, y=41.66, s='24 fps')
+plt.text(x=4.55, y=33.33, s='30 fps')
+plt.text(x=4.55, y=16.66, s='60 fps')
+plt.axhline(y=41.66, color='black', linestyle =":")
+plt.axhline(y=33.33, color='black', linestyle =":")
+plt.axhline(y=16.66, color='black', linestyle =":")
+
 plt.savefig('graph.png')
 plt.close()
