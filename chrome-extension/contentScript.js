@@ -65,7 +65,8 @@ async function loadWasm() {
         STACKTOP: 0
       }
     };
-    let wasm = await WebAssembly.instantiateStreaming(fetch(chrome.runtime.getURL("zmo.wasm")), imports);
+    let url = await fetch(chrome.runtime.getURL("zmo.wasm"));
+    let wasm = await WebAssembly.instantiateStreaming(url, imports);
     instance = wasm.instance;
 }
 
@@ -83,18 +84,18 @@ let processor = {
     },
   
     doLoad: function() {
-        this.inputPointer = instance.exports.malloc(255 * 255 * 4);
+        this.inputPointer = instance.exports.malloc(256 * 256 * 4);
         this.inputArray = new Uint8Array(
             instance.exports.memory.buffer,
             this.inputPointer,
-            255 * 255 * 4
+            256 * 256 * 4
         );
 
-        this.outputPointer = instance.exports.malloc(255 * 255 * 4);
+        this.outputPointer = instance.exports.malloc(256 * 256 * 4);
         this.outputArray = new Uint8Array(
             instance.exports.memory.buffer,
             this.outputPointer,
-            255 * 255 * 4
+            256 * 256 * 4
         );
 
         this.c1 = document.getElementById("c1");
@@ -103,8 +104,8 @@ let processor = {
         this.ctx2 = this.c2.getContext("2d");
         this.video = document.getElementsByTagName("video")[0];
 
-        this.width = 255;
-        this.height = 255;
+        this.width = 256;
+        this.height = 256;
 
         let self = this;
         this.video.addEventListener("play", () => {
@@ -124,11 +125,14 @@ let processor = {
         case "luma":
           instance.exports.lumascope(this.inputPointer, this.outputPointer, this.width, this.height);
           break;
+        case "cluma":
+          instance.exports.clumascope(this.inputPointer, this.outputPointer, this.width, this.height);
+          break;
         case "rgbp":
           instance.exports.rgbparade(this.inputPointer, this.outputPointer, this.width/3, this.height);
           break;
-        case "vect":
-          instance.exports.vectorscope(this.inputPointer, this.outputPointer, this.width, this.height);
+        case "cvect":
+          instance.exports.cvectorscope(this.inputPointer, this.outputPointer, this.width, this.height);
           break;
       }
       this.ctx2.putImageData(new ImageData(new Uint8ClampedArray(this.outputArray), this.width, this.height), 0, 0);
@@ -148,15 +152,14 @@ function init() {
   const youtubeRegex = new RegExp('watch');
   const vimeoRegex = new RegExp('[0-9]+');
 
-  console.log(document.getElementById("c1"))
   if ((url.includes("youtube.com") && url.match(youtubeRegex) == null) ||
       (url.includes("vimeo.com")   && url.match(vimeoRegex)   == null)) {
     console.log("Current URL may not have a video")
     return
   } else if (document.getElementById("c1") == null) {
     console.log("Element to inject wasm:", document.getElementById(id));
-    document.getElementById(id).innerHTML += "<canvas id=\"c1\" style=\"display: none;\" width=\"255\" height=\"255\"></canvas>"
-    document.getElementById(id).innerHTML += "<canvas id=\"c2\" style=\"border: 1px solid white;position:absolute; top: 20px; left: 60px; z-index: 500;\" width=\"255\" height=\"255\"></canvas>"
+    document.getElementById(id).innerHTML += "<canvas id=\"c1\" style=\"display: none;\" width=\"256\" height=\"256\"></canvas>"
+    document.getElementById(id).innerHTML += "<canvas id=\"c2\" style=\"border: 1px solid white;position:absolute; top: 20px; left: 60px; z-index: 500;\" width=\"256\" height=\"256\"></canvas>"
     // Make the DIV element draggable:
     dragElement(document.getElementById("c2"));
 
