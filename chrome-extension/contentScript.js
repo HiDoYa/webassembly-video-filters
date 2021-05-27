@@ -7,13 +7,15 @@ new MutationObserver(() => {
   }
 }).observe(document, {subtree: true, childList: true});
 
+// Rerun init if url changed
 function onUrlChange() {
-  console.log('URL changed!', location.href);
   init();
 }
 
 let GLOBAL_SCOPE = "luma";
 let instance;
+
+// Listen from popup script for events
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if (request.type == "SCOPE_TYPE") {
@@ -69,6 +71,7 @@ async function loadWasm() {
     let url = await fetch(chrome.runtime.getURL("zmo.wasm"));
     let wasm = await WebAssembly.instantiateStreaming(url, imports);
     instance = wasm.instance;
+    instance.exports.memory.grow(15);
 }
 
 let processor = {
@@ -83,9 +86,23 @@ let processor = {
           self.timerCallback();
       }, 0);
     },
+
+    setScopeSize: function() {
+      this.inputWidth = 256;
+      this.inputHeight = 256;
+      this.outputWidth = 256;
+      this.outputHeight = 256;
+
+      if (GLOBAL_SCOPE == "rgbp") {
+        this.inputWidth = 85;
+        this.inputHeight = 255;
+        this.outputWidth = 255;
+        this.outputHeight = 255;
+      }
+    },
   
     doLoad: function() {
-        // FREE POINTERS
+        // Free old pointers
         if (this.inputPointer != null) {
           instance.exports.free(this.inputPointer);
         }
@@ -93,25 +110,22 @@ let processor = {
           instance.exports.free(this.outputPointer);
         }
 
-        this.width = 256;
-        this.height = 256;
-        if (GLOBAL_SCOPE == "rgbp") {
-          this.width = 255;
-          this.height = 255;
-        }
+        // Populate input/output width/height
+        setScopeSize();
 
-        this.inputPointer = instance.exports.malloc(this.width * this.height * 4);
+        // Allocate arrays
+        this.inputPointer = instance.exports.malloc(this.inputWidth * this.inputHeight * 4);
         this.inputArray = new Uint8Array(
             instance.exports.memory.buffer,
             this.inputPointer,
-            this.width * this.height * 4
+            this.inputWidth * this.inputHeight * 4
         );
 
-        this.outputPointer = instance.exports.malloc(this.width * this.height * 4);
+        this.outputPointer = instance.exports.malloc(this.outputWidth * this.outputHeight * 4);
         this.outputArray = new Uint8Array(
             instance.exports.memory.buffer,
             this.outputPointer,
-            this.width * this.height * 4
+            this.outputWidth * this.outputHeight * 4
         );
 
         this.c1 = document.getElementById("c1");
@@ -119,13 +133,15 @@ let processor = {
         this.c2 = document.getElementById("c2");
         this.ctx2 = this.c2.getContext("2d");
 
-        this.ctx1.width = this.width;
-        this.ctx1.height = this.height;
-        this.ctx2.width = this.width;
-        this.ctx2.height = this.height;
+        // Resize canvas if needed
+        this.ctx1.canvas.width = this.inputWidth;
+        this.ctx1.canvas.height = this.inputHeight;
+        this.ctx2.canvas.width = this.outputWidth;
+        this.ctx2.canvas.height = this.outputHeight;
 
         this.video = document.getElementsByTagName("video")[0];
 
+        // Start scope callback
         let self = this;
         this.video.addEventListener("play", () => {
             self.timerCallback();
@@ -135,26 +151,31 @@ let processor = {
   
     computeFrame: function() {
       if (this.video == undefined) return;
-      this.ctx1.drawImage(this.video, 0, 0, this.width, this.height);
-      let frame = this.ctx1.getImageData(0, 0, this.width, this.height);
+      this.ctx1.drawImage(this.video, 0, 0, this.inputWidth, this.inputHeight);
+      let frame = this.ctx1.getImageData(0, 0, this.inputWidth, this.inputHeight);
       let data = Array.prototype.slice.call(frame.data);
 
+      // Copy data into array
       this.inputArray.set(data);
+
+      // Pass array into scope function
       switch(GLOBAL_SCOPE) {
         case "luma":
-          instance.exports.lumascope(this.inputPointer, this.outputPointer, this.width, this.height);
+          instance.exports.lumascope(this.inputPointer, this.outputPointer, this.inputWidth, this.inputHeight);
           break;
         case "cluma":
-          instance.exports.clumascope(this.inputPointer, this.outputPointer, this.width, this.height);
+          instance.exports.clumascope(this.inputPointer, this.outputPointer, this.inputWidth, this.inputHeight);
           break;
         case "rgbp":
-          instance.exports.rgbparade(this.inputPointer, this.outputPointer, this.width / 3, this.height);
+          instance.exports.rgbparade(this.inputPointer, this.outputPointer, this.inputWidth, this.inputHeight);
           break;
         case "cvect":
-          instance.exports.cvectorscope(this.inputPointer, this.outputPointer, this.width, this.height);
+          instance.exports.cvectorscope(this.inputPointer, this.outputPointer, this.inputWidth, this.inputHeight);
           break;
       }
-      this.ctx2.putImageData(new ImageData(new Uint8ClampedArray(this.outputArray), this.width, this.height), 0, 0);
+
+      // Put output into canvas
+      this.ctx2.putImageData(new ImageData(new Uint8ClampedArray(this.outputArray), this.outputWidth, this.outputHeight), 0, 0);
       return;
     }
   };
@@ -175,24 +196,31 @@ function init() {
   const youtubeRegex = new RegExp('watch');
   const vimeoRegex = new RegExp('[0-9]+');
 
+  // Url must match for video scopes
   if ((url.includes("youtube.com") && url.match(youtubeRegex) == null) ||
       (url.includes("vimeo.com")   && url.match(vimeoRegex)   == null)) {
-    console.log("Current URL may not have a video")
     return
-  } else if (document.getElementById("c1") == null) {
-    console.log("Element to inject wasm:", document.getElementById(id));
+  }
+
+  // Only run if this hasn't been run yet
+  // Find element to replace in web page
+  if (document.getElementById("c1") == null) {
+    console.log("Element to inject wasm:", document.getElementsByTagName(id));
     document.getElementById(id).innerHTML += "<canvas id=\"c1\" style=\"display: none;\" width=\"256\" height=\"256\"></canvas>"
     document.getElementById(id).innerHTML += "<canvas id=\"c2\" style=\"border: 1px solid white;position:absolute; top: 20px; left: 60px; z-index: 500;\" width=\"256\" height=\"256\"></canvas>"
-    // Make the DIV element draggable:
-    dragElement(document.getElementById("c2"));
-
   } 
+
+  // Make the DIV element draggable:
+  dragElement(document.getElementById("c2"));
+
+  // Load wasm and start processing
   loadWasm().then(function() {
       instance.exports.memory.grow(15);
       processor.doLoad();
   });
 }
 
+// Toggles whether to show scope
 function toggle(elmnt) {
   if (elmnt.style.display == "none") {
     elmnt.style.display = "block";
@@ -202,6 +230,7 @@ function toggle(elmnt) {
 }
 
 /// FOLLOWING ADAPTED FROM W3 SCHOOLS
+// Allows scope to be dragged across the screen
 function dragElement(elmnt) {
   var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
   if (document.getElementById(elmnt.id + "header")) {
