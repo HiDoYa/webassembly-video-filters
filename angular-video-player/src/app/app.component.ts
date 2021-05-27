@@ -296,7 +296,6 @@ export class AppComponent {
       case this.scopes.JS_COLOR_VECTORSCOPE:
         this.bgScopeCtx?.clearRect( 0, 0, this.bgScope?.nativeElement.width, this.bgScope?.nativeElement.height);
         this.image.src = "../../assets/images/vectorscope_test_Cropped_colored_noLetters.svg";
-
         this.vidcanvasCtx!.canvas.width = 128;
         this.vidcanvasCtx!.canvas.height = 256;
         this.scopecanvasCtx!.canvas.width = 256;
@@ -307,7 +306,6 @@ export class AppComponent {
       case this.scopes.JS_RGB_PARADE:
         this.bgScopeCtx?.clearRect( 0, 0, this.bgScope?.nativeElement.width, this.bgScope?.nativeElement.height);
         this.image.src = "../../assets/images/scopes_test_11.svg";
-
         this.vidcanvasCtx!.canvas.width = 128;
         this.vidcanvasCtx!.canvas.height = 256;
         this.scopecanvasCtx!.canvas.width = 128 * 3;
@@ -328,7 +326,6 @@ export class AppComponent {
     
 
     this.bgScopeCtx?.clearRect( 0, 0, this.bgScope?.nativeElement.width, this.bgScope?.nativeElement.height);
-    //this.cxFg.fillStyle = 'hsla(0, 0%, 100%, 0)';
 
     this.image.onload = ()=> {
         this.bgScopeCtx?.drawImage(this.image, 0, 0, this.bgScope?.nativeElement.width  , this.bgScope?.nativeElement.height );
