@@ -309,36 +309,36 @@ public:
 
 	void generate()
 	{
+		
 		output(x, y, c) = cast<uint8_t>(0);
 		output(x, y, 3) = cast<uint8_t>(255);
 		
 		RDom r = RDom (0, input.dim(0).extent(), 0, input.dim(1).extent());
 
 		//Value computed in RGB format, assuming R:c==0, G:c==1, B:c==2
-		Expr Y = (output(r.x, r.y, 0) *  .299f) + (output(r.x, r.y, 1) *  .587f) + (output(r.x, r.y, 2) *  .114f);
-		//input(r.x, clamp(cast<uint8_t>(255 - Y), 0, 255),3) += cast<uint8_t>(10);
-		//output(r.x, clamp(cast<uint8_t>(255 - Y), 0, 255),3) += cast<uint8_t>(10);
+		Expr Y = (input(r.x, r.y, 0) *  .299f) + (input(r.x, r.y, 1) *  .587f) + (input(r.x, r.y, 2) *  .114f);
 
-		output(r.x,clamp(cast<uint8_t>(255 - Y), 0, 255),0) += cast<uint8_t>(input(r.x, r.y, 0));
-		output(r.x,clamp(cast<uint8_t>(255 - Y), 0, 255),1) += cast<uint8_t>(input(r.x, r.y, 1));
-		output(r.x,clamp(cast<uint8_t>(255 - Y), 0, 255),2) += cast<uint8_t>(input(r.x, r.y, 2));
-		output(r.x,clamp(cast<uint8_t>(255 - Y), 0, 255),3) += cast<uint8_t>(1);
+		Func hist1, hist2, hist3, hist4, hist5;
+		hist1(r.x,clamp(cast<int>(255 - Y), 0, 255)) += cast<int>(input(r.x, r.y, 0));
+		hist2(r.x,clamp(cast<int>(255 - Y), 0, 255)) += cast<int>(input(r.x, r.y, 1));
+		hist3(r.x,clamp(cast<int>(255 - Y), 0, 255)) += cast<int>(input(r.x, r.y, 2));
+		hist4(r.x,clamp(cast<int>(255 - Y), 0, 255)) += cast<int>(16);
+		hist5(r.x,clamp(cast<int>(255 - Y), 0, 255)) += cast<int>(1);
 		
-		Expr R = output(r.x, r.y, 0)/(clamp(output(r.x, r.y, 3),1,255));
-		Expr G = output(r.x, r.y, 1)/(clamp(output(r.x, r.y, 3),1,255));
-		Expr B = output(r.x, r.y, 2)/(clamp(output(r.x, r.y, 3),1,255));
+		Expr R =  min(hist1(r.x,r.y)/max(hist5(r.x,r.y),1),255);
+		Expr G =  min(hist2(r.x,r.y)/max(hist5(r.x,r.y),1),255);
+		Expr B =  min(hist3(r.x,r.y)/max(hist5(r.x,r.y),1),255);
 
 		Expr U = (R * -.168736f) + (G * -.331264f) + (B *  .5f) + 128.0f;
 		Expr V = (R *  .5f) + (G * -.418688f) + (B * -.081312f) + 128.0f;
 
-		Expr YUVtoR = Y + 1.4075f * (V - 128.0f);
-		Expr YUVtoG = Y - 0.3455f * (U - 128.0f) - (0.7169f * (V - 128.0f));
-		Expr YUVtoB = Y + 1.7790f * (U - 128.0f);
+		Expr YUVtoR = hist4(r.x,r.y) + 1.4075f * (V - 128.0f);
+		Expr YUVtoG = hist4(r.x,r.y) - 0.3455f * (U - 128.0f) - (0.7169f * (V - 128.0f));
+		Expr YUVtoB = hist4(r.x,r.y) + 1.7790f * (U - 128.0f);
 
-		output(r.x,r.y, 0) = clamp(cast<uint8_t>(255 - YUVtoR), 0, 255);
-		output(r.x,r.y, 1) = clamp(cast<uint8_t>(255 - YUVtoG), 0, 255);
-		output(r.x,r.y, 2) = clamp(cast<uint8_t>(255 - YUVtoB), 0, 255);
-		output(x, y, 3) = cast<uint8_t>(255);
+		output(r.x,r.y, 0) = cast<uint8_t>(YUVtoR);
+		output(r.x,r.y, 1) = cast<uint8_t>(YUVtoG);
+		output(r.x,r.y, 2) = cast<uint8_t>(YUVtoB);
 
 		output.dim(0).set_extent(input.dim(0).extent());
 		output.dim(1).set_extent(255);
