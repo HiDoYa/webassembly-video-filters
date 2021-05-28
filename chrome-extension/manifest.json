@@ -1,6 +1,6 @@
 {
   "name": "Webassembly Video Filter",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Webassembly video filters",
   "content_scripts": [{
     "matches": ["*://*.youtube.com/*", "*://vimeo.com/*"],
