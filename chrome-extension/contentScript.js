@@ -111,7 +111,7 @@ let processor = {
         }
 
         // Populate input/output width/height
-        setScopeSize();
+        this.setScopeSize();
 
         // Allocate arrays
         this.inputPointer = instance.exports.malloc(this.inputWidth * this.inputHeight * 4);
