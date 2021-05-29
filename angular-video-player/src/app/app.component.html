@@ -70,7 +70,7 @@
 
         <!-- VIDEO SCOPE -->
         <div class="scope-container">
-          <div id="overlay">
+          <div #overlay id="overlay" [ngStyle]="getSize(this)">
             <canvas #scopecanvas id="scopecanvas" width="128" height="256"></canvas>
             <canvas #bgScope id="bgScope" width="128" height="256"></canvas>
           </div>

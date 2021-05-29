@@ -28,6 +28,7 @@ export class AppComponent {
   @ViewChild('vidcanvas') vidcanvas: ElementRef | undefined;
   @ViewChild('bgScope') bgScope: ElementRef | undefined;
   @ViewChild('video') video: ElementRef | undefined;
+  @ViewChild('overlay') overlay: ElementRef | undefined;
 
   scopes: any = null;
   currentScope: ScopeDescriptor = new ScopeDescriptor('', null);
@@ -63,6 +64,11 @@ export class AppComponent {
   ngAfterViewInit() {
     this.loadWasm();
     this.doLoad();
+
+    //var width = this.overlay?.nativeElement.offsetWidth ;
+  
+    //console.log("width " + width);
+    
 
     this.http.get(this.backendUrl + 'download', {responseType:'json'}).subscribe(response => {
       let videos = Object.values(response);
@@ -296,8 +302,8 @@ export class AppComponent {
       case this.scopes.JS_COLOR_VECTORSCOPE:
         this.bgScopeCtx?.clearRect( 0, 0, this.bgScope?.nativeElement.width, this.bgScope?.nativeElement.height);
         this.image.src = "../../assets/images/vectorscope_test_Cropped_colored_noLetters.svg";
-
-        this.vidcanvasCtx!.canvas.width = 128;
+        
+        this.vidcanvasCtx!.canvas.width = 256;
         this.vidcanvasCtx!.canvas.height = 256;
         this.scopecanvasCtx!.canvas.width = 256;
         this.scopecanvasCtx!.canvas.height = 256;
@@ -364,5 +370,37 @@ export class AppComponent {
     }
 
     return;
+  }
+
+  getSize( event: any) {
+
+    console.log(event.currentScope.name);
+    let size = {};
+    let currentScope = event.currentScope.name;
+    
+    switch(currentScope){
+      case "Vector Scope": 
+      case "Vector Scope (Color)": 
+      case "C++ Vector Scope": 
+      case "C++ Vector Scope (Color)": 
+      case "JS Vector Scope (Color)":
+      case "JS Vector Scope":
+        size = {
+          position: 'relative',
+          width : '75%',
+          height: '100%'
+        };
+        break;
+      default:
+        size = {
+          position: 'relative',
+          width : '100%',
+          height: '100%'
+        }
+    }
+   
+      
+    //console.log(size);
+    return size;
   }
 }
