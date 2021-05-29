@@ -85,3 +85,25 @@ The new generator simply needs to be called from the frontend.
 * Navigate to ![chrome://extensions](chrome://extensions) in your chrome browser. 
 * Click on `Load Unpacked` and select the chrome-extension folder in the directory.
 * Navigate to youtube or vimeo to see the extension in use.
+
+## Web Assembly Scope Library API
+The following function calls are implemented in the zmo.wasm scope library.
+* Functions prefixed with cpp is implemented in C++, otherwise they are implemeneted using Halide.
+* data_in is the input image. This array must be made through malloc in Javascript
+* data_out is where the output image will be. This array must be made through malloc in Javascript
+* width is the width of the input image
+* height is the height of the input image
+
+```
+void cpp_lumascope(char data_in[], char data_out[], int width, int height)
+void cpp_color_lumascope(char data_in[], char data_out[], int width, int height)
+void cpp_rgb_parade(char data_in[], char data_out[], int width, int height)
+void cpp_vectorscope(char data_in[], char data_out[], int width, int height)
+void cpp_color_vectorscope(char data_in[], char data_out[], int width, int height)
+
+void lumascope(unsigned char data[], unsigned char data2[],int width, int height)
+void clumascope(unsigned char data[], unsigned char data2[],int width, int height)
+void rgbparade(unsigned char data[], unsigned char data2[], int width, int height)
+void vectorscope(unsigned char data[], unsigned char data2[], int width, int height)
+void cvectorscope(unsigned char data[], unsigned char data2[], int width, int height)
+```
