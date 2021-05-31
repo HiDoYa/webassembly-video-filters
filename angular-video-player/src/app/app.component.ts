@@ -41,6 +41,7 @@ export class AppComponent {
 
   requiredFileType: string | undefined;
   fileName = '';
+  uploadFileName = '';
   uploadProgress: number | undefined;
   uploadSub: Subscription ;
 
@@ -125,7 +126,7 @@ export class AppComponent {
       return;
     }
 
-    this.fileName = file.name;
+    this.uploadFileName = file.name;
     const formData = new FormData();
     formData.append("thumbnail", file);
 
@@ -140,7 +141,7 @@ export class AppComponent {
         this.uploadProgress = Math.round(100 * (event.loaded / total));
 
         if(this.uploadProgress == 100){
-          this.addItem(this.fileName);
+          this.addItem(this.uploadFileName);
         }
       }
     })

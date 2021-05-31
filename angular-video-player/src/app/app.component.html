@@ -20,11 +20,7 @@
       <section class = "tp-section" fxLayoutAlign="end start">
         <input type="file" class="file-input" (change)="onFileSelected($event)" #fileUpload>
         <button mat-icon-button (click)="fileUpload.click()">
-          <!--{{fileName || "No file uploaded yet."}}-->
           <mat-icon>upload_file</mat-icon>
-        </button>
-        <button mat-icon-button>
-          <mat-icon>drive_folder_upload</mat-icon>
         </button>
       </section>
 
