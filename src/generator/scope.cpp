@@ -317,13 +317,14 @@ public:
 
 		//Value computed in RGB format, assuming R:c==0, G:c==1, B:c==2
 		Expr Y = (input(r.x, r.y, 0) *  .299f) + (input(r.x, r.y, 1) *  .587f) + (input(r.x, r.y, 2) *  .114f);
+		Expr Ybuckets = clamp(cast<int>(255 - Y), 0, 255);
 
 		Func hist1, hist2, hist3, hist4, hist5;
-		hist1(r.x,clamp(cast<int>(255 - Y), 0, 255)) += cast<int>(input(r.x, r.y, 0));
-		hist2(r.x,clamp(cast<int>(255 - Y), 0, 255)) += cast<int>(input(r.x, r.y, 1));
-		hist3(r.x,clamp(cast<int>(255 - Y), 0, 255)) += cast<int>(input(r.x, r.y, 2));
-		hist4(r.x,clamp(cast<int>(255 - Y), 0, 255)) += cast<int>(16);
-		hist5(r.x,clamp(cast<int>(255 - Y), 0, 255)) += cast<int>(1);
+		hist1(r.x,Ybuckets) += cast<int>(input(r.x, r.y, 0));
+		hist2(r.x,Ybuckets) += cast<int>(input(r.x, r.y, 1));
+		hist3(r.x,Ybuckets) += cast<int>(input(r.x, r.y, 2));
+		hist4(r.x,Ybuckets) += cast<int>(16);
+		hist5(r.x,Ybuckets) += cast<int>(1);
 		
 		Expr R =  min(hist1(r.x,r.y)/max(hist5(r.x,r.y),1),255);
 		Expr G =  min(hist2(r.x,r.y)/max(hist5(r.x,r.y),1),255);
