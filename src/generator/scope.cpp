@@ -171,8 +171,7 @@ public:
 	void generate()
 	{
 		output(x, y, c) = cast<uint8_t>(0);
-
-		output(x, y, 3) = cast<uint8_t>(0);
+		output(x, y, 3) = cast<uint8_t>(255);
 		
 		RDom r;
 		r = RDom (0, input.dim (0).extent(), 0, input.dim(1).extent());
@@ -185,7 +184,7 @@ public:
 		Expr Yloc = clamp(cast<uint8_t>(V), 0, 255);
 
 		output(Xloc, 255-Yloc, 3) = cast<uint8_t>(255);
-		output(Xloc, 255-Yloc, 0) += cast<uint8_t>(255/10);
+		output(Xloc, 255-Yloc, 1) += cast<uint8_t>(255/10);
 		
 		output.dim(0).set_extent (255);
 		output.dim(1).set_extent (255);
