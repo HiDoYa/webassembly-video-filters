@@ -88,7 +88,7 @@
             <mat-label class="scopeSelector">{{ currentScope | getName }}</mat-label>
             <mat-select panelClass="scopePanels">
               <div *ngIf="scopes">
-                <mat-option  *ngFor="let scope of scopes | keyvalue" (click)="changeScope(scope.value)">
+                <mat-option  *ngFor="let scope of scopes | keyvalue | orderBy" (click)="changeScope(scope.value)">
                   {{ scope.value | getName }}
                 </mat-option>
               </div>
