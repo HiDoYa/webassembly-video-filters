@@ -350,7 +350,6 @@ export class AppComponent {
       let data_out = new Array(outputWidth * outputHeight * 4);
       this.currentScope.func(data, data_out, width, height);
       this.scopecanvasCtx?.putImageData(new ImageData(new Uint8ClampedArray(data_out), outputWidth, outputHeight), 0, 0);
-      
     } else {
       this.inputArray.set(data);
       this.currentScope.func(this.inputPointer, this.outputPointer, width, height);
