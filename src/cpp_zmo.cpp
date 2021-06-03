@@ -117,11 +117,23 @@ KEEPALIVE void cpp_color_lumascope(char data_in[], char data_out[], int width, i
 KEEPALIVE void cpp_rgb_parade(char data_in[], char data_out[], int width, int height) {
 	int index;					// pixel's index
 	int indexR, indexG, indexB;	// pixel's index
+
 	int Yr, Yg, Yb;				// pixel's luminance
 
 	int output_width = width * 3;
 
 	float histogram[1024][3];
+
+	// init output
+	for (int w = 0; w < output_width; w++) {
+		for (int h = 0; h < height; h++) {
+			index = get_index(w, h, output_width);
+			data_out[index] = (char)0;
+			data_out[index+1] = (char)0;
+			data_out[index+2] = (char)0;
+			data_out[index+3] = (char)255;
+		}
+	}
 
 	for (int w = 0; w < width; w++) {
 		//initialize histogram elements to zero
@@ -133,10 +145,11 @@ KEEPALIVE void cpp_rgb_parade(char data_in[], char data_out[], int width, int he
                      
 		//find luminance, increment histogram bucket
 		for (int h = 0; h < height; h++) {
-			index = ((h * width) + w) * 4;
-			Yr = (int)(data_in[index]/255.0 * (height-1));
-			Yg = (int)(data_in[index+1]/255.0 * (height-1));
-			Yb = (int)(data_in[index+2]/255.0 * (height-1));
+			index = get_index(w, h, width);
+
+			convertY(data_in[index], &Yr, height);
+			convertY(data_in[index+1], &Yg, height);
+			convertY(data_in[index+2], &Yb, height);
 
 			histogram[height - Yr - 1][0] += 16.0*256/height;
 			histogram[height - Yg - 1][1] += 16.0*256/height;
@@ -145,25 +158,21 @@ KEEPALIVE void cpp_rgb_parade(char data_in[], char data_out[], int width, int he
 
 		//display histogram
 		for (int h = 0; h < height; h++) {
-			indexR = ((h * output_width) + w) * 4;
-			indexG = ((h * output_width) + w + width) * 4;
-			indexB = ((h * output_width) + w + 2*width) * 4;
+			indexR = get_index(w, h, output_width);
+			indexG = get_index(w+width, h, output_width);
+			indexB = get_index(w+2*width, h, output_width);
 
-			data_out[indexR+1] = 0; //R
-			data_out[indexR+2] = 0;
-			data_out[indexG]   = 0; //G
-			data_out[indexG+2] = 0;
-			data_out[indexB]   = 0; //B
-			data_out[indexB+1] = 0;
+			if (histogram[h][0] > 255) histogram[h][0] = 255;
+			if (histogram[h][1] > 255) histogram[h][1] = 255;
+			if (histogram[h][2] > 255) histogram[h][2] = 255;
 
-			data_out[indexR]   = (unsigned char)histogram[h][0];
-			data_out[indexG+1] = (unsigned char)histogram[h][1];
-			data_out[indexB+2] = (unsigned char)histogram[h][2];
+			data_out[indexR]   = (char)histogram[h][0];
+			data_out[indexG+1] = (char)histogram[h][1];
+			data_out[indexB+2] = (char)histogram[h][2];
 
-			// set alpha
-			data_out[indexR+3] = (unsigned char)255;
-			data_out[indexG+3] = (unsigned char)255;
-			data_out[indexB+3] = (unsigned char)255;
+			// // debug
+			// data_out[get_index(w, 25, output_width)] = (char)255;
+			// data_out[get_index(w+width, 25, output_width)+1] = (char)255;
 		}
 	}
 }

@@ -28,6 +28,11 @@ void YUVtoRGB(double Y, double U, double V, unsigned char* R, unsigned char* G, 
 	*B = Y + 1.7790 * (U - 128);
 }
 
+void convertY(unsigned char pixel, int* result, int height) {
+	float tmp = (pixel / 255.0) * (height - 1);
+	*result = (int)tmp;
+}
+
 
 /////// MISC HELPERS ///////
 //
