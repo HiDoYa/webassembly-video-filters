@@ -15,6 +15,11 @@ void RGBtoUV(unsigned char R, unsigned char G, unsigned char B, double* U, doubl
 //
 void YUVtoRGB(double Y, double U, double V, unsigned char* R, unsigned char* G, unsigned char* B);
 
+//
+// converts a pixel to Y
+//
+void convertY(unsigned char pixel, int* result, int height);
+
 
 /////// MISC HELPERS ///////
 //
