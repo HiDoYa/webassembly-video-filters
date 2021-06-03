@@ -27,3 +27,10 @@ export class LastElement implements PipeTransform {
     return array[array.length - 1];
   }
 }
+
+@Pipe({name: 'orderBy', pure: false})
+export class OrderBy implements PipeTransform {
+  transform(array: Array<any>): any {
+    return array.sort((a, b) => a.key.localeCompare(b.key));
+  }
+}

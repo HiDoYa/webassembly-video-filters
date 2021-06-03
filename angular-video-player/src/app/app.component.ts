@@ -195,13 +195,12 @@ export class AppComponent {
 
       // Get scopes
       this.scopes = {
-        LUMASCOPE: new ScopeDescriptor("Lumascope", this.gModule.instance.exports.lumascope),
-        CLUMASCOPE: new ScopeDescriptor("Lumascope (Color)", this.gModule.instance.exports.clumascope),
-        RGB_PARADE: new ScopeDescriptor("RGB Parade", this.gModule.instance.exports.rgbparade),
-        VECTORSCOPE: new ScopeDescriptor("Vector Scope", this.gModule.instance.exports.vectorscope),
-        CVECTORSCOPE: new ScopeDescriptor("Vector Scope (Color)", this.gModule.instance.exports.cvectorscope),
+        HALIDE_LUMASCOPE: new ScopeDescriptor("Halide Lumascope", this.gModule.instance.exports.lumascope),
+        HALIDE_CLUMASCOPE: new ScopeDescriptor("Halide Lumascope (Color)", this.gModule.instance.exports.clumascope),
+        HALIDE_RGB_PARADE: new ScopeDescriptor("Halide RGB Parade", this.gModule.instance.exports.rgbparade),
+        HALIDE_VECTORSCOPE: new ScopeDescriptor("Halide Vector Scope", this.gModule.instance.exports.vectorscope),
+        HALIDE_CVECTORSCOPE: new ScopeDescriptor("Halide Vector Scope (Color)", this.gModule.instance.exports.cvectorscope),
         
-        // TODO: Causes mem access err
         CPP_LUMASCOPE: new ScopeDescriptor("C++ Lumascope", this.gModule.instance.exports.cpp_lumascope),
         CPP_COLOR_LUMASCOPE: new ScopeDescriptor("C++ Lumascope (Color)", this.gModule.instance.exports.cpp_color_lumascope),
         CPP_RGB_PARADE: new ScopeDescriptor("C++ RGB Parade", this.gModule.instance.exports.cpp_rgb_parade),
@@ -214,7 +213,7 @@ export class AppComponent {
         JS_VECTORSCOPE: new ScopeDescriptor("JS Vector Scope (Color)", js_color_vectorscope),
         JS_COLOR_VECTORSCOPE: new ScopeDescriptor("JS Vector Scope", js_vectorscope),
       };
-      this.currentScope = this.scopes.LUMASCOPE!;
+      this.currentScope = this.scopes.HALIDE_LUMASCOPE!;
       this.changeScope(this.currentScope);
     });
   };
@@ -274,40 +273,37 @@ export class AppComponent {
     this.computeTimes = [];
     this.currentScope = scope;
     switch(this.currentScope) {
-
-
-      case this.scopes.LUMASCOPE: 
-      case this.scopes.CLUMASCOPE: 
+      case this.scopes.HALIDE_LUMASCOPE: 
+      case this.scopes.HALIDE_CLUMASCOPE: 
       case this.scopes.CPP_LUMASCOPE: 
       case this.scopes.CPP_COLOR_LUMASCOPE: 
       case this.scopes.JS_LUMASCOPE:
       case this.scopes.JS_COLOR_LUMASCOPE:
-        this.bgScopeCtx?.clearRect( 0, 0, this.bgScope?.nativeElement.width, this.bgScope?.nativeElement.height);
-        this.image.src = "../../assets/images/scopes_test_11.svg";
+        this.bgScopeCtx?.clearRect(0, 0, this.bgScope?.nativeElement.width, this.bgScope?.nativeElement.height);
+        this.image.src = "../../assets/images/scopes.svg";
         this.vidcanvasCtx!.canvas.width = 116;
         this.vidcanvasCtx!.canvas.height = 256;
         this.scopecanvasCtx!.canvas.width = 116;
         this.scopecanvasCtx!.canvas.height = 256;
         break;
-
-      case this.scopes.VECTORSCOPE: 
-      case this.scopes.CVECTORSCOPE: 
+      case this.scopes.HALIDE_VECTORSCOPE: 
+      case this.scopes.HALIDE_CVECTORSCOPE: 
       case this.scopes.CPP_VECTORSCOPE: 
       case this.scopes.CPP_COLOR_VECTORSCOPE: 
       case this.scopes.JS_VECTORSCOPE:
       case this.scopes.JS_COLOR_VECTORSCOPE:
-        this.bgScopeCtx?.clearRect( 0, 0, this.bgScope?.nativeElement.width, this.bgScope?.nativeElement.height);
-        this.image.src = "../../assets/images/vectorscope_test_Cropped_colored_noLetters.svg";
-        this.vidcanvasCtx!.canvas.width = 128;
+        this.bgScopeCtx?.clearRect(0, 0, this.bgScope?.nativeElement.width, this.bgScope?.nativeElement.height);
+        this.image.src = "../../assets/images/vectorscope.svg";
+        this.vidcanvasCtx!.canvas.width = 256;
         this.vidcanvasCtx!.canvas.height = 256;
         this.scopecanvasCtx!.canvas.width = 256;
         this.scopecanvasCtx!.canvas.height = 256;
         break;
-      case this.scopes.RGB_PARADE:
+      case this.scopes.HALIDE_RGB_PARADE:
       case this.scopes.CPP_RGB_PARADE: 
       case this.scopes.JS_RGB_PARADE:
-        this.bgScopeCtx?.clearRect( 0, 0, this.bgScope?.nativeElement.width, this.bgScope?.nativeElement.height);
-        this.image.src = "../../assets/images/scopes_test_11.svg";
+        this.bgScopeCtx?.clearRect(0, 0, this.bgScope?.nativeElement.width, this.bgScope?.nativeElement.height);
+        this.image.src = "../../assets/images/scopes.svg";
         this.vidcanvasCtx!.canvas.width = 128;
         this.vidcanvasCtx!.canvas.height = 256;
         this.scopecanvasCtx!.canvas.width = 128 * 3;
@@ -326,15 +322,14 @@ export class AppComponent {
     this.bgScopeCtx!.canvas.width = 256;
     this.bgScopeCtx!.canvas.height = 256;
     
-
-    this.bgScopeCtx?.clearRect( 0, 0, this.bgScope?.nativeElement.width, this.bgScope?.nativeElement.height);
+    this.bgScopeCtx?.clearRect(0, 0, this.bgScope?.nativeElement.width, this.bgScope?.nativeElement.height);
 
     this.image.onload = ()=> {
         this.bgScopeCtx?.drawImage(this.image, 0, 0, this.bgScope?.nativeElement.width  , this.bgScope?.nativeElement.height );
     }
 
-    //where I am putting the chart for the scope.
-    this.image.src = "../../assets/images/scopes_test_11.svg";
+    // Chart for the scope.
+    this.image.src = "../../assets/images/scopes.svg";
     // Start callback to process frame
     this.video?.nativeElement.addEventListener("play", () => {
       this.timerCallback();
@@ -365,15 +360,13 @@ export class AppComponent {
     return;
   }
 
-  getSize( event: any) {
-
-    console.log(event.currentScope.name);
+  getSize(event: any) {
     let size = {};
     let currentScope = event.currentScope.name;
     
     switch(currentScope){
-      case "Vector Scope": 
-      case "Vector Scope (Color)": 
+      case "Halide Vector Scope": 
+      case "Halide Vector Scope (Color)": 
       case "C++ Vector Scope": 
       case "C++ Vector Scope (Color)": 
       case "JS Vector Scope (Color)":
@@ -392,8 +385,6 @@ export class AppComponent {
         }
     }
    
-      
-    //console.log(size);
     return size;
   }
 }

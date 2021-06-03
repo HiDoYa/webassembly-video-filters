@@ -200,7 +200,6 @@ export function js_rgb_parade(data_in: any, data_out: any, width: number, height
 			indexG = ((h * output_width) + w + width) * 4;
 			indexB = ((h * output_width) + w + 2*width) * 4;
 
-			
 			data_out[indexR+1] = 0; //R
 			data_out[indexR+2] = 0;
 			data_out[indexG]   = 0; //G
