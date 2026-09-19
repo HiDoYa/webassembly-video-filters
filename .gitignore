@@ -4,6 +4,8 @@ Thumbs.db
 /out
 /test/output.*
 
+/extern/Halide
+
 /tpp.code-workspace
 /.vscode
 /.idea
